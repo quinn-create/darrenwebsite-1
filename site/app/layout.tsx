@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     template: "%s | Darren Drake, Attorney at Law",
   },
   description:
-    "Darren Drake, attorney at law in Murfreesboro and Middle Tennessee. Criminal defense, DUI/DWI and expungement. Start your intake or call (615) 546-5551.",
+    "Darren Drake, attorney at law in Murfreesboro and Middle Tennessee. First-time offenses, DUI/DWI, domestic assault and other criminal defense. Start your intake or call (615) 546-5551.",
   metadataBase: new URL(SITE_URL),
   // Only the live site (SITE_ENV=production) may be indexed; previews stay out of search engines.
   robots: IS_PRODUCTION ? { index: true, follow: true } : { index: false, follow: false },

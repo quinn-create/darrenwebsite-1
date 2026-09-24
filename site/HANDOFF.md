@@ -154,3 +154,17 @@ This round follows `plans/signal-website-plan.md` ("What Claude does first").
 Lab speed test: LCP about 0.78 s, 228 KB total.
 
 **Still open:** everything that needs Darren's answers (see `plans/for-darren/`), the license check of the 21st.dev footer component, practice-page "Your attorney" cards, structured data, the link-preview image and the intake connection.
+
+## Update, 24 September 2026: practice areas and contact form
+
+- **Home page practice areas:** First-Time Offenders, DUI/DWI and Domestic Assault (`featured` in `lib/site.ts`). The Practice Areas page lists all five; Criminal Defense and Expungement keep their pages. The two new pages carry placeholder wording.
+- **Contact form:** `components/ui/form-1.tsx`, adapted from the prebuiltui "form-1" component and restyled with the Signal tokens. It asks for:
+  - your name, and the client's name if different;
+  - what it's about: Arrested in Rutherford County and/or Other;
+  - how to reach you: Call, Text and/or Email, with phone and email required to match;
+  - when to hear back: As soon as possible or Sometime this week;
+  - an optional message.
+  The rules live in `lib/contact-rules.ts` and are shared with `POST /api/contact/`. Delivery reuses the intake destination, and each inquiry is labelled `kind: "contact"` or `"intake"`. Rate limiting and de-duplication are shared in `lib/form-guard.ts`.
+- **Placement:** the form is on the Contact page (option A) while the owner decides. The options are compared in `printouts/Contact-Form-Options.pdf`.
+- **Needs confirmation:** the "As soon as possible" note ("We generally return calls within a day.") carries a `[CONFIRM WITH DARREN]` marker, so the placeholder guard blocks release until he approves it. There are now 37 placeholders in total.
+- **Tests:** the e2e suite now has 25 checks, adding the home-page cards, contact-form validation, test-destination delivery, and axe with errors shown.

@@ -4,11 +4,18 @@ import { CTA_LABEL, PHONE_DISPLAY, PHONE_HREF, PRACTICES, STEPS } from "@/lib/si
 import { Container } from "./Container";
 import { PracticeIcon } from "./PracticeIcon";
 
-export function PracticeCards({ headingLevel = "h3" }: { headingLevel?: "h2" | "h3" }) {
+export function PracticeCards({
+  headingLevel = "h3",
+  featuredOnly = false,
+}: {
+  headingLevel?: "h2" | "h3";
+  featuredOnly?: boolean;
+}) {
   const Heading = headingLevel;
+  const practices = featuredOnly ? PRACTICES.filter((p) => p.featured) : PRACTICES;
   return (
     <ul className="grid gap-6 md:grid-cols-3">
-      {PRACTICES.map((p) => (
+      {practices.map((p) => (
         <li key={p.slug} className="card flex flex-col gap-4 p-6 lg:p-8">
           <PracticeIcon name={p.icon} />
           <Heading className="h3">{p.title}</Heading>

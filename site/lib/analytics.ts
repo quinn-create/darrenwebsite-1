@@ -5,7 +5,10 @@ export type IntakeEvent =
   | "intake_start"
   | "intake_step_completed"
   | "intake_submit_success"
-  | "intake_submit_error";
+  | "intake_submit_error"
+  | "contact_start"
+  | "contact_submit_success"
+  | "contact_submit_error";
 
 export function track(event: IntakeEvent): void {
   if (typeof window === "undefined") return;

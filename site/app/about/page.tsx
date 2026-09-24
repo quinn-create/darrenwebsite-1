@@ -19,7 +19,7 @@ export default function About() {
             <div className="measure mt-8 flex flex-col gap-5 text-muted">
               <p>
                 [CONFIRM WITH FIRM] Darren Drake is an attorney in Murfreesboro, Tennessee. His practice focuses on
-                criminal defense, DUI/DWI and expungement for people across Middle Tennessee.
+                criminal defense (including first-time offenses and domestic assault), DUI/DWI and expungement for people across Middle Tennessee.
               </p>
               <h2 className="h3 mt-4 text-text">Service</h2>
               <p>[CONFIRM WITH FIRM] Darren served in the U.S. Navy. Details of his service to be supplied by the firm.</p>

@@ -1,21 +1,21 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
+import { EMPTY_CONTACT, validateContact, type ContactValues } from "@/lib/contact-rules";
 import { clientIp, createGuard, json } from "@/lib/form-guard";
-import { deliver, type IntakeInquiry } from "@/lib/intake-delivery";
-import { EMPTY_VALUES, validateIntake, type IntakeValues } from "@/lib/intake-rules";
+import { deliver, type ContactInquiry } from "@/lib/intake-delivery";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Shape check only; the business rules live in validateIntake so client and server match.
+// Shape check only; the business rules live in validateContact so client and server match.
 const Body = z.object({
-  fullName: z.string().max(500),
-  matterType: z.string().max(50),
-  contactMethod: z.string().max(20),
+  yourName: z.string().max(500),
+  clientName: z.string().max(500),
+  about: z.array(z.string().max(50)).max(5),
+  reach: z.array(z.string().max(20)).max(5),
   phone: z.string().max(50),
   email: z.string().max(500),
-  county: z.string().max(500),
-  courtDate: z.string().max(20),
+  callback: z.string().max(20),
   message: z.string().max(5000),
   website: z.string().max(500).optional(), // honeypot: must stay empty
 });
@@ -37,9 +37,9 @@ export async function POST(request: Request) {
   }
 
   const { website, ...rest } = parsed;
-  const values: IntakeValues = { ...EMPTY_VALUES, ...rest };
+  const values: ContactValues = { ...EMPTY_CONTACT, ...rest };
 
-  const errors = validateIntake(values);
+  const errors = validateContact(values);
   if (Object.keys(errors).length > 0) {
     return json({ status: "invalid", errors }, 422);
   }
@@ -55,15 +55,15 @@ export async function POST(request: Request) {
     return json({ status: "accepted", id: duplicate, duplicate: true }, 200);
   }
 
-  const inquiry: IntakeInquiry = {
-    kind: "intake",
+  const inquiry: ContactInquiry = {
+    kind: "contact",
     id: randomUUID(),
     receivedAt: new Date(now).toISOString(),
     ...values,
-    fullName: values.fullName.trim(),
+    yourName: values.yourName.trim(),
+    clientName: values.clientName.trim(),
     phone: values.phone.trim(),
     email: values.email.trim(),
-    county: values.county.trim(),
   };
 
   const result = await deliver(inquiry);

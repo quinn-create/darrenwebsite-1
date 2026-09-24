@@ -27,15 +27,33 @@ export const NAV = [
 
 export const CTA_LABEL = "Start your intake";
 
-export type PracticeSlug = "criminal-defense" | "dui-dwi" | "expungement";
+export type PracticeSlug =
+  | "first-time-offenders"
+  | "dui-dwi"
+  | "domestic-assault"
+  | "criminal-defense"
+  | "expungement";
 
+// `featured` areas are the three cards on the home page; the Practice Areas page lists all.
 export const PRACTICES: {
   slug: PracticeSlug;
   title: string;
-  icon: "briefcase" | "car" | "file";
+  icon: "briefcase" | "car" | "file" | "flag" | "shield";
   summary: string;
+  featured?: boolean;
   faq: { q: string; a: string }[];
 }[] = [
+  {
+    slug: "first-time-offenders",
+    title: "First-Time Offenders",
+    icon: "flag",
+    featured: true,
+    summary: "Help for people facing a criminal charge for the first time.",
+    faq: [
+      { q: "I've never been charged before. What should I do first?", a: "[FIRM TO SUPPLY]" },
+      { q: "What information should I have ready when I reach out?", a: "[FIRM TO SUPPLY]" },
+    ],
+  },
   {
     slug: "criminal-defense",
     title: "Criminal Defense",
@@ -50,10 +68,22 @@ export const PRACTICES: {
     slug: "dui-dwi",
     title: "DUI/DWI",
     icon: "car",
+    featured: true,
     summary: "Help for people charged with driving under the influence.",
     faq: [
       { q: "What happens after a DUI/DWI arrest?", a: "[FIRM TO SUPPLY]" },
       { q: "Should I contact the office before my first court date?", a: "[FIRM TO SUPPLY]" },
+    ],
+  },
+  {
+    slug: "domestic-assault",
+    title: "Domestic Assault",
+    icon: "shield",
+    featured: true,
+    summary: "Help for people charged with domestic assault in Middle Tennessee.",
+    faq: [
+      { q: "What happens after a domestic assault arrest?", a: "[FIRM TO SUPPLY]" },
+      { q: "What should I avoid doing while my case is open?", a: "[FIRM TO SUPPLY]" },
     ],
   },
   {

@@ -13,7 +13,7 @@ const axeSource = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 const DEMO = "http://localhost:3000";
 const LIVE = "http://localhost:3001";
 const executablePath = process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium";
-const PAGES = ["/", "/practice-areas/", "/practice-areas/criminal-defense/", "/about/", "/contact/", "/intake/", "/privacy/", "/accessibility/", "/legal-notice/"];
+const PAGES = ["/", "/practice-areas/", "/practice-areas/first-time-offenders/", "/practice-areas/domestic-assault/", "/practice-areas/criminal-defense/", "/about/", "/contact/", "/intake/", "/privacy/", "/accessibility/", "/legal-notice/"];
 
 const results = [];
 const SUMMARY = '[aria-labelledby="error-summary-title"]';
@@ -68,7 +68,7 @@ await check("Summary link moves focus to the field", async () => {
 
 await check("Only the chosen contact method is required; invalid email/phone rejected", async () => {
   await page.locator("#fullName").fill("Test Person");
-  await page.getByLabel("Criminal defense").check();
+  await page.getByLabel("Domestic assault").check();
   await page.getByLabel("Email", { exact: true }).first().check();
   await page.locator("#email").fill("not-an-email");
   await page.locator("#phone").fill("12");
@@ -370,6 +370,65 @@ await check("Axe scan of the intake page with errors shown", async () => {
     axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] }),
   );
   assert(res.violations.length === 0, res.violations.map((v) => v.id).join(", "));
+});
+
+await check("Home shows the three featured practice areas; Practice Areas lists all five", async () => {
+  await page.goto(DEMO + "/");
+  const home = await page.locator("main ul.grid li.card h3").allInnerTexts();
+  assert(home.join("|") === "First-Time Offenders|DUI/DWI|Domestic Assault", `home cards: ${home.join(", ")}`);
+  await page.goto(DEMO + "/practice-areas/");
+  const all = await page.locator("main li.card h2").count();
+  assert(all === 5, `expected 5 practice areas, got ${all}`);
+  return home.join(", ");
+});
+
+const CONTACT_SUMMARY = '[aria-labelledby="contact-error-title"]';
+
+await check("Contact form: required errors, call/text needs a phone, ASAP shows the callback note", async () => {
+  await page.goto(DEMO + "/contact/");
+  await page.getByRole("button", { name: "Send message" }).click();
+  await page.locator(CONTACT_SUMMARY).waitFor();
+  const focused = await page.evaluate(() => document.activeElement?.getAttribute("aria-labelledby"));
+  assert(focused === "contact-error-title", "error summary should take focus");
+  const items = await page.locator(`${CONTACT_SUMMARY} li`).count();
+  assert(items === 4, `expected 4 errors (name, about, reach, callback), got ${items}`);
+  await page.getByText("Text", { exact: true }).click();
+  assert(await page.locator("#cf-phone-error").isVisible(), "phone should be required after choosing Text");
+  await page.getByText("As soon as possible").click();
+  assert(await page.getByText("We generally return calls within a day").isVisible(), "ASAP note missing");
+  await page.getByText("Sometime this week").click();
+  assert(!(await page.getByText("We generally return calls within a day").isVisible()), "ASAP note should hide");
+});
+
+await check("Contact form (test destination): success only after server acceptance, saved as a contact inquiry", async () => {
+  await page.goto(LIVE + "/contact/");
+  await page.locator("#cf-yourName").fill(`Test Person ${RUN}-${++seq}`);
+  await page.locator("#cf-clientName").fill("Test Client");
+  await page.getByText("Arrested in Rutherford County").click();
+  await page.getByText("Other", { exact: true }).click();
+  await page.getByText("Call", { exact: true }).click();
+  await page.getByText("Email", { exact: true }).first().click();
+  await page.locator("#cf-phone").fill("615-555-0123");
+  await page.locator("#cf-email").fill("test@example.com");
+  await page.getByText("As soon as possible").click();
+  await page.getByRole("button", { name: "Send message" }).click();
+  await page.getByText("Message received").waitFor();
+  const lines = (await readFile(".data/intake-test.jsonl", "utf8")).trim().split("\n");
+  const last = JSON.parse(lines.at(-1));
+  assert(last.kind === "contact", `expected kind contact, got ${last.kind}`);
+  assert(last.about.length === 2 && last.reach.join(",") === "call,email" && last.callback === "asap", JSON.stringify(last));
+});
+
+await check("Axe scan of the contact form with errors shown", async () => {
+  await page.goto(DEMO + "/contact/");
+  await page.getByRole("button", { name: "Send message" }).click();
+  await page.locator(CONTACT_SUMMARY).waitFor();
+  await page.addScriptTag({ content: axeSource });
+  const res = await page.evaluate(async () =>
+     
+    axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] }),
+  );
+  assert(res.violations.length === 0, res.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target).join(" ")}`).join(", "));
 });
 
 await browser.close();

@@ -4,7 +4,7 @@ import { IntakeBand, PageIntro, PracticeCards } from "@/components/Sections";
 
 export const metadata: Metadata = {
   title: "Practice Areas",
-  description: "Criminal defense, DUI/DWI and expungement help from Darren Drake in Murfreesboro and Middle Tennessee.",
+  description: "First-time offenses, DUI/DWI, domestic assault, criminal defense and expungement help from Darren Drake in Murfreesboro and Middle Tennessee.",
 };
 
 export default function PracticeAreas() {
@@ -12,7 +12,7 @@ export default function PracticeAreas() {
     <>
       <PageIntro
         title="Practice areas"
-        lead="Darren Drake focuses on three areas of law for people in Murfreesboro and Middle Tennessee. [CONFIRM WITH FIRM]"
+        lead="Darren Drake helps people in Murfreesboro and Middle Tennessee with the matters below. [CONFIRM WITH FIRM]"
         crumbs={[{ href: "/", label: "Home" }, { label: "Practice Areas" }]}
       />
       <section aria-label="Practice area list" className="pb-14 lg:pb-24">

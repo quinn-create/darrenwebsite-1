@@ -2,9 +2,10 @@ import "server-only";
 import { appendFile, mkdir, open } from "node:fs/promises";
 import path from "node:path";
 
-export type Inquiry = {
-  id: string;
-  receivedAt: string;
+type Envelope = { id: string; receivedAt: string };
+
+export type IntakeInquiry = Envelope & {
+  kind: "intake";
   fullName: string;
   matterType: string;
   contactMethod: string;
@@ -14,6 +15,21 @@ export type Inquiry = {
   courtDate: string;
   message: string;
 };
+
+export type ContactInquiry = Envelope & {
+  kind: "contact";
+  yourName: string;
+  clientName: string;
+  about: string[];
+  reach: string[];
+  phone: string;
+  email: string;
+  callback: string;
+  message: string;
+};
+
+// Both forms deliver to the same destination; `kind` tells the firm which form it came from.
+export type Inquiry = IntakeInquiry | ContactInquiry;
 
 export type DeliveryResult =
   | { ok: true }

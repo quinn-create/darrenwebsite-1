@@ -2,8 +2,10 @@
 // so both sides always agree. Kept dependency-free to stay out of the client bundle budget.
 
 export const MATTER_TYPES = [
-  { value: "criminal-defense", label: "Criminal defense" },
+  { value: "first-time-offense", label: "First-time offense" },
   { value: "dui-dwi", label: "DUI/DWI" },
+  { value: "domestic-assault", label: "Domestic assault" },
+  { value: "criminal-defense", label: "Other criminal charge" },
   { value: "expungement", label: "Expungement" },
   { value: "other", label: "Other or not sure" },
 ] as const;

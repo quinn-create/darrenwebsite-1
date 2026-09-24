@@ -12,7 +12,7 @@ export default function Home() {
         <Container className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-7">
             <div className="hero-rise">
-              <p className="eyebrow">Criminal Defense · DUI/DWI · Expungement — Murfreesboro &amp; Middle Tennessee</p>
+              <p className="eyebrow">First-Time Offenders · DUI/DWI · Domestic Assault — Murfreesboro &amp; Middle Tennessee</p>
               <h1 id="hero-title" className="h1 mt-4 max-w-[12ch]">
                 Your next step starts with a conversation.
               </h1>
@@ -47,7 +47,7 @@ export default function Home() {
             How Darren can help
           </h2>
           <div className="mt-10">
-            <PracticeCards />
+            <PracticeCards featuredOnly />
           </div>
         </Container>
       </section>
@@ -62,7 +62,7 @@ export default function Home() {
             <div className="measure mt-6 flex flex-col gap-4 text-muted">
               <p>
                 [CONFIRM WITH FIRM] Darren Drake is an attorney serving Murfreesboro and Middle Tennessee, with a practice
-                focused on criminal defense, DUI/DWI and expungement.
+                focused on criminal defense (including first-time offenses and domestic assault), DUI/DWI and expungement.
               </p>
               <p>
                 [CONFIRM WITH FIRM] Before practicing law, Darren served in the U.S. Navy. He stays involved in the local

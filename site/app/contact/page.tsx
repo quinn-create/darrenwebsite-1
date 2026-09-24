@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/Container";
 import { PageIntro } from "@/components/Sections";
-import { CTA_LABEL, FIRM, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
+import { ContactForm } from "@/components/ui/form-1";
+import { isConfigured } from "@/lib/intake-delivery";
+import { FIRM, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Contact Darren Drake, attorney at law. Start your intake online or call (615) 546-5551.",
+  description: "Contact Darren Drake, attorney at law. Send a message online or call (615) 546-5551.",
 };
 
 export default function Contact() {
@@ -14,17 +18,20 @@ export default function Contact() {
     <>
       <PageIntro
         title="Contact"
-        lead="The quickest way to reach the office is a short intake inquiry. You can also call."
+        lead="Send a short message and choose how and when you'd like to hear back. You can also call."
         crumbs={[{ href: "/", label: "Home" }, { label: "Contact" }]}
       />
       <section aria-label="Contact details" className="pb-14 lg:pb-24">
-        <Container className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-card border border-border bg-surface p-6 lg:p-10">
-            <h2 className="h3">Start your intake</h2>
-            <p className="mt-3 text-muted">Tell Darren Drake about your legal matter and how to reach you.</p>
-            <Link href="/intake/" className="btn-primary mt-8">
-              {CTA_LABEL}
-            </Link>
+        <Container className="grid items-start gap-6 lg:grid-cols-[3fr_2fr]">
+          <div className="rounded-card border border-border bg-surface px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
+            <ContactForm configured={isConfigured()} />
+            <p className="mt-8 text-center text-[16px] text-muted">
+              Want to give more detail, such as your court date?{" "}
+              <Link href="/intake/" className="link-action">
+                Use the full intake form
+              </Link>
+              .
+            </p>
           </div>
           <div className="rounded-card border border-border bg-surface p-6 lg:p-10">
             <h2 className="h3">Call the office</h2>

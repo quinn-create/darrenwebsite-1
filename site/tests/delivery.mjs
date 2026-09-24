@@ -1,0 +1,136 @@
+// Delivery check with stand-ins for Postmark and Telegram (no real accounts, no network).
+// Starts its own server from the current build on :3002, pointed at a mock on :4010.
+// Usage (after `next build`): node tests/delivery.mjs
+import { spawn } from "node:child_process";
+import { createServer } from "node:http";
+
+const received = { email: [], telegram: [] };
+let failEmail = false;
+let failTelegram = false;
+
+const mock = createServer((req, res) => {
+  const chunks = [];
+  req.on("data", (c) => chunks.push(c));
+  req.on("end", () => {
+    const body = Buffer.concat(chunks);
+    if (req.url === "/email") {
+      if (req.headers["x-postmark-server-token"] !== "test-token") {
+        res.writeHead(401).end("{}");
+        return;
+      }
+      if (failEmail) {
+        res.writeHead(500).end("{}");
+        return;
+      }
+      received.email.push(JSON.parse(body.toString()));
+      res.writeHead(200, { "content-type": "application/json" }).end('{"ErrorCode":0,"Message":"OK"}');
+    } else if (req.url === "/bottest-bot/sendDocument") {
+      received.telegram.push({ type: req.headers["content-type"], body: body.toString("latin1") });
+      res.writeHead(failTelegram ? 500 : 200).end('{"ok":true}');
+    } else res.writeHead(404).end();
+  });
+});
+await new Promise((r) => mock.listen(4010, r));
+
+const server = spawn("npx", ["next", "start", "-p", "3002"], {
+  env: {
+    ...process.env,
+    INTAKE_DESTINATION: "email",
+    POSTMARK_API_URL: "http://localhost:4010",
+    POSTMARK_SERVER_TOKEN: "test-token",
+    INTAKE_EMAIL_FROM: "website@example.com",
+    INTAKE_EMAIL_TO: "first@example.com, second@example.com",
+    TELEGRAM_API_URL: "http://localhost:4010",
+    TELEGRAM_BOT_TOKEN: "test-bot",
+    TELEGRAM_CHAT_ID: "12345",
+  },
+  stdio: "ignore",
+  detached: true,
+});
+
+const results = [];
+const check = async (name, fn) => {
+  try {
+    results.push({ name, ok: true, note: await fn() });
+  } catch (err) {
+    results.push({ name, ok: false, note: err.message });
+  }
+};
+const assert = (cond, msg) => {
+  if (!cond) throw new Error(msg);
+};
+const post = (body) =>
+  fetch("http://localhost:3002/api/contact/", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-forwarded-for": `10.0.0.${Math.floor(Math.random() * 250)}` },
+    body: JSON.stringify(body),
+  });
+const valid = (message) => ({
+  yourName: "Test Person",
+  clientName: "Test Client",
+  about: ["rutherford-arrest"],
+  reach: ["call", "email"],
+  phone: "615-555-0123",
+  email: "test@example.com",
+  callback: "asap",
+  message,
+});
+
+try {
+  for (let i = 0; i < 60; i++) {
+    try {
+      if ((await fetch("http://localhost:3002/")).ok) break;
+    } catch {}
+    await new Promise((r) => setTimeout(r, 500));
+  }
+
+  await check("Email goes to both recipients with the PDF attached; success reported", async () => {
+    const res = await post(valid("Test inquiry — émoji 🚓 and accents é should not break the PDF."));
+    const data = await res.json();
+    assert(res.status === 200 && data.status === "accepted", `got ${res.status} ${JSON.stringify(data)}`);
+    const mail = received.email.at(-1);
+    assert(mail.To === "first@example.com,second@example.com", `To was ${mail.To}`);
+    assert(mail.ReplyTo === "test@example.com", "reply-to should be the visitor's email");
+    assert(/as soon as possible/.test(mail.Subject), `subject: ${mail.Subject}`);
+    assert(!mail.Subject.includes("Test Person"), "the visitor's name must not be in the subject line");
+    assert(/Client's name: Test Client/.test(mail.TextBody), "body missing client name");
+    const pdf = Buffer.from(mail.Attachments[0].Content, "base64");
+    assert(mail.Attachments[0].ContentType === "application/pdf" && pdf.subarray(0, 5).toString() === "%PDF-", "no PDF");
+    return `${pdf.length} byte PDF`;
+  });
+
+  await check("Telegram gets the same PDF with a caption", async () => {
+    const tg = received.telegram.at(-1);
+    assert(tg && /multipart\/form-data/.test(tg.type), "no Telegram upload");
+    assert(tg.body.includes('name="chat_id"') && tg.body.includes("12345"), "chat id missing");
+    assert(tg.body.includes("%PDF-"), "PDF missing from Telegram upload");
+  });
+
+  await check("A Telegram failure doesn't undo a delivered email", async () => {
+    failTelegram = true;
+    const res = await post(valid("Telegram failure test."));
+    failTelegram = false;
+    assert(res.status === 200, `expected 200, got ${res.status}`);
+  });
+
+  await check("An email failure is reported as not sent (no false success)", async () => {
+    failEmail = true;
+    const before = received.telegram.length;
+    const res = await post(valid("Email failure test."));
+    failEmail = false;
+    const data = await res.json();
+    assert(res.status === 502 && data.status === "delivery_failed", `got ${res.status} ${JSON.stringify(data)}`);
+    assert(received.telegram.length === before, "Telegram must not send when the email failed");
+  });
+} finally {
+  process.kill(-server.pid);
+  mock.close();
+}
+
+let failed = 0;
+for (const r of results) {
+  if (!r.ok) failed++;
+  console.log(`${r.ok ? "PASS" : "FAIL"}  ${r.name}${r.note ? ` — ${r.note}` : ""}`);
+}
+console.log(`\n${results.length - failed}/${results.length} passed`);
+process.exit(failed ? 1 : 0);

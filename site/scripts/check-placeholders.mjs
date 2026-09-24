@@ -2,11 +2,18 @@
 // Placeholders are bracketed notes such as "[CONFIRM WITH FIRM]", "[FIRM TO SUPPLY]",
 // "[Office address — to confirm]" or "[TO BE SUPPLIED …]".
 // Usage: node scripts/check-placeholders.mjs   (exit code 1 if any are found)
+//        node scripts/check-placeholders.mjs --only-production   (skips unless SITE_ENV=production;
+//        used by `npm run build`, so a production deploy on Vercel can't go out with placeholders)
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
+if (process.argv.includes("--only-production") && process.env.SITE_ENV !== "production") {
+  console.log("Placeholder check skipped (SITE_ENV is not production).");
+  process.exit(0);
+}
+
 const ROOTS = ["app", "components", "lib"];
-const PATTERN = /\[[^\]\n]*\b(confirm|to confirm|firm to|to be supplied|proposed copy|firm to review)\b[^\]\n]*\]/gi;
+const PATTERN = /\[[^\]\n]*\b(confirm|to confirm|firm to|to be supplied|proposed copy|firm to review|draft|to approve)\b[^\]\n]*\]/gi;
 const found = [];
 
 function walk(dir) {

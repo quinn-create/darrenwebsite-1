@@ -31,11 +31,11 @@ export default function Accessibility() {
               Please tell us what page you were on and what happened, and we&apos;ll work to fix it. You can call{" "}
               <a href={PHONE_HREF} className="link-action font-semibold">
                 {PHONE_DISPLAY}
-              </a>{" "}
-              or contact [accessibility contact — to confirm].
+              </a>
+              , or use the website form.
             </p>
             <h2 className="h3 mt-4 text-text">Last reviewed</h2>
-            <p>[Review date — to confirm]</p>
+            <p>September 2026</p>
           </div>
         </Container>
       </section>

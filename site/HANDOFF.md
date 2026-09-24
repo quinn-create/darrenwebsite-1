@@ -182,3 +182,18 @@ The placeholder guard now reports 23 placeholders, down from 37. The remaining o
 Inquiries go to Kelly Pittman: set `INTAKE_DESTINATION` to the email adapter when the firm's accounts exist. Backup recipient: Darren. Still open: Telegram or text delivery of the PDF, MyCase, and the live Google rating.
 
 Later the same day, Darren approved the practice-page wording and all FAQs. The placeholder guard now reports 8 placeholders: the privacy notice (5), the accessibility contact and review date (2), and the licensed local photo (1).
+
+## Update, 24 September 2026: real delivery, ready for accounts
+
+- **Delivery** (`lib/intake-delivery.ts`, `lib/inquiry-pdf.ts`). With `INTAKE_DESTINATION=email`, each inquiry is sent through Postmark to `INTAKE_EMAIL_TO`, with a one-page PDF attached (built with pdf-lib).
+  - The subject line never contains the visitor's name.
+  - Reply-To is set to the visitor's email.
+  - Once the email is delivered, the same PDF goes to Telegram if `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are set. A Telegram failure is logged and doesn't affect the visitor.
+  - The form reports success only after Postmark accepts the email.
+  - `local-test` also saves each PDF in `.data/`. All settings are listed in `.env.example`.
+- **Tests:** `node tests/delivery.mjs` runs the real delivery code against stand-ins for Postmark and Telegram on :4010 (4 checks: both recipients plus the PDF, the Telegram copy, a Telegram failure, an email failure). It starts its own server on :3002 from the current build.
+- **Placeholder guard:** it now also runs inside `npm run build` whenever `SITE_ENV=production`, so Vercel can't build production with placeholders. It also catches "draft" and "to approve" markers.
+- **Privacy notice:** drafted from how the site actually works. It's marked for Darren's approval, and data retention is still to confirm.
+- **Accessibility page:** complete. Contact is by phone or the form, and it was reviewed in September 2026.
+- **3 placeholders left:** privacy approval (2) and the local photo (1).
+- **Setup steps for Darren:** `plans/for-darren/go-live-setup.md` (Vercel, Postmark, Telegram, private previews).

@@ -153,10 +153,29 @@ export const PRACTICES: {
   },
 ];
 
+// "What happens next" timeline. Step 3 reuses Darren's approved callback wording
+// (lib/contact-rules.ts ASAP_NOTE); nothing here promises the firm will take the matter.
 export const STEPS = [
-  "Send a brief inquiry",
-  "The office reviews it",
-  "Discuss next steps if the firm can assist",
+  {
+    icon: "send",
+    title: "Send a short message",
+    detail: "Use the form or call. Say briefly what happened and how you'd like to be reached.",
+  },
+  {
+    icon: "review",
+    title: "The office reviews it",
+    detail: "Your message goes straight to the office to be looked over.",
+  },
+  {
+    icon: "reply",
+    title: "You hear back",
+    detail: "By call, text or email, the way you chose. We generally return calls within a day.",
+  },
+  {
+    icon: "next",
+    title: "Talk through next steps",
+    detail: "If the firm can assist, Darren explains your options and what happens next.",
+  },
 ] as const;
 
 export const HOME_FAQ = [

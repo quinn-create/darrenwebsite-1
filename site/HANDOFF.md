@@ -227,3 +227,10 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
 - **Cards:** 16 px corners, a softer border and a cyan border on hover. `.panel` is the same look without the hover.
 - **Tests:** e2e 26/26 and delivery 4/4. The form tests now run on `/contact/`.
 - **Ideas:** the list of design ideas is in `plans/polish-ideas.md`.
+
+## Update, 24 September 2026: "What happens next" timeline
+
+- **Timeline:** `ContactSteps` in `components/Sections.tsx` is now a four-step timeline with icons and connector lines. It runs across the page on desktop and down it on phones, and it's used on the home page and every practice page.
+- **Steps:** send a message → the office reviews it → you hear back → talk through next steps.
+- **Wording:** the text lives in `STEPS` in `lib/site.ts`. Step 3 reuses Darren's approved callback line, and nothing promises the firm will take the matter.
+- **Tests:** e2e 26/26.

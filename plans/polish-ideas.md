@@ -21,7 +21,7 @@ Written 24 September 2026. Each idea names the pattern it borrows from, and whet
 
 1. **Real local photography.** Apple and Airbnb rely on real, high-quality images. A licensed photo of Murfreesboro or the courthouse square would fill the empty "Meet Darren" box. This is the one placeholder left on the home page.
 2. **Google rating badge** (Amazon- and Shopify-style social proof). Darren chose the live star rating. It needs his Google Business Profile, a Maps key and his ethics sign-off.
-3. **"What happens next" timeline** (Amazon order tracking, Apple support). Turn the three steps into a simple line with icons: message sent → the office reviews it → Darren calls you.
+3. **"What happens next" timeline** (Amazon order tracking, Apple support). **Built 24 Sep 2026:** four steps with icons, connected across the page on desktop and down it on phones.
 4. **Page-specific call bar on phones** (Amazon's sticky "Buy"). On practice pages, the phone's bottom bar could read "Ask about DUI/DWI" and open the form with that option already chosen.
 5. **Short FAQ search, or "jump to" chips** (Microsoft support). Useful once there are more than about 8 FAQs.
 6. **Subtle scroll reveals** (Apple product pages). Sections fade up 12 px once as they come into view. Text must stay readable before any motion, and nothing moves for people who prefer reduced motion.

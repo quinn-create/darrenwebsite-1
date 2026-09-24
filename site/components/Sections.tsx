@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ClipboardCheck, MessagesSquare, PhoneCall, Send } from "lucide-react";
 import { CTA_HREF, CTA_LABEL, PRACTICES, STEPS } from "@/lib/site";
 import { PhoneLink } from "./PhoneLink";
 import { Container } from "./Container";
@@ -34,29 +34,52 @@ export function PracticeCards({
   );
 }
 
+const STEP_ICONS = { send: Send, review: ClipboardCheck, reply: PhoneCall, next: MessagesSquare } as const;
+
+// "What happens next": a connected timeline. Down the page on phones, across it on desktop.
 export function ContactSteps({ id = "how-contact-works" }: { id?: string }) {
   return (
     <section aria-labelledby={id} className="py-14 lg:py-24">
       <Container>
-        <p className="eyebrow uppercase">Next steps</p>
+        <p className="eyebrow uppercase">How it works</p>
         <h2 id={id} className="h2 mt-2">
-          How contact works
+          What happens next
         </h2>
-        <ol className="mt-10 grid gap-6 md:grid-cols-3">
-          {STEPS.map((step, i) => (
-            <li key={step} className="rounded-card border border-border bg-surface p-6 lg:p-8">
-              <span aria-hidden="true" className="block text-[44px] font-extrabold leading-none text-action">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span className="mt-4 block text-[20px] font-bold leading-snug lg:text-[22px]">
-                <span className="sr-only">Step {i + 1}: </span>
-                {step}
-              </span>
-            </li>
-          ))}
+        <ol className="relative mt-10 grid gap-0 lg:mt-14 lg:grid-cols-4 lg:gap-8">
+          {STEPS.map((step, i) => {
+            const Icon = STEP_ICONS[step.icon];
+            const last = i === STEPS.length - 1;
+            return (
+              <li key={step.title} className="relative flex gap-5 pb-10 last:pb-0 lg:flex-col lg:gap-6 lg:pb-0">
+                {/* Connector: vertical between steps on phones, horizontal on desktop. */}
+                {!last && (
+                  <>
+                    <span
+                      aria-hidden="true"
+                      className="absolute left-7 top-14 bottom-0 w-px -translate-x-1/2 bg-gradient-to-b from-action/70 to-border/40 lg:hidden"
+                    />
+                    <span
+                      aria-hidden="true"
+                      className="absolute left-14 right-[-2rem] top-7 hidden h-px bg-gradient-to-r from-action/70 to-border/40 lg:block"
+                    />
+                  </>
+                )}
+                <span className="relative z-10 flex size-14 shrink-0 items-center justify-center rounded-full border border-action/60 bg-surface text-action shadow-[0_0_0_6px_var(--color-bg)]">
+                  <Icon aria-hidden="true" size={24} strokeWidth={1.75} />
+                </span>
+                <div className="pt-1 lg:pt-0">
+                  <p className="text-[14px] font-bold uppercase tracking-[0.1em] text-muted">
+                    Step {i + 1}
+                  </p>
+                  <h3 className="mt-1 text-[20px] font-bold leading-snug lg:text-[22px]">{step.title}</h3>
+                  <p className="mt-2 text-[16px] text-muted lg:text-[17px]">{step.detail}</p>
+                </div>
+              </li>
+            );
+          })}
         </ol>
-        <p className="measure mt-6 text-muted">
-          Sending an inquiry does not by itself create an attorney-client relationship.
+        <p className="measure mt-10 text-[16px] text-muted">
+          Sending a message does not by itself create an attorney-client relationship.
         </p>
       </Container>
     </section>

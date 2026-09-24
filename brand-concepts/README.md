@@ -24,3 +24,7 @@ Every concept uses a labeled "ATTORNEY PHOTO PLACEHOLDER" frame. In `with-photo/
 Known correction: in the Counsel concept, the model added its own card taglines ("Skilled defense for serious charges.", "A cleaner record. A brighter future."). That copy is not approved, so don't use it.
 
 Known correction: `05-precision-b.png` misspells "Tennessee" as "Tennesse" in the eyebrow line, and its Criminal Defense card uses a scales-of-justice icon. Fix the spelling in code, and swap the icon if you want to avoid legal clichés.
+
+## Shortlist (September 24, 2026)
+
+The client shortlisted **Signal A** (`01-signal.png`) and **Precision B** (`05-precision-b.png`). The Signal build prompt is in `prompts/signal-website-build-prompt.md`.

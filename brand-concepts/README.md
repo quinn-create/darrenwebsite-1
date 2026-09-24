@@ -27,4 +27,4 @@ Known correction: `05-precision-b.png` misspells "Tennessee" as "Tennesse" in th
 
 ## Shortlist (September 24, 2026)
 
-The client shortlisted **Signal A** (`01-signal.png`) and **Precision B** (`05-precision-b.png`). The Signal build prompt is in `prompts/signal-website-build-prompt.md`.
+The client shortlisted **Signal A** (`01-signal.png`) and **Precision B** (`05-precision-b.png`). Build prompts: `prompts/signal-website-build-prompt.md` (Signal A) and `prompts/precision-website-build-prompt.md` (Precision B).

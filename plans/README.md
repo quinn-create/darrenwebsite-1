@@ -1,6 +1,7 @@
 # Plans
 
 - `signal-website-plan.md`: the build and launch plan for the full Darren Drake website in the Signal 1A style (24 September 2026). Start with "Plan at a glance".
+- `Darren-Drake-Website-Plan.pdf`: the same plan as a printable PDF (45 pages). Rebuild it after editing the plan with `python3 plans/make-plan-pdf.py` (needs `pip install markdown`).
 - `research/`: the six research reports the plan is based on:
   - `current-site.md`: read-only audit of ddrakelaw.com (pages, content, contact form, technical notes, old addresses to redirect).
   - `codebase.md`: gap audit of the `site/` demo, and how the new photo is used.

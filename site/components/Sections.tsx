@@ -19,9 +19,7 @@ export function PracticeCards({
         <li key={p.slug} className="card flex flex-col gap-4 p-6 lg:p-8">
           <PracticeIcon name={p.icon} />
           <Heading className="h3">{p.title}</Heading>
-          <p className="text-muted">
-            {p.summary} <span className="text-[15px]">[CONFIRM WITH FIRM]</span>
-          </p>
+          <p className="text-muted">{p.summary}</p>
           <Link
             href={`/practice-areas/${p.slug}/`}
             className="card-link link-secondary mt-auto inline-flex min-h-11 items-center gap-2 font-semibold"
@@ -71,7 +69,6 @@ export function Faq({ items, id = "faq" }: { items: { q: string; a: string }[]; 
         <h2 id={id} className="h2">
           Frequently asked questions
         </h2>
-        <p className="mt-2 text-[15px] text-muted">Answers are proposed and awaiting firm review. [FIRM TO REVIEW]</p>
         <div className="faq mt-8 overflow-hidden rounded-card border border-border bg-surface">
           {items.map((item, i) => (
             <details key={item.q} className={i > 0 ? "border-t border-border/60" : ""}>

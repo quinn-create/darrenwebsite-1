@@ -32,7 +32,7 @@ export default async function PracticePage({ params }: Props) {
     <>
       <PageIntro
         title={practice.title}
-        lead={`${practice.summary} [CONFIRM WITH FIRM]`}
+        lead={practice.summary}
         crumbs={[
           { href: "/", label: "Home" },
           { href: "/practice-areas/", label: "Practice Areas" },
@@ -46,8 +46,9 @@ export default async function PracticePage({ params }: Props) {
               Overview
             </h2>
             <div className="measure mt-6 flex flex-col gap-4 text-muted">
-              <p>[FIRM TO SUPPLY] A plain-language overview of how the firm helps with {practice.title.toLowerCase()} matters.</p>
-              <p>[FIRM TO SUPPLY] What a person in this situation can expect when they reach out to the office.</p>
+              {practice.overview.map((para) => (
+                <p key={para}>{para}</p>
+              ))}
             </div>
           </div>
           <div className="hidden lg:col-span-4 lg:flex lg:justify-end">

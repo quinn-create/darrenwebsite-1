@@ -180,3 +180,5 @@ Darren's facts and decisions are recorded in `plans/for-darren/answers-2026-09-2
 The placeholder guard now reports 23 placeholders, down from 37. The remaining ones are the practice-page wording and FAQs, the privacy notice, the accessibility contact and date, and the licensed local photo. At Darren's request, the legal notice shows the office details instead of a "responsible attorney" line.
 
 Inquiries go to Kelly Pittman: set `INTAKE_DESTINATION` to the email adapter when the firm's accounts exist. Backup recipient: Darren. Still open: Telegram or text delivery of the PDF, MyCase, and the live Google rating.
+
+Later the same day, Darren approved the practice-page wording and all FAQs. The placeholder guard now reports 8 placeholders: the privacy notice (5), the accessibility contact and review date (2), and the licensed local photo (1).

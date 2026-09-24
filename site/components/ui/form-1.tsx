@@ -56,11 +56,14 @@ export function ContactForm({
   configured,
   headingLevel = "h2",
   showIntro = true,
+  initialTopic = null,
 }: {
   configured: boolean
   headingLevel?: "h1" | "h2"
   // false when the page already has its own heading (the Contact page)
   showIntro?: boolean
+  // Practice area picked from an "Ask about …" link (validated by the page), or null
+  initialTopic?: { slug: string; title: string } | null
 }) {
   const Heading = headingLevel;
   const [values, setValues] = useState<ContactValues>(EMPTY_CONTACT);
@@ -68,6 +71,7 @@ export function ContactForm({
   const [attempted, setAttempted] = useState(false);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [honeypot, setHoneypot] = useState("");
+  const [topic, setTopic] = useState(initialTopic);
   const started = useRef(false);
   const inFlight = useRef(false);
   const summaryRef = useRef<HTMLDivElement>(null);
@@ -118,7 +122,7 @@ export function ContactForm({
       const res = await fetch("/api/contact/", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...values, website: honeypot }),
+        body: JSON.stringify({ ...values, topic: topic?.slug ?? "", website: honeypot }),
       });
       const data = (await res.json().catch(() => ({}))) as { status?: string; errors?: ContactErrors };
 
@@ -207,6 +211,21 @@ export function ContactForm({
       )}
 
       <div className={cn("w-full", showIntro && "max-w-xl")}>
+        {topic && (
+          <div className="mb-6 flex flex-wrap items-center gap-3 rounded-card border border-action/50 bg-action/10 px-4 py-2">
+            <p className="text-[16px]">
+              <span className="text-muted">Asking about: </span>
+              <span className="font-bold">{topic.title}</span>
+            </p>
+            <button
+              type="button"
+              onClick={() => setTopic(null)}
+              className="ml-auto inline-flex min-h-11 items-center text-[15px] font-semibold text-muted underline underline-offset-4 hover:text-text"
+            >
+              Remove topic
+            </button>
+          </div>
+        )}
         {errorList.length > 0 && (
           <div
             ref={summaryRef}

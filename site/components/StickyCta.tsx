@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CTA_HREF, CTA_LABEL } from "@/lib/site";
+import { Phone } from "lucide-react";
+import { CTA_HREF, CTA_LABEL, PHONE_DISPLAY, PHONE_HREF, practiceBySlug } from "@/lib/site";
 
 const FIELD = "input, select, textarea";
 
@@ -56,11 +57,25 @@ export function StickyCta() {
   }, [onIntake]);
 
   if (hidden) return null;
+  // On a practice page the bar names that area and opens the form with it filled in.
+  const practice = practiceBySlug(pathname.match(/^\/practice-areas\/([^/]+)/)?.[1]);
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-bg px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4 lg:hidden">
-      <Link href={CTA_HREF} className="btn-primary w-full">
-        {CTA_LABEL}
+    <div className="fixed inset-x-0 bottom-0 z-30 flex gap-3 border-t border-border/40 bg-bg px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4 lg:hidden">
+      <Link
+        href={practice ? `${CTA_HREF}?topic=${practice.slug}` : CTA_HREF}
+        className="btn-primary min-w-0 flex-1 px-4"
+        // Long practice names wrap to two lines on narrow phones instead of being cut off.
+        style={{ whiteSpace: "normal", lineHeight: 1.15, textAlign: "center" }}
+      >
+        <span>{practice ? `Ask about ${practice.title}` : CTA_LABEL}</span>
       </Link>
+      <a
+        href={PHONE_HREF}
+        aria-label={`Call ${PHONE_DISPLAY}`}
+        className="btn-secondary btn-icon"
+      >
+        <Phone aria-hidden="true" size={20} strokeWidth={2} />
+      </a>
     </div>
   );
 }

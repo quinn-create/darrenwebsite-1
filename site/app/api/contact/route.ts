@@ -3,6 +3,7 @@ import { z } from "zod";
 import { EMPTY_CONTACT, validateContact, type ContactValues } from "@/lib/contact-rules";
 import { clientIp, createGuard, json } from "@/lib/form-guard";
 import { deliver, type Inquiry } from "@/lib/intake-delivery";
+import { practiceBySlug } from "@/lib/site";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ const Body = z.object({
   email: z.string().max(500),
   callback: z.string().max(20),
   message: z.string().max(5000),
+  topic: z.string().max(60).optional(), // practice-area slug from "Ask about …"; unknown values are dropped
   website: z.string().max(500).optional(), // honeypot: must stay empty
 });
 
@@ -36,7 +38,8 @@ export async function POST(request: Request) {
     return json({ status: "invalid", errors: {} }, 400);
   }
 
-  const { website, ...rest } = parsed;
+  const { website, topic, ...rest } = parsed;
+  const topicTitle = practiceBySlug(topic)?.title ?? "";
   const values: ContactValues = { ...EMPTY_CONTACT, ...rest };
 
   const errors = validateContact(values);
@@ -49,7 +52,7 @@ export async function POST(request: Request) {
     return json({ status: "invalid", errors: {} }, 400);
   }
 
-  const fingerprint = guard.fingerprint(values);
+  const fingerprint = guard.fingerprint({ ...values, topicTitle });
   const duplicate = guard.duplicateOf(fingerprint, now);
   if (duplicate) {
     return json({ status: "accepted", id: duplicate, duplicate: true }, 200);
@@ -57,6 +60,7 @@ export async function POST(request: Request) {
 
   const inquiry: Inquiry = {
     id: randomUUID(),
+    topic: topicTitle,
     receivedAt: new Date(now).toISOString(),
     ...values,
     yourName: values.yourName.trim(),

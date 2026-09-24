@@ -214,6 +214,12 @@ body {
 .btn-secondary:active {
   transform: scale(0.98);
 }
+/* Round icon-only button (e.g. the call button in the phone bar). */
+.btn-icon {
+  width: 52px;
+  padding: 0;
+  flex-shrink: 0;
+}
 /* Phone numbers: evenly spaced digits, never wrapped. */
 .phone-num {
   font-variant-numeric: tabular-nums lining-nums;

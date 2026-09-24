@@ -155,6 +155,12 @@ export const PRACTICES: {
 
 // "What happens next" timeline. Step 3 reuses Darren's approved callback wording
 // (lib/contact-rules.ts ASAP_NOTE); nothing here promises the firm will take the matter.
+// A practice area from its URL slug, or undefined. Used for the "Ask about …" phone bar
+// and the Contact page's ?topic= link, so only real practice areas are ever accepted.
+export function practiceBySlug(slug: string | null | undefined) {
+  return PRACTICES.find((p) => p.slug === slug);
+}
+
 export const STEPS = [
   {
     icon: "send",

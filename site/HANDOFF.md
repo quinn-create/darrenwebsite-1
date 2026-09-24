@@ -234,3 +234,11 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
 - **Steps:** send a message → the office reviews it → you hear back → talk through next steps.
 - **Wording:** the text lives in `STEPS` in `lib/site.ts`. Step 3 reuses Darren's approved callback line, and nothing promises the firm will take the matter.
 - **Tests:** e2e 26/26.
+
+## Update, 24 September 2026: "Ask about …" phone bar
+
+- **Phone bar:** on practice pages, the bottom bar on phones (`components/StickyCta.tsx`) reads "Ask about <practice area>" and links to `/contact/?topic=<slug>`. A round call button sits beside it. Other pages still show "Contact us". Long names wrap to two lines on narrow phones (checked at 320, 360 and 390 px).
+- **Topic check:** the Contact page reads `?topic=` on the server and accepts it only if it's a real practice area (`practiceBySlug` in `lib/site.ts`). The form then shows "Asking about: …" with a "Remove topic" button.
+- **Topic delivery:** `/api/contact/` drops unknown topics. The topic title is saved with the inquiry and appears in the email subject (for example "New website inquiry (DUI/DWI)") and as a "Topic" row in the PDF.
+- **New style:** `.btn-icon` (in `globals.css`) is a round 52 px icon button.
+- **Tests:** e2e 27/27, including the bar label, the topic carried to the form, the topic saved on delivery, and unknown topics ignored. Delivery 4/4.

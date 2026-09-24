@@ -428,6 +428,34 @@ await check("Home carousel: every practice area, arrows scroll it, no autoplay",
   assert(!(await prev.isDisabled()), "Previous should be enabled after scrolling");
 });
 
+await check("Phone bar on a practice page: \"Ask about\" that area, opens the form with the topic, topic is delivered", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const p = await ctx.newPage();
+  await p.goto(LIVE + "/practice-areas/dui-dwi/");
+  await p.waitForTimeout(400);
+  const bar = p.locator(".fixed.bottom-0");
+  await bar.waitFor();
+  const ask = bar.getByRole("link", { name: "Ask about DUI/DWI" });
+  assert(await ask.isVisible(), "bar should read \"Ask about DUI/DWI\"");
+  assert(await bar.getByRole("link", { name: "Call (615) 546-5551" }).isVisible(), "call button missing");
+  await ask.click();
+  await p.waitForURL("**/contact/?topic=dui-dwi");
+  assert(await p.getByText("Asking about:").isVisible(), "topic label missing on the form");
+  await p.locator("#cf-yourName").fill(`Topic Tester ${RUN}`);
+  await p.locator("form").getByText("Other", { exact: true }).click();
+  await p.locator("form").getByText("Call", { exact: true }).click();
+  await p.locator("#cf-phone").fill("615-555-0123");
+  await p.locator("form").getByText("Sometime this week").click();
+  await p.getByRole("button", { name: "Send message" }).click();
+  await p.getByText("Message received").waitFor();
+  const lines = (await readFile(".data/intake-test.jsonl", "utf8")).trim().split("\n");
+  const saved = JSON.parse(lines.at(-1));
+  assert(saved.topic === "DUI/DWI", `saved topic: ${saved.topic}`);
+  await p.goto(DEMO + "/contact/?topic=not-a-practice");
+  assert((await p.getByText("Asking about:").count()) === 0, "unknown topics must be ignored");
+  await ctx.close();
+});
+
 await check("Contact page uses the same form", async () => {
   await page.goto(DEMO + "/contact/");
   assert(await page.locator("#cf-yourName").isVisible(), "form missing on /contact/");

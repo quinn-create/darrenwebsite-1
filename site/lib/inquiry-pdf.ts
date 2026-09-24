@@ -8,7 +8,7 @@ const labelFor = (list: readonly { value: string; label: string }[], values: str
 
 // The inquiry as label/value rows, shared by the PDF and the email body.
 export function inquiryRows(inq: Inquiry): [string, string][] {
-  return [
+  const rows: [string, string][] = [
     ["Name", inq.yourName],
     ["Client's name", inq.clientName || "Same as above"],
     ["About", labelFor(ABOUT_OPTIONS, inq.about)],
@@ -20,6 +20,8 @@ export function inquiryRows(inq: Inquiry): [string, string][] {
     ["Received", formatDate(inq.receivedAt)],
     ["Reference", inq.id],
   ];
+  if (inq.topic) rows.splice(1, 0, ["Topic", inq.topic]);
+  return rows;
 }
 
 export function formatDate(iso: string): string {

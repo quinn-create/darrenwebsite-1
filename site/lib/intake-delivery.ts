@@ -7,6 +7,8 @@ import { buildInquiryPdf, formatDate, inquiryRows } from "./inquiry-pdf";
 export type Inquiry = {
   id: string;
   receivedAt: string;
+  // Practice area the visitor came from ("Ask about …" bar), e.g. "DUI/DWI"; "" if none.
+  topic: string;
   yourName: string;
   clientName: string;
   about: string[];
@@ -80,7 +82,8 @@ export async function deliver(inquiry: Inquiry): Promise<DeliveryResult> {
 }
 
 function subject(inq: Inquiry): string {
-  return inq.callback === "asap" ? "New website inquiry: call back as soon as possible" : "New website inquiry";
+  const base = inq.callback === "asap" ? "New website inquiry: call back as soon as possible" : "New website inquiry";
+  return inq.topic ? `${base} (${inq.topic})` : base;
 }
 
 function textBody(inq: Inquiry): string {

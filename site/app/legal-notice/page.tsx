@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/Container";
 import { PageIntro } from "@/components/Sections";
-import { FIRM } from "@/lib/site";
+import { FIRM, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Legal Notice",
@@ -31,11 +31,16 @@ export default function LegalNotice() {
               assist. Please don&apos;t send sensitive documents or detailed confidential information in your first
               inquiry.
             </p>
-            <h2 className="h3 mt-4 text-text">Responsible attorney</h2>
+            <h2 className="h3 mt-4 text-text">Office</h2>
             <p>
-              {FIRM.name}, {FIRM.descriptor}, is responsible for the content of this website. [CONFIRM WITH FIRM]
+              {FIRM.legalName}
+              <br />
+              {FIRM.address}
+              <br />
+              <a href={PHONE_HREF} className="link-action">
+                {PHONE_DISPLAY}
+              </a>
             </p>
-            <p>{FIRM.address}</p>
           </div>
         </Container>
       </section>

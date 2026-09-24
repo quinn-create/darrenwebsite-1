@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 /* Signal design tokens. Components use these through the Tailwind theme below, never raw hex. */
 :root {
@@ -35,7 +36,32 @@
   --color-success: var(--color-success);
   --radius-card: var(--radius);
   --container-site: var(--container);
+  /* shadcn/ui semantic names, mapped onto this site's tokens so components/ui/* follow the brand */
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-text);
+  --color-primary: var(--color-action);
+  --color-primary-foreground: var(--color-on-action);
+  --color-secondary: var(--color-surface);
+  --color-secondary-foreground: var(--color-text);
+  --color-muted-foreground: var(--color-muted);
+  --color-accent: var(--color-surface);
+  --color-accent-foreground: var(--color-text);
+  --color-popover: var(--color-surface);
+  --color-popover-foreground: var(--color-text);
+  --color-destructive: var(--color-error);
+  --color-destructive-foreground: var(--color-surface);
+  --color-input: var(--color-border);
+  --color-ring: var(--color-focus);
   --font-sans: "Manrope Variable", ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* shadcn/ui base: borders default to the theme border color, not the text color (Tailwind 4 default). */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
+  }
 }
 
 html {

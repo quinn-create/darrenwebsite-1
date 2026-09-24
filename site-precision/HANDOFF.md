@@ -82,7 +82,7 @@ Concept B shows a cobalt "DD" square beside the name. The guidelines reserve the
 3. **Step wording:** step 3 uses the full wording "Discuss next steps if the firm can assist", not the concept's shortened "Discuss next steps".
 4. **Card copy:** cards use neutral one-line descriptions marked `[CONFIRM WITH FIRM]`, not taglines.
 5. **"Meet Darren" layout:** it repeats the portrait at a smaller size, because no separate office photo was supplied. The guidelines prefer quality over quantity, so no placeholder image is shown there.
-6. **FAQ and form components:** native `<details>`/`<summary>` and hand-built fields rather than shadcn/ui, so they work without JavaScript and add no dependencies. **shadcn/ui is not installed.**
+6. **FAQ and form components:** native `<details>`/`<summary>` and hand-built fields rather than shadcn/ui, so they work without JavaScript and add no dependencies. shadcn/ui is set up (`components.json`, `lib/utils.ts`, `components/ui/`) and currently used for the footer only.
 7. **Font:** Inter is self-hosted with `@fontsource-variable/inter` (one variable woff2, 47 KB) instead of `next/font`.
 8. **Back navigation:** leaving `/intake` mid-form and returning clears the answers. Nothing personal is stored in the browser.
 9. **`noindex`:** the preview sets `robots: noindex, nofollow`. Remove it at launch.
@@ -99,3 +99,16 @@ Concept B shows a cobalt "DD" square beside the name. The guidelines reserve the
 - [ ] Optional genuine office photo.
 - [ ] Final approval of the proposed headlines and helper copy, and confirmation of (615) 546-5551 and web use of the portrait.
 - [ ] Hosting choice, removal of `noindex`, and a real-device check (iOS Safari and Android Chrome).
+
+## Footer (shadcn/ui footer-section)
+
+The footer is `components/ui/footer-section.tsx`, adapted from the supplied 21st.dev component. It uses the shadcn Button and Tooltip, mapped onto this site's tokens in `app/globals.css`. The Input, Label, Switch and Textarea primitives are also in `components/ui/`, but the footer doesn't use them yet.
+
+Changes from the demo component, per the brand guidelines:
+- **Newsletter sign-up:** replaced with the intake call to action. No marketing consent workflow exists.
+- **Fake address and email:** replaced with the real phone number and marked placeholders.
+- **Social links:** removed until the firm confirms real profiles.
+- **Dark-mode switch:** removed, because each design has a single approved palette.
+- **Glow:** the decorative glow blob was removed.
+- **Links and targets:** "Terms" and "Cookie Settings" were removed because those pages don't exist. Links and icon buttons are enlarged to 44 px targets.
+

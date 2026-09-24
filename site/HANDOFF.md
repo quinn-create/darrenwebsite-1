@@ -82,7 +82,7 @@ End-to-end checks:
 
 1. **Criminal Defense icon:** the shield became a briefcase (Lucide `Briefcase`), because Signal forbids shield- and badge-like marks.
 2. **Card copy:** cards use neutral one-line descriptions marked `[CONFIRM WITH FIRM]` instead of marketing taglines.
-3. **FAQ component:** built with native `<details>`/`<summary>` instead of the shadcn Accordion. It's keyboard- and screen-reader-accessible, works without JavaScript and adds no dependencies. Form fields are also hand-built rather than shadcn, with the same label, hint and error behavior. **shadcn/ui is not installed.**
+3. **FAQ component:** built with native `<details>`/`<summary>` instead of the shadcn Accordion. It's keyboard- and screen-reader-accessible, works without JavaScript and adds no dependencies. Form fields are also hand-built rather than shadcn, with the same label, hint and error behavior. shadcn/ui is set up (`components.json`, `lib/utils.ts`, `components/ui/`) and currently used for the footer only.
 4. **Font:** Manrope is self-hosted with `@fontsource-variable/manrope` (one 25 KB variable woff2 covering weights 400–800) instead of `next/font`. The effect is the same, it needs no build-time Google fetch, and only one font file loads.
 5. **Border beam:** the optional single-pass border beam was not added. The glow fades in once (900 ms) on desktop and is static on mobile and under reduced motion.
 6. **Sticky mobile CTA:** it also hides while the hero's own CTA is on screen, so there are never two identical buttons side by side.
@@ -101,3 +101,16 @@ End-to-end checks:
 - [ ] Optional licensed **local architecture photo** for the "Meet Darren" section (a placeholder is shown).
 - [ ] Final approval of the proposed headlines and helper copy, and confirmation that (615) 546-5551 is final and the portrait is approved for web use.
 - [ ] Hosting choice, removal of `noindex`, and a real-device check (iOS Safari and Android Chrome).
+
+## Footer (shadcn/ui footer-section)
+
+The footer is `components/ui/footer-section.tsx`, adapted from the supplied 21st.dev component. It uses the shadcn Button and Tooltip, mapped onto this site's tokens in `app/globals.css`. The Input, Label, Switch and Textarea primitives are also in `components/ui/`, but the footer doesn't use them yet.
+
+Changes from the demo component, per the brand guidelines:
+- **Newsletter sign-up:** replaced with the intake call to action. No marketing consent workflow exists.
+- **Fake address and email:** replaced with the real phone number and marked placeholders.
+- **Social links:** removed until the firm confirms real profiles.
+- **Dark-mode switch:** removed, because each design has a single approved palette.
+- **Glow:** the decorative glow blob was removed.
+- **Links and targets:** "Terms" and "Cookie Settings" were removed because those pages don't exist. Links and icon buttons are enlarged to 44 px targets.
+

@@ -6,6 +6,7 @@ import type { NextConfig } from "next";
 const JUVENILE_TARGET = "/practice-areas/criminal-defense/"; // D5: the firm does not take juvenile cases (Darren, 24 Sep 2026)
 
 const OLD_TO_NEW: [string, string][] = [
+  ["/intake", "/contact/"], // the form moved to the Contact page (24 Sep 2026)
   ["/areas-of-practice", "/practice-areas/"],
   ["/areas-of-practice/criminaldefense", "/practice-areas/criminal-defense/"],
   ["/areas-of-practice/criminal-defense", "/practice-areas/criminal-defense/"],

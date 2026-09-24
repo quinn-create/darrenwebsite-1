@@ -9,7 +9,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...PRACTICES.map((p) => `/practice-areas/${p.slug}/`),
     "/about/",
     "/contact/",
-    "/intake/",
     "/privacy/",
     "/accessibility/",
     "/legal-notice/",

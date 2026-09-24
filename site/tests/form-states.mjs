@@ -15,18 +15,18 @@ for (const width of [390, 1440]) {
     await page.locator("#cf-message").fill("Test inquiry for screenshots, please ignore.");
   };
 
-  await page.goto("http://localhost:3000/intake");
+  await page.goto("http://localhost:3000/contact/");
   await page.getByRole("button", { name: "Send message" }).click();
   await page.locator('[aria-labelledby="contact-error-title"]').waitFor();
   await shot("error");
 
-  await page.goto("http://localhost:3000/intake");
+  await page.goto("http://localhost:3000/contact/");
   await fill("demo");
   await page.getByRole("button", { name: "Send message" }).click();
   await page.getByText("Not sent: this demo form").waitFor();
   await shot("not-configured");
 
-  await page.goto("http://localhost:3001/intake");
+  await page.goto("http://localhost:3001/contact/");
   await fill("send");
   await page.route("**/api/contact/", async (r) => { await new Promise((x) => setTimeout(x, 1500)); await r.continue(); });
   await page.getByRole("button", { name: "Send message" }).click();
@@ -36,7 +36,7 @@ for (const width of [390, 1440]) {
   await page.unroute("**/api/contact/");
   await shot("success");
 
-  await page.goto("http://localhost:3001/intake");
+  await page.goto("http://localhost:3001/contact/");
   await fill("retry");
   await page.route("**/api/contact/", (r) => r.abort("failed"));
   await page.getByRole("button", { name: "Send message" }).click();

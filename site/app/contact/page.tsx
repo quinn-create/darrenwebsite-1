@@ -16,19 +16,21 @@ export default function Contact() {
   return (
     <>
       <PageIntro
-        title="Contact"
-        lead="Send a short message and choose how and when you'd like to hear back. You can also call."
+        title="Contact us"
+        lead="Send a short message, or call the office."
         crumbs={[{ href: "/", label: "Home" }, { label: "Contact" }]}
       />
       <section aria-label="Contact details" className="pb-14 lg:pb-24">
         <Container className="grid items-start gap-6 lg:grid-cols-[3fr_2fr]">
-          <div className="rounded-card border border-border bg-surface px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
-            <ContactForm configured={isConfigured()} />
+          <div className="panel px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+            <h2 className="h3">Send a message</h2>
+            <p className="mb-8 mt-2 text-muted">Choose how and when you&apos;d like to hear back.</p>
+            <ContactForm configured={isConfigured()} showIntro={false} />
           </div>
-          <div className="rounded-card border border-border bg-surface p-6 lg:p-10">
+          <div className="panel p-6 lg:p-10">
             <h2 className="h3">Call the office</h2>
             <a href={PHONE_HREF} className="mt-3 inline-flex min-h-11 items-center text-[28px] font-extrabold text-action lg:text-[34px]">
-              {PHONE_DISPLAY}
+              <span className="phone-num">{PHONE_DISPLAY}</span>
             </a>
             <dl className="mt-6 grid gap-4 text-muted">
               <div>

@@ -214,3 +214,16 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
 - **Carousel:** the home page shows the three featured cards, then `components/PracticeCarousel.tsx`: "All practice areas", a sideways-scrolling row of every entry in `PRACTICES`. It currently has five cards, and adding an area to `lib/site.ts` adds a card.
 - **How it works:** it's a CSS scroll-snap list, so it works by swipe, trackpad or keyboard without JavaScript. The Previous and Next buttons only scroll it; they're disabled at each end, and there's no autoplay. It follows reduced-motion settings.
 - **Tests:** e2e has 26 checks, including a carousel check (all areas present, the arrows scroll it, it doesn't move on its own).
+
+## Update, 24 September 2026: polish pass
+
+- **Main button:** "Start your intake" became **"Contact us"** (`CTA_LABEL`, `CTA_HREF` in `lib/site.ts`), pointing to `/contact/`. The `/intake/` page was removed, and `/intake/` redirects to `/contact/` with a 308.
+- **Contact page:** it now holds the form under a single heading ("Contact us"). `ContactForm` gained `showIntro={false}`.
+- **Phone numbers:** `components/PhoneLink.tsx` gives them one treatment: tabular figures, semibold, a phone icon, and no underline or wrapping. It comes in two styles, a pill button and an inline link.
+- **Type:** body weight 460, muted colour `#cad4e2`, antialiased rendering, balanced headings, and cyan eyebrows.
+- **Buttons:** pill-shaped. `.btn-secondary` is new, and both lift on hover (not under reduced motion).
+- **Header:** see-through with a blur. The desktop tabs leave out Contact because the button covers it.
+- **Hero:** a short label above the headline, and a strip of confirmed credentials under the buttons.
+- **Cards:** 16 px corners, a softer border and a cyan border on hover. `.panel` is the same look without the hover.
+- **Tests:** e2e 26/26 and delivery 4/4. The form tests now run on `/contact/`.
+- **Ideas:** the list of design ideas is in `plans/polish-ideas.md`.

@@ -13,7 +13,7 @@ const axeSource = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 const DEMO = "http://localhost:3000";
 const LIVE = "http://localhost:3001";
 const executablePath = process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium";
-const PAGES = ["/", "/practice-areas/", "/practice-areas/first-time-offenders/", "/practice-areas/domestic-assault/", "/practice-areas/criminal-defense/", "/about/", "/contact/", "/intake/", "/privacy/", "/accessibility/", "/legal-notice/"];
+const PAGES = ["/", "/practice-areas/", "/practice-areas/first-time-offenders/", "/practice-areas/domestic-assault/", "/practice-areas/criminal-defense/", "/about/", "/contact/", "/privacy/", "/accessibility/", "/legal-notice/"];
 
 const results = [];
 const SUMMARY = '[aria-labelledby="contact-error-title"]';
@@ -31,7 +31,7 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
-// The site's one form (components/ui/form-1.tsx), on /intake/ and /contact/.
+// The site's one form (components/ui/form-1.tsx), on the Contact page (/intake/ redirects there).
 async function fillValid(page, { reach = "Call" } = {}) {
   await page.locator("#cf-yourName").fill(`Test Person ${RUN}-${++seq}`);
   await page.locator("form").getByText("Arrested in Rutherford County").click();
@@ -48,7 +48,7 @@ const desktop = await browser.newContext({ viewport: { width: 1440, height: 900 
 const page = await desktop.newPage();
 
 await check("Required-field errors: summary gets focus and lists each problem", async () => {
-  await page.goto(DEMO + "/intake/");
+  await page.goto(DEMO + "/contact/");
   await page.getByRole("button", { name: "Send message" }).click();
   const summary = page.locator(SUMMARY);
   await summary.waitFor();
@@ -90,7 +90,7 @@ await check("Call/text needs a phone, email needs an email; bad values rejected;
 });
 
 await check("Demo mode: 'not connected' note shown, nothing claimed as sent, values kept", async () => {
-  await page.goto(DEMO + "/intake/");
+  await page.goto(DEMO + "/contact/");
   assert(await page.locator("#contact-demo-note").isVisible(), "demo note missing");
   await fillValid(page);
   await page.getByRole("button", { name: "Send message" }).click();
@@ -100,7 +100,7 @@ await check("Demo mode: 'not connected' note shown, nothing claimed as sent, val
 });
 
 await check("Configured (test destination): 'Sending…' state, success only after server acceptance", async () => {
-  await page.goto(LIVE + "/intake/");
+  await page.goto(LIVE + "/contact/");
   assert((await page.locator("#contact-demo-note").count()) === 0, "demo note should be hidden when configured");
   await page.locator("#cf-yourName").fill(`Test Person ${RUN}-${++seq}`);
   await page.locator("#cf-clientName").fill("Test Client");
@@ -133,7 +133,7 @@ await check("Configured (test destination): 'Sending…' state, success only aft
 });
 
 await check("Double-click submit sends only once", async () => {
-  await page.goto(LIVE + "/intake/");
+  await page.goto(LIVE + "/contact/");
   await fillValid(page, { reach: "Email" });
   await page.locator("#cf-message").fill("Double click test.");
   let posts = 0;
@@ -151,7 +151,7 @@ await check("Double-click submit sends only once", async () => {
 });
 
 await check("Network failure: values kept, retry offered, retry succeeds", async () => {
-  await page.goto(LIVE + "/intake/");
+  await page.goto(LIVE + "/contact/");
   await fillValid(page);
   await page.locator("#cf-message").fill("Network failure test.");
   await page.route("**/api/contact/", (route) => route.abort("failed"));
@@ -165,7 +165,7 @@ await check("Network failure: values kept, retry offered, retry succeeds", async
 });
 
 await check("Keyboard-only completion of the form", async () => {
-  await page.goto(LIVE + "/intake/");
+  await page.goto(LIVE + "/contact/");
   await page.locator("#cf-yourName").focus();
   await page.keyboard.type("Keyboard Tester");
   await page.keyboard.press("Tab"); // client's name
@@ -298,7 +298,7 @@ await check("Old WordPress addresses: one-hop permanent redirects, and 'gone' (4
     "/contact/ruco/": "/contact/",
     "/?page_id=2": "/contact/",
     "/?page_id=12": "/",
-    "/intake": "/intake/",
+    "/intake/": "/contact/",
   };
   const GONE = ["/submit-a-testimonial/", "/wp-login.php", "/wp-admin/", "/xmlrpc.php", "/feed/", "/contact/feed/",
     "/?s=test", "/?p=999", "/6668243_qpkgeeqfkxmexnek_24_come_9021_/", "/criminal-defense/john_drake/", "/category/news/",
@@ -341,7 +341,7 @@ await check("Sitemap lists every page; previews are hidden from search engines",
 
 await check("Every cyan button is at least 52 px tall", async () => {
   const small = [];
-  for (const [w, paths] of [[1440, PAGES], [390, ["/", "/intake/"]]]) {
+  for (const [w, paths] of [[1440, PAGES], [390, ["/", "/contact/"]]]) {
     const ctx = await browser.newContext({ viewport: { width: w, height: 900 } });
     const p = await ctx.newPage();
     for (const path of paths) {
@@ -387,8 +387,8 @@ await check("Axe accessibility scan (WCAG 2.0/2.1/2.2 A & AA) on every page", as
   return "0 violations";
 });
 
-await check("Axe scan of the intake page with errors shown", async () => {
-  await page.goto(DEMO + "/intake/");
+await check("Axe scan of the Contact page form with errors shown (laptop)", async () => {
+  await page.goto(DEMO + "/contact/");
   await page.getByRole("button", { name: "Send message" }).click();
   await page.locator(SUMMARY).waitFor();
   await page.addScriptTag({ content: axeSource });

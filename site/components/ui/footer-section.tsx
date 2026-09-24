@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Wordmark } from "@/components/Wordmark"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { CTA_LABEL, FIRM, NAV, PHONE_DISPLAY, PHONE_HREF, PRACTICES } from "@/lib/site"
+import { CTA_HREF, CTA_LABEL, FIRM, NAV, PHONE_DISPLAY, PHONE_HREF, PRACTICES } from "@/lib/site"
 
 // Adapted from the 21st.dev "footer-section" component (license check pending, see
 // plans/signal-website-plan.md). Demo content (newsletter, placeholder address, social
@@ -30,14 +30,14 @@ function FooterSection({ className }: { className?: string }) {
               Tell Darren Drake about your legal matter and how to reach you.
             </p>
             <Button asChild className="h-[52px] px-6 text-base font-semibold">
-              <Link href="/intake/">{CTA_LABEL}</Link>
+              <Link href={CTA_HREF}>{CTA_LABEL}</Link>
             </Button>
           </div>
 
           <div>
             <h2 className="mb-4 text-lg font-semibold">Quick links</h2>
             <nav aria-label="Footer" className="flex flex-col">
-              {[...NAV, { href: "/intake/", label: "Intake" }].map((item) => (
+              {NAV.map((item) => (
                 <Link key={item.href} href={item.href} className={linkClass}>
                   {item.label}
                 </Link>
@@ -61,7 +61,7 @@ function FooterSection({ className }: { className?: string }) {
             <address className="space-y-2 not-italic">
               <p>
                 <a href={PHONE_HREF} className="inline-flex min-h-11 items-center text-[18px] font-semibold transition-colors hover:text-primary">
-                  {PHONE_DISPLAY}
+                  <span className="phone-num">{PHONE_DISPLAY}</span>
                 </a>
               </p>
               <p className="text-muted-foreground">{FIRM.address}</p>

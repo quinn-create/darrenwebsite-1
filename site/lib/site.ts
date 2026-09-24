@@ -18,14 +18,18 @@ export const FIRM = {
 } as const;
 
 // `short` is the label on the phone-size tab bar, where four tabs share one row.
+// `desktop: false` leaves an item out of the desktop tabs (the "Contact us" button covers it).
 export const NAV = [
   { href: "/", label: "Home", short: "Home" },
   { href: "/practice-areas/", label: "Practice Areas", short: "Practice" },
   { href: "/about/", label: "About Darren", short: "About" },
-  { href: "/contact/", label: "Contact", short: "Contact" },
+  { href: "/contact/", label: "Contact", short: "Contact", desktop: false },
 ] as const;
 
-export const CTA_LABEL = "Start your intake";
+// The main call to action everywhere on the site. The form lives on the Contact page;
+// the old /intake/ address redirects there.
+export const CTA_LABEL = "Contact us";
+export const CTA_HREF = "/contact/";
 
 export type PracticeSlug =
   | "first-time-offenders"

@@ -6,7 +6,7 @@
   --color-bg: #090f1c;
   --color-surface: #131f31;
   --color-text: #f4f7fc;
-  --color-muted: #bcc7d8;
+  --color-muted: #cad4e2; /* lighter than the concept (#bcc7d8) for easier reading */
   --color-action: #67e8f9;
   --color-on-action: #07111f;
   --color-border: #718199;
@@ -77,7 +77,12 @@ html {
 body {
   font-family: var(--font-sans);
   font-size: 17px;
+  /* Manrope at 400 looks thin on the dark background; 460 reads more easily (variable font). */
+  font-weight: 460;
   line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   background: var(--color-bg);
   color: var(--color-text);
   padding-bottom: var(--sticky-cta-height);
@@ -110,12 +115,14 @@ body {
   font-weight: 800;
   line-height: 1.04;
   letter-spacing: -0.035em;
+  text-wrap: balance;
 }
 .h2 {
   font-size: 30px;
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: -0.02em;
+  text-wrap: balance;
 }
 .h3 {
   font-size: 20px;
@@ -135,10 +142,25 @@ body {
   }
 }
 .eyebrow {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  color: var(--color-action);
+}
+/* Small rounded label, e.g. above the home-page headline. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid rgb(113 129 153 / 0.5);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
   font-size: 15px;
   font-weight: 600;
-  line-height: 1.4;
-  color: var(--color-muted);
+  line-height: 1.3;
 }
 .label {
   font-size: 15px;
@@ -149,34 +171,75 @@ body {
   max-width: 66ch;
 }
 
-/* Buttons and links */
-.btn-primary {
+/* Buttons and links. Pill-shaped, matching the tab bar. */
+.btn-primary,
+.btn-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   min-height: 52px;
-  padding: 0 24px;
-  border-radius: var(--radius);
-  background: var(--color-action);
-  color: var(--color-on-action);
+  padding: 0 26px;
+  border-radius: 999px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.2;
   text-decoration: none;
-  transition: filter var(--transition-hover) ease;
+  white-space: nowrap;
+  transition:
+    filter var(--transition-hover) ease,
+    transform var(--transition-hover) ease,
+    border-color var(--transition-hover) ease,
+    background-color var(--transition-hover) ease;
+}
+.btn-primary {
+  background: var(--color-action);
+  color: var(--color-on-action);
 }
 .btn-primary:hover {
   filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+.btn-secondary {
+  border: 1px solid rgb(113 129 153 / 0.8);
+  background: transparent;
+  color: var(--color-text);
+}
+.btn-secondary:hover {
+  border-color: var(--color-action);
+  background: rgb(103 232 249 / 0.08);
+  transform: translateY(-1px);
+}
+.btn-primary:active,
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+/* Phone numbers: evenly spaced digits, never wrapped. */
+.phone-num {
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.phone-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-weight: 700;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color var(--transition-hover) ease;
+}
+.phone-link:hover {
+  color: var(--color-action);
 }
 .btn-primary[disabled] {
   cursor: progress;
   filter: saturate(0.6);
 }
 .btn-compact {
-  /* Same 52 px minimum as every primary button (guidelines); only the padding and type are smaller. */
-  padding: 0 18px;
-  font-size: 15px;
+  /* Same 52 px minimum as every primary button (guidelines); only the padding is smaller. */
+  padding: 0 22px;
 }
 .link-secondary {
   color: var(--color-muted);
@@ -196,22 +259,31 @@ body {
 }
 
 /* Practice cards: one clickable link covers the card */
+/* Static container with the card look (no hover), e.g. the Contact page boxes. */
+.panel {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.025), transparent 40%), var(--color-surface);
+  border: 1px solid rgb(113 129 153 / 0.45);
+  border-radius: 16px;
+}
 .card {
   position: relative;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  transition: transform var(--transition-hover) ease;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.025), transparent 40%), var(--color-surface);
+  border: 1px solid rgb(113 129 153 / 0.45);
+  border-radius: 16px;
+  transition:
+    transform var(--transition-hover) ease,
+    border-color var(--transition-hover) ease;
 }
 .card:hover,
 .card:focus-within {
   transform: translateY(-2px);
+  border-color: rgb(103 232 249 / 0.55);
 }
 .card-link::after {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: var(--radius);
+  border-radius: 16px;
 }
 
 /* Hero portrait glow: static, behind the frame only. Kept soft so it continues the
@@ -269,7 +341,11 @@ body {
     transition: none !important;
   }
   .card:hover,
-  .card:focus-within {
+  .card:focus-within,
+  .btn-primary:hover,
+  .btn-secondary:hover,
+  .btn-primary:active,
+  .btn-secondary:active {
     transform: none;
   }
 }

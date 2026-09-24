@@ -1,9 +1,18 @@
 import Link from "next/link";
+import { Anchor, MapPin, Scale } from "lucide-react";
 import { Container } from "@/components/Container";
 import { Portrait } from "@/components/Portrait";
+import { PhoneLink } from "@/components/PhoneLink";
 import { PracticeCarousel } from "@/components/PracticeCarousel";
 import { ContactSteps, Faq, IntakeBand, PracticeCards } from "@/components/Sections";
-import { CTA_LABEL, HOME_FAQ, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
+import { CTA_HREF, CTA_LABEL, HOME_FAQ } from "@/lib/site";
+
+// Confirmed facts only (plans/for-darren/answers-2026-09-24.md), shown as a quiet strip under the hero.
+const CREDENTIALS = [
+  { icon: Anchor, text: "U.S. Navy veteran" },
+  { icon: Scale, text: "Board member, Rutherford County DUI Court" },
+  { icon: MapPin, text: "Office in Murfreesboro" },
+];
 
 export default function Home() {
   return (
@@ -13,22 +22,31 @@ export default function Home() {
         <Container className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-7">
             <div className="hero-rise">
-              <p className="eyebrow">First-Time Offenders · DUI/DWI · Domestic Assault — Murfreesboro, Rutherford County &amp; Smyrna</p>
-              <h1 id="hero-title" className="h1 mt-4 max-w-[12ch]">
+              <p className="chip">
+                <span aria-hidden="true" className="size-2 rounded-full bg-action" />
+                Criminal defense · Murfreesboro, TN
+              </p>
+              <h1 id="hero-title" className="h1 mt-5 max-w-[12ch]">
                 Your next step starts with a conversation.
               </h1>
             </div>
             <p className="hero-rise hero-rise-2 measure mt-6 text-[18px] text-muted lg:text-[20px]">
               Tell Darren Drake about your legal matter and how to reach you.
             </p>
-            <div className="hero-rise hero-rise-3 mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
-              <Link href="/intake/" data-hero-cta className="btn-primary px-8 text-[17px]">
+            <div className="hero-rise hero-rise-3 mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <Link href={CTA_HREF} data-hero-cta className="btn-primary px-8 text-[17px]">
                 {CTA_LABEL}
               </Link>
-              <a href={PHONE_HREF} className="link-secondary inline-flex min-h-11 items-center text-[17px]">
-                Or call {PHONE_DISPLAY}
-              </a>
+              <PhoneLink className="text-[17px]" />
             </div>
+            <ul className="mt-10 flex flex-col gap-3 border-t border-border/40 pt-6 text-[16px] text-muted sm:flex-row sm:flex-wrap sm:gap-x-8">
+              {CREDENTIALS.map(({ icon: Icon, text }) => (
+                <li key={text} className="flex items-center gap-2.5 leading-snug">
+                  <Icon aria-hidden="true" size={18} strokeWidth={1.75} className="shrink-0 text-action" />
+                  {text}
+                </li>
+              ))}
+            </ul>
           </div>
           <div className="lg:col-span-5">
             <Portrait
@@ -43,7 +61,7 @@ export default function Home() {
 
       <section aria-labelledby="practice-title" className="pb-14 pt-6 lg:pb-24 lg:pt-6">
         <Container>
-          <p className="eyebrow uppercase tracking-[0.08em]">Practice areas</p>
+          <p className="eyebrow uppercase">Practice areas</p>
           <h2 id="practice-title" className="h2 mt-2">
             How Darren can help
           </h2>
@@ -57,7 +75,7 @@ export default function Home() {
       <section aria-labelledby="meet-title" className="py-14 lg:py-24">
         <Container className="grid gap-10 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-7">
-            <p className="eyebrow uppercase tracking-[0.08em]">About</p>
+            <p className="eyebrow uppercase">About</p>
             <h2 id="meet-title" className="h2 mt-2">
               Meet Darren Drake
             </h2>

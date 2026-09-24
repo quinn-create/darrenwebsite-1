@@ -55,9 +55,12 @@ const fieldShell =
 export function ContactForm({
   configured,
   headingLevel = "h2",
+  showIntro = true,
 }: {
   configured: boolean
   headingLevel?: "h1" | "h2"
+  // false when the page already has its own heading (the Contact page)
+  showIntro?: boolean
 }) {
   const Heading = headingLevel;
   const [values, setValues] = useState<ContactValues>(EMPTY_CONTACT);
@@ -175,30 +178,35 @@ export function ContactForm({
     <form
       noValidate
       onSubmit={submit}
-      aria-labelledby="contact-form-title"
+      aria-labelledby={showIntro ? "contact-form-title" : undefined}
+      aria-label={showIntro ? undefined : "Contact form"}
       aria-describedby={configured ? undefined : "contact-demo-note"}
       className="flex flex-col items-center text-text"
     >
-      <p className="rounded-full bg-action/15 px-3 py-1 text-[13px] font-semibold uppercase tracking-[0.08em] text-action">
-        Contact us
-      </p>
-      <Heading id="contact-form-title" className="h2 py-4 text-center">
-        Let&apos;s get in touch.
-      </Heading>
-      <p className="pb-8 text-center text-muted">
-        Or call the office at{" "}
-        <a href={PHONE_HREF} className="link-action font-semibold">
-          {PHONE_DISPLAY}
-        </a>
-      </p>
+      {showIntro && (
+        <>
+          <p className="rounded-full bg-action/15 px-3 py-1 text-[13px] font-semibold uppercase tracking-[0.08em] text-action">
+            Contact us
+          </p>
+          <Heading id="contact-form-title" className="h2 py-4 text-center">
+            Let&apos;s get in touch.
+          </Heading>
+          <p className="pb-8 text-center text-muted">
+            Or call the office at{" "}
+            <a href={PHONE_HREF} className="link-action font-semibold">
+              <span className="phone-num">{PHONE_DISPLAY}</span>
+            </a>
+          </p>
+        </>
+      )}
       {!configured && (
-        <p id="contact-demo-note" className="mb-6 w-full max-w-xl rounded-card border-2 border-action bg-bg p-4 text-[16px]">
+        <p id="contact-demo-note" className={cn("mb-6 w-full rounded-card border-2 border-action bg-bg p-4 text-[16px]", showIntro && "max-w-xl")}>
           <span className="font-bold">Demo form, not connected.</span>{" "}
           <span className="text-muted">Nothing you enter will be sent yet.</span>
         </p>
       )}
 
-      <div className="w-full max-w-xl">
+      <div className={cn("w-full", showIntro && "max-w-xl")}>
         {errorList.length > 0 && (
           <div
             ref={summaryRef}

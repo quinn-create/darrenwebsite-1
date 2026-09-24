@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!practice) return {};
   return {
     title: practice.title,
-    description: `${practice.summary} Start your intake with Darren Drake or call (615) 546-5551.`,
+    description: `${practice.summary} Contact Darren Drake or call (615) 546-5551.`,
   };
 }
 

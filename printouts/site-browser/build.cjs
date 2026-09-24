@@ -18,7 +18,6 @@ const PAGES = [
   ["/practice-areas/expungement/", "Expungement"],
   ["/about/", "About Darren"],
   ["/contact/", "Contact"],
-  ["/intake/", "Start your intake"],
   ["/privacy/", "Privacy notice"],
   ["/accessibility/", "Accessibility"],
   ["/legal-notice/", "Legal notice"],

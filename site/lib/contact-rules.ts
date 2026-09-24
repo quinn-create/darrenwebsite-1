@@ -1,6 +1,6 @@
 // Validation rules shared by the contact form (client) and /api/contact (server),
 // so both sides always agree. Kept dependency-free to stay out of the client bundle budget.
-// This is the site's only form: it is used on /intake/ and /contact/.
+// This is the site's only form, on the Contact page.
 
 export const ABOUT_OPTIONS = [
   { value: "rutherford-arrest", label: "Arrested in Rutherford County" },

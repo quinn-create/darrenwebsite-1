@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Phone } from "lucide-react";
-import { CTA_LABEL, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
+import { CTA_HREF, CTA_LABEL, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
+import { PhoneLink } from "./PhoneLink";
 import { NavTabs } from "./NavTabs";
 import { Wordmark } from "./Wordmark";
 
@@ -8,7 +9,7 @@ import { Wordmark } from "./Wordmark";
 // desktop, and as a full-width row under the logo on phones, so no menu has to be opened.
 export function Header() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border/40 bg-bg">
+    <header className="sticky top-0 z-40 border-b border-border/40 bg-bg/85 backdrop-blur-xl backdrop-saturate-150">
       <a
         href="#main"
         className="sr-only-focusable absolute left-4 top-3 z-50 rounded-md bg-action px-4 py-2 font-semibold text-on-action"
@@ -28,10 +29,8 @@ export function Header() {
         <NavTabs className="hidden lg:block" />
 
         <div className="hidden items-center gap-6 lg:flex">
-          <a href={PHONE_HREF} className="inline-flex min-h-11 items-center text-[16px] font-semibold text-muted hover:text-text">
-            {PHONE_DISPLAY}
-          </a>
-          <Link href="/intake/" className="btn-primary btn-compact">
+          <PhoneLink variant="inline" className="text-[16px]" />
+          <Link href={CTA_HREF} className="btn-primary btn-compact">
             {CTA_LABEL}
           </Link>
         </div>

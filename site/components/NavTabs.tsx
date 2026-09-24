@@ -29,7 +29,7 @@ export function NavTabs({ compact = false, className }: { compact?: boolean; cla
           compact && "grid w-full grid-cols-4",
         )}
       >
-        {NAV.map((item) => {
+        {NAV.filter((item) => compact || !("desktop" in item && item.desktop === false)).map((item) => {
           const active = isActive(pathname, item.href);
           return (
             <li key={item.href} className="flex">

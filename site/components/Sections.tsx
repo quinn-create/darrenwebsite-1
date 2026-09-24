@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { CTA_LABEL, PHONE_DISPLAY, PHONE_HREF, PRACTICES, STEPS } from "@/lib/site";
+import { CTA_HREF, CTA_LABEL, PRACTICES, STEPS } from "@/lib/site";
+import { PhoneLink } from "./PhoneLink";
 import { Container } from "./Container";
 import { PracticeIcon } from "./PracticeIcon";
 
@@ -37,7 +38,7 @@ export function ContactSteps({ id = "how-contact-works" }: { id?: string }) {
   return (
     <section aria-labelledby={id} className="py-14 lg:py-24">
       <Container>
-        <p className="eyebrow uppercase tracking-[0.08em]">Next steps</p>
+        <p className="eyebrow uppercase">Next steps</p>
         <h2 id={id} className="h2 mt-2">
           How contact works
         </h2>
@@ -95,15 +96,13 @@ export function IntakeBand({ id = "intake-band" }: { id?: string }) {
           <h2 id={id} className="h2">
             Ready when you are.
           </h2>
-          <p className="mt-3 text-muted">Start with a short inquiry. It takes a few minutes.</p>
+          <p className="mt-3 text-muted">Send a short message, or call the office.</p>
         </div>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-          <Link href="/intake/" className="btn-primary">
+          <Link href={CTA_HREF} className="btn-primary">
             {CTA_LABEL}
           </Link>
-          <a href={PHONE_HREF} className="link-secondary inline-flex min-h-11 items-center">
-            Or call {PHONE_DISPLAY}
-          </a>
+          <PhoneLink />
         </div>
       </Container>
     </section>

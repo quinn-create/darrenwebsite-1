@@ -3,17 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CTA_LABEL } from "@/lib/site";
+import { CTA_HREF, CTA_LABEL } from "@/lib/site";
 
 const FIELD = "input, select, textarea";
 
-// Opaque mobile intake bar. Hidden on /intake, while the page's own hero CTA is
+// Opaque mobile contact bar. Hidden on the Contact page (it holds the form), while the page's own hero CTA is
 // on screen, and whenever a form field has focus (so it never sits over the keyboard).
 // It stays hidden until the page has been measured, so slow phones never flash two buttons.
 export function StickyCta() {
   const pathname = usePathname();
   const [fieldFocused, setFieldFocused] = useState(false);
-  const onIntake = pathname.replace(/\/+$/, "") === "/intake";
+  const onIntake = pathname.replace(/\/+$/, "") === "/contact";
   // Visibility of the current page's hero CTA, keyed by path so a stale value never carries over.
   const [heroCta, setHeroCta] = useState<{ path: string; visible: boolean } | null>(null);
   const measured = heroCta?.path === pathname;
@@ -58,7 +58,7 @@ export function StickyCta() {
   if (hidden) return null;
   return (
     <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-bg px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4 lg:hidden">
-      <Link href="/intake/" className="btn-primary w-full">
+      <Link href={CTA_HREF} className="btn-primary w-full">
         {CTA_LABEL}
       </Link>
     </div>

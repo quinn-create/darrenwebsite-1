@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Container } from "@/components/Container";
 import { Portrait } from "@/components/Portrait";
+import { PracticeCarousel } from "@/components/PracticeCarousel";
 import { ContactSteps, Faq, IntakeBand, PracticeCards } from "@/components/Sections";
 import { CTA_LABEL, HOME_FAQ, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
 
@@ -49,6 +50,7 @@ export default function Home() {
           <div className="mt-10">
             <PracticeCards featuredOnly />
           </div>
+          <PracticeCarousel />
         </Container>
       </section>
 

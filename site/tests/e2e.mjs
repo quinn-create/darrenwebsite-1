@@ -409,6 +409,25 @@ await check("Home shows the three featured practice areas; Practice Areas lists 
   return home.join(", ");
 });
 
+await check("Home carousel: every practice area, arrows scroll it, no autoplay", async () => {
+  await page.goto(DEMO + "/");
+  const region = page.locator('[aria-roledescription="carousel"]');
+  const slides = region.locator('[aria-roledescription="slide"]');
+  assert((await slides.count()) === 5, `expected 5 slides, got ${await slides.count()}`);
+  const prev = region.getByRole("button", { name: "Previous practice areas" });
+  const next = region.getByRole("button", { name: "Next practice areas" });
+  await page.waitForTimeout(300);
+  assert(await prev.isDisabled(), "Previous should be disabled at the start");
+  const list = region.locator("ul");
+  const before = await list.evaluate((el) => el.scrollLeft);
+  await page.waitForTimeout(1500);
+  assert((await list.evaluate((el) => el.scrollLeft)) === before, "carousel moved on its own");
+  await next.click();
+  await page.waitForTimeout(800);
+  assert((await list.evaluate((el) => el.scrollLeft)) > before, "Next didn't scroll");
+  assert(!(await prev.isDisabled()), "Previous should be enabled after scrolling");
+});
+
 await check("Contact page uses the same form", async () => {
   await page.goto(DEMO + "/contact/");
   assert(await page.locator("#cf-yourName").isVisible(), "form missing on /contact/");

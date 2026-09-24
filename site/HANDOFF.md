@@ -208,3 +208,9 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
 - **Scroll padding:** increased to 136px on phones, for the taller header.
 - **Not applied:** the CSS snippet supplied with the component. Its `--color-destructive-foreground` line has a typo, and the site already maps that colour.
 - **Tests:** the e2e suite has 25 checks. The ☰ menu test was replaced by phone and desktop tab checks.
+
+## Update, 24 September 2026: practice-area carousel
+
+- **Carousel:** the home page shows the three featured cards, then `components/PracticeCarousel.tsx`: "All practice areas", a sideways-scrolling row of every entry in `PRACTICES`. It currently has five cards, and adding an area to `lib/site.ts` adds a card.
+- **How it works:** it's a CSS scroll-snap list, so it works by swipe, trackpad or keyboard without JavaScript. The Previous and Next buttons only scroll it; they're disabled at each end, and there's no autoplay. It follows reduced-motion settings.
+- **Tests:** e2e has 26 checks, including a carousel check (all areas present, the arrows scroll it, it doesn't move on its own).

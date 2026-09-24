@@ -87,6 +87,14 @@ const PAGES = [
 
   const template = fs.readFileSync(path.join(__dirname, "shell.html"), "utf8");
   const data = JSON.stringify({ pages, css, assets, order: PAGES.map(([r]) => r) }).replace(/<\//g, "<\\/");
-  fs.writeFileSync(OUT, template.replace("/*__DATA__*/null", data));
+  const full = template.replace("/*__DATA__*/null", data);
+  fs.writeFileSync(OUT, full);
+  // Same page for a private claude.ai link: the host adds the html/head/body skeleton itself.
+  const bare = full
+    .replace(/<!doctype html>\s*<html[^>]*>\s*<head>\s*/i, "")
+    .replace(/<meta charset="utf-8">\s*<meta name="viewport"[^>]*>\s*/i, "")
+    .replace(/<\/head>\s*<body>/i, "")
+    .replace(/<\/body>\s*<\/html>\s*$/i, "\n");
+  fs.writeFileSync(path.join(__dirname, "artifact.html"), bare);
   console.log(`${OUT} ${(fs.statSync(OUT).size / 1024 / 1024).toFixed(2)} MB, ${PAGES.length} pages, ${assets.length} assets`);
 })();

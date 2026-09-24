@@ -3,17 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Darren Drake website preview</title>
+<title>Darren Drake Site Preview</title>
 <style>
   :root {
     --bg: #e9edf3; --bar: #ffffff; --text: #0f172a; --muted: #5b6475; --line: #cfd6e2;
-    --field: #f1f4f8; --accent: #0e7490; --stage: #d9dfe8; --toast: #0f172a; --toast-text: #f8fafc;
+    --field: #f1f4f8; --accent: #0e7490; --on-accent: #ffffff; --stage: #d9dfe8; --toast: #0f172a; --toast-text: #f8fafc;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
+      color-scheme: dark;
       --bg: #0b1120; --bar: #111a2c; --text: #e8edf6; --muted: #9aa6ba; --line: #26324a;
-      --field: #0b1322; --accent: #67e8f9; --stage: #070c17; --toast: #e8edf6; --toast-text: #0b1120;
+      --field: #0b1322; --accent: #67e8f9; --on-accent: #07111f; --stage: #070c17; --toast: #e8edf6; --toast-text: #0b1120;
     }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0b1120; --bar: #111a2c; --text: #e8edf6; --muted: #9aa6ba; --line: #26324a;
+    --field: #0b1322; --accent: #67e8f9; --on-accent: #07111f; --stage: #070c17; --toast: #e8edf6; --toast-text: #0b1120;
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
@@ -29,7 +35,7 @@
   .address select { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
   .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
   .seg button { height: 34px; padding: 0 12px; border: 0; background: var(--field); color: var(--text); font: inherit; cursor: pointer; }
-  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--bar); font-weight: 600; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); font-weight: 600; }
   .note { font-size: 12px; color: var(--muted); padding: 4px 12px; background: var(--bar); border-bottom: 1px solid var(--line); }
   .stage { flex: 1; min-height: 0; background: var(--stage); display: flex; justify-content: center; align-items: flex-start; overflow: hidden; padding: 12px; }
   .frame { position: relative; overflow: hidden; background: #090f1c; box-shadow: 0 8px 30px rgb(0 0 0 / .25); border-radius: 8px; }
@@ -46,7 +52,7 @@
     <button class="btn" id="fwd" aria-label="Forward" title="Forward">&#8594;</button>
     <button class="btn" id="home" aria-label="Home page" title="Home page">&#8962;</button>
     <label class="address" title="Choose a page">
-      <span class="lock">&#128274; ddrakelaw.com</span>
+      <span class="lock">Draft site</span>
       <span class="url" id="url">/</span>
       <span aria-hidden="true">&#9662;</span>
       <select id="pages" aria-label="Go to page"></select>
@@ -62,12 +68,8 @@
 
 <script>
 const DATA = /*__DATA__*/null;
-const blobUrls = DATA.assets.map((a) => {
-  const bin = atob(a.data), bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return URL.createObjectURL(new Blob([bytes], { type: a.mime }));
-});
-const fill = (s) => s.replace(/asset:\/\/(\d+)/g, (_, i) => blobUrls[+i]);
+const assetUrls = DATA.assets.map((a) => "data:" + a.mime + ";base64," + a.data);
+const fill = (s) => s.replace(/asset:\/\/(\d+)/g, (_, i) => assetUrls[+i]);
 // Without the site's scripts, the form's option buttons need plain CSS to show when they're picked.
 const PREVIEW_CSS = "label:has(> input:checked){border-color:#67e8f9 !important;background:rgb(103 232 249 / .15) !important}" +
   "label:has(> input:checked) > span[aria-hidden]{background:#67e8f9;border-color:#67e8f9}";
@@ -96,7 +98,7 @@ function show(route, hash) {
   view.srcdoc = fill(page.html.replace("<!--SITE-CSS-->", css));
   $("url").textContent = route;
   $("pages").value = route;
-  document.title = page.title + " · Darren Drake website preview";
+  
   return true;
 }
 

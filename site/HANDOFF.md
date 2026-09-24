@@ -168,3 +168,15 @@ Lab speed test: LCP about 0.78 s, 228 KB total.
 - **Placement: option B (chosen 24 September 2026).** This is now the site's only form. It is on `/intake/`, where every "Start your intake" button leads (the form's heading is the page heading), and on `/contact/` next to the office details. The old intake form (`components/IntakeForm.tsx`, `lib/intake-rules.ts`, `/api/intake/`) was removed. As a result, the county and the next court date are no longer collected up front; the office asks on the callback. The options are compared in `printouts/Contact-Form-Options.pdf`.
 - **Needs confirmation:** the "As soon as possible" note ("We generally return calls within a day.") carries a `[CONFIRM WITH DARREN]` marker, so the placeholder guard blocks release until he approves it. There are now 37 placeholders in total.
 - **Tests:** the e2e suite has 24 checks. The form tests (errors, demo mode, test delivery, double-click, network failure, keyboard-only, axe) now run against the new form on `/intake/`, plus one check that `/contact/` uses the same form.
+
+## Update, 24 September 2026: Darren's answers applied
+
+Darren's facts and decisions are recorded in `plans/for-darren/answers-2026-09-24.md`, and the site now uses them:
+- the business name, address and hours (no public email);
+- "Murfreesboro, Rutherford County & Smyrna" as the service area;
+- the About page facts;
+- the approved callback note.
+
+The placeholder guard now reports 24 placeholders, down from 37. The remaining ones are the practice-page wording and FAQs, the privacy notice, the accessibility contact and date, the legal-notice responsibility line, and the licensed local photo.
+
+Inquiries go to Kelly Pittman: set `INTAKE_DESTINATION` to the email adapter when the firm's accounts exist. Still open: a second recipient, the text-alert approach, MyCase, and the live Google rating.

@@ -5,7 +5,7 @@ import { Breadcrumbs, IntakeBand } from "@/components/Sections";
 
 export const metadata: Metadata = {
   title: "About Darren",
-  description: "About Darren Drake, attorney at law in Murfreesboro and Middle Tennessee.",
+  description: "About Darren Drake, attorney at law serving Murfreesboro, Rutherford County and Smyrna.",
 };
 
 export default function About() {
@@ -18,15 +18,31 @@ export default function About() {
             <h1 className="h1 mt-4">About Darren Drake</h1>
             <div className="measure mt-8 flex flex-col gap-5 text-muted">
               <p>
-                [CONFIRM WITH FIRM] Darren Drake is an attorney in Murfreesboro, Tennessee. His practice focuses on
-                criminal defense (including first-time offenses and domestic assault), DUI/DWI and expungement for people across Middle Tennessee.
+                Darren Drake is an attorney in Murfreesboro serving Rutherford County, including Smyrna. His practice
+                focuses on criminal defense (including first-time offenses and domestic assault), DUI/DWI and expungement.
               </p>
-              <h2 className="h3 mt-4 text-text">Service</h2>
-              <p>[CONFIRM WITH FIRM] Darren served in the U.S. Navy. Details of his service to be supplied by the firm.</p>
+              <h2 className="h3 mt-4 text-text">Navy service</h2>
+              <p>
+                Darren served in the U.S. Navy from 1996 to 2002 as an Electronics Technician. He served aboard the USS
+                Kitty Hawk and the USS Constellation, and completed a tour on Diego Garcia.
+              </p>
               <h2 className="h3 mt-4 text-text">Community</h2>
-              <p>[CONFIRM WITH FIRM] Darren is involved in the local community. Specific organizations to be supplied by the firm.</p>
+              <ul className="flex list-disc flex-col gap-2 pl-5">
+                <li>Board member, Rutherford County DUI Court</li>
+                <li>Former Assistant Chief, Lascassas Volunteer Fire Department</li>
+                <li>Helped found the Veterans Legal Assistance Program at Southern Illinois University School of Law</li>
+              </ul>
               <h2 className="h3 mt-4 text-text">Education and admissions</h2>
-              <p>[FIRM TO SUPPLY] Education, bar admissions and any other credentials.</p>
+              <ul className="flex list-disc flex-col gap-2 pl-5">
+                <li>Law degree, Southern Illinois University School of Law</li>
+                <li>B.S. in Electronics Systems, Southern Illinois University Carbondale (2005)</li>
+                <li>Admitted in Tennessee and the U.S. District Court for the Middle District of Tennessee</li>
+              </ul>
+              <h2 className="h3 mt-4 text-text">Memberships</h2>
+              <ul className="flex list-disc flex-col gap-2 pl-5">
+                <li>Tennessee Association of Criminal Defense Lawyers</li>
+                <li>Rutherford &amp; Cannon County Bar Association</li>
+              </ul>
             </div>
           </div>
           <div className="lg:col-span-5">

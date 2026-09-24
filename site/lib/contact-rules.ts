@@ -18,9 +18,8 @@ export const CALLBACK_OPTIONS = [
   { value: "week", label: "Sometime this week" },
 ] as const;
 
-// Shown when "As soon as possible" is chosen. A response-time statement is a promise to
-// the public, so it stays marked until Darren confirms it (the placeholder guard blocks release).
-export const ASAP_NOTE = "We generally return calls within a day. [CONFIRM WITH DARREN]";
+// Shown when "As soon as possible" is chosen. Approved by Darren on 24 September 2026.
+export const ASAP_NOTE = "We generally return calls within a day.";
 
 export const CONTACT_MESSAGE_MAX = 1000;
 

@@ -39,10 +39,6 @@ export default function Contact() {
                 <dt className="label text-text">Hours</dt>
                 <dd>{FIRM.hours}</dd>
               </div>
-              <div>
-                <dt className="label text-text">Email</dt>
-                <dd>{FIRM.email}</dd>
-              </div>
             </dl>
           </div>
         </Container>

@@ -65,7 +65,7 @@ function FooterSection({ className }: { className?: string }) {
                 </a>
               </p>
               <p className="text-muted-foreground">{FIRM.address}</p>
-              <p className="text-muted-foreground">{FIRM.email}</p>
+              <p className="text-muted-foreground">{FIRM.hours}</p>
             </address>
           </div>
         </div>

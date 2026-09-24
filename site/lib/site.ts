@@ -11,11 +11,10 @@ export const PHONE_HREF = "tel:+16155465551";
 export const FIRM = {
   name: "Darren Drake",
   descriptor: "Attorney at Law",
-  legalName: "Darren Drake [confirm legal entity name]",
-  address: "[Office address — to confirm]",
-  hours: "[Office hours — to confirm]",
-  email: "[Email — to confirm]",
-  serviceArea: "Murfreesboro & Middle Tennessee",
+  legalName: "Darren Drake Law PLLC",
+  address: "138 S. Cannon Ave, Murfreesboro, TN 37129",
+  hours: "Monday–Friday, 8am–5pm",
+  serviceArea: "Murfreesboro, Rutherford County & Smyrna",
 } as const;
 
 export const NAV = [
@@ -58,7 +57,7 @@ export const PRACTICES: {
     slug: "criminal-defense",
     title: "Criminal Defense",
     icon: "briefcase",
-    summary: "Help for people facing criminal charges in Middle Tennessee.",
+    summary: "Help for people facing criminal charges in Rutherford County.",
     faq: [
       { q: "What should I do first if I have been charged?", a: "[FIRM TO SUPPLY]" },
       { q: "What information should I have ready when I reach out?", a: "[FIRM TO SUPPLY]" },
@@ -80,7 +79,7 @@ export const PRACTICES: {
     title: "Domestic Assault",
     icon: "shield",
     featured: true,
-    summary: "Help for people charged with domestic assault in Middle Tennessee.",
+    summary: "Help for people charged with domestic assault in Rutherford County.",
     faq: [
       { q: "What happens after a domestic assault arrest?", a: "[FIRM TO SUPPLY]" },
       { q: "What should I avoid doing while my case is open?", a: "[FIRM TO SUPPLY]" },
@@ -115,7 +114,7 @@ export const HOME_FAQ = [
   },
   {
     q: "What areas do you serve?",
-    a: "Murfreesboro and Middle Tennessee. [CONFIRM COUNTIES]",
+    a: "Murfreesboro, Smyrna and the rest of Rutherford County.",
   },
   {
     q: "Can I call instead?",

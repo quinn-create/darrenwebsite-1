@@ -67,6 +67,8 @@
 html {
   /* Keep focused fields and the error summary clear of the sticky header. */
   scroll-padding-top: 80px;
+  /* ...and clear of the phone's bottom intake bar. */
+  scroll-padding-bottom: var(--sticky-cta-height);
   background: var(--color-bg);
   color: var(--color-text);
   -webkit-text-size-adjust: 100%;
@@ -172,8 +174,8 @@ body {
   filter: saturate(0.6);
 }
 .btn-compact {
-  min-height: 44px;
-  padding: 0 16px;
+  /* Same 52 px minimum as every primary button (guidelines); only the padding and type are smaller. */
+  padding: 0 18px;
   font-size: 15px;
 }
 .link-secondary {
@@ -212,27 +214,27 @@ body {
   border-radius: var(--radius);
 }
 
-/* Hero portrait glow: static, behind the frame only */
+/* Hero portrait glow: static, behind the frame only. Kept soft so it continues the
+   portrait's own violet (left) and cyan (right) light instead of doubling it. */
 .portrait-glow {
   position: absolute;
   inset: -14% -22%;
   z-index: 0;
   border-radius: 50%;
   background:
-    radial-gradient(closest-side at 28% 50%, rgb(139 92 246 / 0.7), transparent 80%),
-    radial-gradient(closest-side at 74% 50%, rgb(103 232 249 / 0.55), transparent 80%);
+    radial-gradient(closest-side at 26% 52%, rgb(139 92 246 / 0.62), transparent 80%),
+    radial-gradient(closest-side at 76% 52%, rgb(103 232 249 / 0.5), transparent 80%);
   filter: blur(44px);
   pointer-events: none;
 }
 
-/* One entrance for the hero, at most three elements. Text stays readable immediately. */
+/* One entrance for the hero, at most three elements. Text is fully visible from the
+   first frame and only moves 12 px ("animation must never hide or delay essential text"). */
 @keyframes rise {
   from {
-    opacity: 0.01;
     transform: translateY(12px);
   }
   to {
-    opacity: 1;
     transform: none;
   }
 }

@@ -7,8 +7,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CTA_LABEL, NAV, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
 import { Wordmark } from "./Wordmark";
 
+// Compare without trailing slashes, so "/about" and "/about/" both count.
+const trim = (p: string) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
+
 function isActive(pathname: string, href: string) {
-  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
+  const path = trim(pathname);
+  const target = trim(href);
+  return target === "/" ? path === "/" : path === target || path.startsWith(target + "/");
 }
 
 export function Header() {
@@ -109,7 +114,7 @@ export function Header() {
           <a href={PHONE_HREF} className="inline-flex min-h-11 items-center text-[16px] font-semibold text-muted hover:text-text">
             {PHONE_DISPLAY}
           </a>
-          <Link href="/intake" className="btn-primary btn-compact">
+          <Link href="/intake/" className="btn-primary btn-compact">
             {CTA_LABEL}
           </Link>
         </div>
@@ -171,7 +176,7 @@ export function Header() {
               ))}
             </ul>
             <div className="mt-8 flex flex-col gap-4">
-              <Link href="/intake" className="btn-primary w-full">
+              <Link href="/intake/" className="btn-primary w-full">
                 {CTA_LABEL}
               </Link>
               <a href={PHONE_HREF} className="link-secondary inline-flex min-h-11 items-center justify-center text-[17px]">

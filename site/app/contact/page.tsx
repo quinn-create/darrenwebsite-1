@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/Container";
 import { PageIntro } from "@/components/Sections";
-import { CTA_LABEL, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
+import { CTA_LABEL, FIRM, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -22,7 +22,7 @@ export default function Contact() {
           <div className="rounded-card border border-border bg-surface p-6 lg:p-10">
             <h2 className="h3">Start your intake</h2>
             <p className="mt-3 text-muted">Tell Darren Drake about your legal matter and how to reach you.</p>
-            <Link href="/intake" className="btn-primary mt-8">
+            <Link href="/intake/" className="btn-primary mt-8">
               {CTA_LABEL}
             </Link>
           </div>
@@ -34,15 +34,15 @@ export default function Contact() {
             <dl className="mt-6 grid gap-4 text-muted">
               <div>
                 <dt className="label text-text">Office</dt>
-                <dd>[Office address — to confirm]</dd>
+                <dd>{FIRM.address}</dd>
               </div>
               <div>
                 <dt className="label text-text">Hours</dt>
-                <dd>[Office hours — to confirm]</dd>
+                <dd>{FIRM.hours}</dd>
               </div>
               <div>
                 <dt className="label text-text">Email</dt>
-                <dd>[Email — to confirm]</dd>
+                <dd>{FIRM.email}</dd>
               </div>
             </dl>
           </div>

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/manrope/wght.css";
 import "./globals.css";
+import { IS_PRODUCTION, SITE_URL } from "@/lib/env";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { StickyCta } from "@/components/StickyCta";
@@ -12,7 +13,9 @@ export const metadata: Metadata = {
   },
   description:
     "Darren Drake, attorney at law in Murfreesboro and Middle Tennessee. Criminal defense, DUI/DWI and expungement. Start your intake or call (615) 546-5551.",
-  robots: { index: false, follow: false }, // demo preview: keep out of search engines
+  metadataBase: new URL(SITE_URL),
+  // Only the live site (SITE_ENV=production) may be indexed; previews stay out of search engines.
+  robots: IS_PRODUCTION ? { index: true, follow: true } : { index: false, follow: false },
 };
 
 export const viewport: Viewport = {

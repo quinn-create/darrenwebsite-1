@@ -6,10 +6,10 @@ const base = process.argv[2] ?? "http://localhost:3000";
 const executablePath = process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium";
 const pages = [
   ["home", "/"],
-  ["practice", "/practice-areas/dui-dwi"],
-  ["about", "/about"],
-  ["contact", "/contact"],
-  ["intake", "/intake"],
+  ["practice", "/practice-areas/dui-dwi/"],
+  ["about", "/about/"],
+  ["contact", "/contact/"],
+  ["intake", "/intake/"],
 ];
 const widths = [390, 768, 1440];
 

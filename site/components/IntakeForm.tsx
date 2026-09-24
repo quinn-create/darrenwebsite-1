@@ -91,7 +91,7 @@ export function IntakeForm({ configured }: { configured: boolean }) {
     inFlight.current = true;
     setStatus({ kind: "submitting" });
     try {
-      const res = await fetch("/api/intake", {
+      const res = await fetch("/api/intake/", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ ...values, website: honeypot }),

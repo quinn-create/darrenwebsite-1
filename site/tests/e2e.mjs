@@ -13,7 +13,7 @@ const axeSource = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 const DEMO = "http://localhost:3000";
 const LIVE = "http://localhost:3001";
 const executablePath = process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium";
-const PAGES = ["/", "/practice-areas", "/practice-areas/criminal-defense", "/about", "/contact", "/intake", "/privacy"];
+const PAGES = ["/", "/practice-areas/", "/practice-areas/criminal-defense/", "/about/", "/contact/", "/intake/", "/privacy/", "/accessibility/", "/legal-notice/"];
 
 const results = [];
 const SUMMARY = '[aria-labelledby="error-summary-title"]';
@@ -47,7 +47,7 @@ const desktop = await browser.newContext({ viewport: { width: 1440, height: 900 
 const page = await desktop.newPage();
 
 await check("Required-field errors: summary gets focus and lists each problem", async () => {
-  await page.goto(DEMO + "/intake");
+  await page.goto(DEMO + "/intake/");
   await page.getByRole("button", { name: "Send inquiry" }).click();
   const summary = page.locator(SUMMARY);
   await summary.waitFor();
@@ -83,7 +83,7 @@ await check("Only the chosen contact method is required; invalid email/phone rej
 });
 
 await check("Demo mode: 'not connected' banner shown, nothing claimed as sent, values kept", async () => {
-  await page.goto(DEMO + "/intake");
+  await page.goto(DEMO + "/intake/");
   assert(await page.getByRole("note").getByText("Demo form, not connected").isVisible(), "banner missing");
   await fillValid(page);
   await page.getByRole("button", { name: "Send inquiry" }).click();
@@ -93,10 +93,10 @@ await check("Demo mode: 'not connected' banner shown, nothing claimed as sent, v
 });
 
 await check("Configured (test destination): 'Sending…' state, success only after server acceptance", async () => {
-  await page.goto(LIVE + "/intake");
+  await page.goto(LIVE + "/intake/");
   assert((await page.getByRole("note").count()) === 0, "banner should be hidden when configured");
   await fillValid(page);
-  await page.route("**/api/intake", async (route) => {
+  await page.route("**/api/intake/", async (route) => {
     await new Promise((r) => setTimeout(r, 800));
     await route.continue();
   });
@@ -107,45 +107,45 @@ await check("Configured (test destination): 'Sending…' state, success only aft
   await page.getByText("Your inquiry was received. Submitting it does not establish representation.").waitFor();
   const focusedRole = await page.evaluate(() => document.activeElement?.getAttribute("role"));
   assert(focusedRole === "status", "success message should receive focus");
-  await page.unroute("**/api/intake");
+  await page.unroute("**/api/intake/");
   const lines = (await readFile(".data/intake-test.jsonl", "utf8")).trim().split("\n");
   assert(lines.length === 1, `expected 1 stored test inquiry, got ${lines.length}`);
 });
 
 await check("Double-click submit sends only once", async () => {
-  await page.goto(LIVE + "/intake");
+  await page.goto(LIVE + "/intake/");
   await fillValid(page, { method: "email" });
   await page.locator("#message").fill("Double click test.");
   let posts = 0;
-  await page.route("**/api/intake", async (route) => {
+  await page.route("**/api/intake/", async (route) => {
     posts++;
     await new Promise((r) => setTimeout(r, 500));
     await route.continue();
   });
   await page.getByRole("button", { name: "Send inquiry" }).dblclick();
   await page.getByText("Your inquiry was received").waitFor();
-  await page.unroute("**/api/intake");
+  await page.unroute("**/api/intake/");
   assert(posts === 1, `expected 1 request, got ${posts}`);
   const lines = (await readFile(".data/intake-test.jsonl", "utf8")).trim().split("\n");
   assert(lines.length === 2, `expected 2 stored test inquiries total, got ${lines.length}`);
 });
 
 await check("Network failure: values kept, retry offered, retry succeeds", async () => {
-  await page.goto(LIVE + "/intake");
+  await page.goto(LIVE + "/intake/");
   await fillValid(page);
   await page.locator("#message").fill("Network failure test.");
-  await page.route("**/api/intake", (route) => route.abort("failed"));
+  await page.route("**/api/intake/", (route) => route.abort("failed"));
   await page.getByRole("button", { name: "Send inquiry" }).click();
   await page.getByText("could not be sent because of a connection problem").waitFor();
   assert((await page.locator("#message").inputValue()) === "Network failure test.", "values lost");
   assert(await page.getByRole("link", { name: "(615) 546-5551" }).first().isVisible(), "phone link missing");
-  await page.unroute("**/api/intake");
+  await page.unroute("**/api/intake/");
   await page.getByRole("button", { name: "Try again" }).click();
   await page.getByText("Your inquiry was received").waitFor();
 });
 
 await check("Keyboard-only completion of the intake form", async () => {
-  await page.goto(LIVE + "/intake");
+  await page.goto(LIVE + "/intake/");
   await page.locator("#fullName").focus();
   await page.keyboard.type("Keyboard Tester");
   await page.keyboard.press("Tab"); // matter type group (first radio)
@@ -249,6 +249,101 @@ await check("Keyboard: skip link is first and moves focus to main", async () => 
   assert(text === "Skip to content", `first tab stop was ${text}`);
 });
 
+await check("Old WordPress addresses: one-hop permanent redirects, and 'gone' (410) for junk", async () => {
+  const REDIRECTS = {
+    "/areas-of-practice/": "/practice-areas/",
+    "/areas-of-practice/criminaldefense/": "/practice-areas/criminal-defense/",
+    "/areas-of-practice/dui/": "/practice-areas/dui-dwi/",
+    "/areas-of-practice/expungement/": "/practice-areas/expungement/",
+    "/areas-of-practice/juvenile-defense/": "/practice-areas/criminal-defense/",
+    "/criminal-defense/": "/practice-areas/criminal-defense/",
+    "/dui/": "/practice-areas/dui-dwi/",
+    "/expungement/": "/practice-areas/expungement/",
+    "/testimonials/": "/about/",
+    "/blog/": "/",
+    "/sitemap_index.xml": "/sitemap.xml",
+    "/criminal-defense/darren_drake/": "/about/",
+    "/contact/ruco/": "/contact/",
+    "/?page_id=2": "/contact/",
+    "/?page_id=12": "/",
+    "/intake": "/intake/",
+  };
+  const GONE = ["/submit-a-testimonial/", "/wp-login.php", "/wp-admin/", "/xmlrpc.php", "/feed/", "/contact/feed/",
+    "/?s=test", "/?p=999", "/6668243_qpkgeeqfkxmexnek_24_come_9021_/", "/criminal-defense/john_drake/", "/category/news/",
+    "/wp-content/uploads/2016/09/google061b36be2fc32f66.html"];
+  const bad = [];
+  for (const [from, to] of Object.entries(REDIRECTS)) {
+    const r1 = await fetch(DEMO + from, { redirect: "manual" });
+    const loc = new URL(r1.headers.get("location") ?? "", DEMO);
+    if (![301, 308].includes(r1.status) || loc.pathname !== new URL(to, DEMO).pathname) {
+      bad.push(`${from} -> ${r1.status} ${loc.pathname}`);
+      continue;
+    }
+    const r2 = await fetch(loc, { redirect: "manual" });
+    if (r2.status !== 200) bad.push(`${from} -> ${loc.pathname} second hop ${r2.status}`);
+  }
+  // Old addresses typed without the ending "/" (the old site never used these as its own
+  // addresses): Next.js adds the "/" first, so allow two hops, ending on the right page.
+  for (const [from, to] of [["/areas-of-practice", "/practice-areas/"], ["/dui", "/practice-areas/dui-dwi/"]]) {
+    const r = await fetch(DEMO + from, { redirect: "follow" });
+    if (r.status !== 200 || new URL(r.url).pathname !== to || r.redirected !== true) bad.push(`${from} (no slash) ended at ${r.status} ${new URL(r.url).pathname}`);
+  }
+  for (const path of GONE) {
+    const r = await fetch(DEMO + path, { redirect: "manual" });
+    if (r.status !== 410) bad.push(`${path} -> ${r.status} (expected 410)`);
+  }
+  assert(bad.length === 0, bad.join("; "));
+  return `${Object.keys(REDIRECTS).length} redirects, ${GONE.length} gone`;
+});
+
+await check("Sitemap lists every page; previews are hidden from search engines", async () => {
+  const sm = await (await fetch(DEMO + "/sitemap.xml")).text();
+  const missing = PAGES.filter((p) => !sm.includes(`https://ddrakelaw.com${p}</loc>`));
+  assert(missing.length === 0, `missing from sitemap: ${missing.join(", ")}`);
+  const robots = await (await fetch(DEMO + "/robots.txt")).text();
+  assert(/Disallow: \/\s*$/m.test(robots), "preview robots.txt should disallow everything");
+  await page.goto(DEMO + "/");
+  const meta = await page.locator('meta[name="robots"]').getAttribute("content");
+  assert(/noindex/.test(meta ?? ""), `preview robots meta is ${meta}`);
+});
+
+await check("Every cyan button is at least 52 px tall", async () => {
+  const small = [];
+  for (const [w, paths] of [[1440, PAGES], [390, ["/", "/intake/"]]]) {
+    const ctx = await browser.newContext({ viewport: { width: w, height: 900 } });
+    const p = await ctx.newPage();
+    for (const path of paths) {
+      await p.goto(DEMO + path);
+      const hs = await p.locator(".btn-primary:visible").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
+      hs.forEach((h) => h < 51.5 && small.push(`${w}px ${path}: ${h}px`));
+    }
+    await ctx.close();
+  }
+  assert(small.length === 0, small.join("; "));
+});
+
+await check("Axe scan at phone and tablet widths, including the open menu", async () => {
+  const summary = [];
+  for (const width of [390, 768]) {
+    const ctx = await browser.newContext({ viewport: { width, height: 900 } });
+    const p = await ctx.newPage();
+    for (const path of PAGES) {
+      await p.goto(DEMO + path);
+      await p.addScriptTag({ content: axeSource });
+      const res = await p.evaluate(async () => axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] }));
+      for (const v of res.violations) summary.push(`${width}px ${path}: ${v.id} (${v.nodes.length})`);
+    }
+    await p.goto(DEMO + "/");
+    await p.getByRole("button", { name: "Open menu" }).click();
+    await p.addScriptTag({ content: axeSource });
+    const res = await p.evaluate(async () => axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] }));
+    for (const v of res.violations) summary.push(`${width}px menu: ${v.id} (${v.nodes.length})`);
+    await ctx.close();
+  }
+  assert(summary.length === 0, summary.join("; "));
+  return "0 violations";
+});
+
 await check("Axe accessibility scan (WCAG 2.0/2.1/2.2 A & AA) on every page", async () => {
   const summary = [];
   for (const path of [...PAGES, "/does-not-exist"]) {
@@ -266,7 +361,7 @@ await check("Axe accessibility scan (WCAG 2.0/2.1/2.2 A & AA) on every page", as
 });
 
 await check("Axe scan of the intake page with errors shown", async () => {
-  await page.goto(DEMO + "/intake");
+  await page.goto(DEMO + "/intake/");
   await page.getByRole("button", { name: "Send inquiry" }).click();
   await page.locator(SUMMARY).waitFor();
   await page.addScriptTag({ content: axeSource });

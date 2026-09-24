@@ -16,7 +16,7 @@ export function PracticeCards({ headingLevel = "h3" }: { headingLevel?: "h2" | "
             {p.summary} <span className="text-[15px]">[CONFIRM WITH FIRM]</span>
           </p>
           <Link
-            href={`/practice-areas/${p.slug}`}
+            href={`/practice-areas/${p.slug}/`}
             className="card-link link-secondary mt-auto inline-flex min-h-11 items-center gap-2 font-semibold"
           >
             Learn more<span className="sr-only"> about {p.title}</span>
@@ -94,7 +94,7 @@ export function IntakeBand({ id = "intake-band" }: { id?: string }) {
           <p className="mt-3 text-muted">Start with a short inquiry. It takes a few minutes.</p>
         </div>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-          <Link href="/intake" className="btn-primary">
+          <Link href="/intake/" className="btn-primary">
             {CTA_LABEL}
           </Link>
           <a href={PHONE_HREF} className="link-secondary inline-flex min-h-11 items-center">

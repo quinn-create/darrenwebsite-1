@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <>
       {/* Hero: 7/5 split. On phones the headline and CTA come before the portrait. */}
-      <section aria-labelledby="hero-title" className="overflow-hidden pb-14 pt-10 lg:pb-24 lg:pt-20">
+      <section aria-labelledby="hero-title" className="overflow-hidden pb-14 pt-10 lg:pb-10 lg:pt-12">
         <Container className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-7">
             <div className="hero-rise">
@@ -21,7 +21,7 @@ export default function Home() {
               Tell Darren Drake about your legal matter and how to reach you.
             </p>
             <div className="hero-rise hero-rise-3 mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
-              <Link href="/intake" data-hero-cta className="btn-primary px-8 text-[17px]">
+              <Link href="/intake/" data-hero-cta className="btn-primary px-8 text-[17px]">
                 {CTA_LABEL}
               </Link>
               <a href={PHONE_HREF} className="link-secondary inline-flex min-h-11 items-center text-[17px]">
@@ -33,14 +33,14 @@ export default function Home() {
             <Portrait
               priority
               glow
-              sizes="(min-width: 1024px) 440px, 256px"
-              className="mx-auto w-[256px] lg:w-full lg:max-w-[440px]"
+              sizes="(min-width: 1024px) 392px, 256px"
+              className="mx-auto w-[256px] lg:w-full lg:max-w-[392px]"
             />
           </div>
         </Container>
       </section>
 
-      <section aria-labelledby="practice-title" className="py-14 lg:py-24">
+      <section aria-labelledby="practice-title" className="pb-14 pt-6 lg:pb-24 lg:pt-6">
         <Container>
           <p className="eyebrow uppercase tracking-[0.08em]">Practice areas</p>
           <h2 id="practice-title" className="h2 mt-2">
@@ -69,7 +69,7 @@ export default function Home() {
                 community.
               </p>
             </div>
-            <Link href="/about" className="link-action mt-6 inline-flex min-h-11 items-center font-semibold">
+            <Link href="/about/" className="link-action mt-6 inline-flex min-h-11 items-center font-semibold">
               About Darren →
             </Link>
           </div>

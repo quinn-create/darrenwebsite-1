@@ -35,7 +35,7 @@ export default async function PracticePage({ params }: Props) {
         lead={`${practice.summary} [CONFIRM WITH FIRM]`}
         crumbs={[
           { href: "/", label: "Home" },
-          { href: "/practice-areas", label: "Practice Areas" },
+          { href: "/practice-areas/", label: "Practice Areas" },
           { label: practice.title },
         ]}
       />

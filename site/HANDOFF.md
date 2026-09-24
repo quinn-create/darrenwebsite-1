@@ -114,3 +114,43 @@ Changes from the demo component, per the brand guidelines:
 - **Glow:** the decorative glow blob was removed.
 - **Links and targets:** "Terms" and "Cookie Settings" were removed because those pages don't exist. Links and icon buttons are enlarged to 44 px targets.
 
+
+## Update, 24 September 2026: first work round from the plan
+
+This round follows `plans/signal-website-plan.md` ("What Claude does first").
+
+**Photo**
+- The Home and About pages use the new Signal portrait (pending Darren's written approval). The crops come from `site/scripts/make-photo-crops.py`, which only cuts from the genuine middle strip of the photo.
+- The glow is softened so it continues the photo's own light.
+- The downloadable full-size original was removed from `public/`. The master stays in `assets/photos/`.
+
+**Home page design**
+- The first desktop screen now matches concept 1A: the "How Darren can help" heading is visible at 1440×900. The name block in the header is larger.
+- The headline entrance no longer hides text. It only moves 12 px, as the guidelines require.
+- Every cyan button is now at least 52 px tall, including the header button and "Try again".
+- The phone's bottom bar no longer flashes on slow phones, and it stays clear of whatever a keyboard user has focused.
+
+**Footer and new pages**
+- The footer is now a server component: the tooltips (about 31 KB of JavaScript) are gone, and it shows the DARREN / DRAKE name block. The year is set on the server. It links to Privacy, Accessibility and Legal notice.
+- New pages: `/accessibility/` and `/legal-notice/`, both drafts for the firm to approve. There's also an error page that keeps the phone number reachable.
+
+**Addresses and search engines**
+- Every address now ends in `/`, in the old site's style.
+- `next.config.ts` redirects every old address in Appendix B in one step. `proxy.ts` returns 410 ("gone") for WordPress and junk addresses.
+- Addresses typed without the ending `/` take two steps. The old site behaved the same way.
+- `sitemap.xml` and `robots.txt` are added. Search engines can index the site only when `SITE_ENV=production`; previews stay hidden.
+
+**Safety checks**
+- All firm facts are now in `lib/site.ts` (`FIRM`).
+- `npm run build:production` refuses to build while any placeholder remains. `npm run check:placeholders` lists them; there are 32 today, all waiting on Darren.
+- Basic security headers are on (nosniff, Referrer-Policy, frame DENY, Permissions-Policy, HSTS). The full CSP is still to come (plan, Phase 4–5).
+
+**Tests:** 21/21 pass. The new checks cover:
+- the redirect map and "gone" addresses;
+- the sitemap and search-engine settings;
+- 52 px buttons;
+- an axe scan at 390 and 768 px, including the open menu.
+
+Lab speed test: LCP about 0.78 s, 228 KB total.
+
+**Still open:** everything that needs Darren's answers (see `plans/for-darren/`), the license check of the 21st.dev footer component, practice-page "Your attorney" cards, structured data, the link-preview image and the intake connection.

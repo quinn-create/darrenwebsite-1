@@ -34,7 +34,7 @@ export default function IntakePage() {
           <div className="mt-6 rounded-card border border-border/60 bg-surface p-5 text-[16px] leading-relaxed text-muted">
             <p>{INTAKE_HELPER}</p>
             <p className="mt-2">
-              <Link href="/privacy" className="link-action">
+              <Link href="/privacy/" className="link-action">
                 Read the privacy notice
               </Link>
               <span className="mx-2" aria-hidden="true">·</span>

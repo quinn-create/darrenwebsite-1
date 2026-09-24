@@ -1,14 +1,28 @@
-// Firm facts and shared copy. Only confirmed facts appear unmarked; everything
-// else carries a visible [CONFIRM…] / [FIRM TO…] marker for review before launch.
+// Firm facts and shared copy. Only confirmed facts appear unmarked; everything else
+// carries a visible bracketed "confirm" or "firm to supply" marker until reviewed.
 
 export const PHONE_DISPLAY = "(615) 546-5551";
 export const PHONE_HREF = "tel:+16155465551";
 
+// Every firm fact lives here, so each is changed in one place once Darren confirms it.
+// Bracketed values are placeholders: scripts/check-placeholders.mjs refuses a
+// production release while any remain (candidates from the old site are in
+// plans/research/current-site.md and need Darren's confirmation first).
+export const FIRM = {
+  name: "Darren Drake",
+  descriptor: "Attorney at Law",
+  legalName: "Darren Drake [confirm legal entity name]",
+  address: "[Office address — to confirm]",
+  hours: "[Office hours — to confirm]",
+  email: "[Email — to confirm]",
+  serviceArea: "Murfreesboro & Middle Tennessee",
+} as const;
+
 export const NAV = [
   { href: "/", label: "Home" },
-  { href: "/practice-areas", label: "Practice Areas" },
-  { href: "/about", label: "About Darren" },
-  { href: "/contact", label: "Contact" },
+  { href: "/practice-areas/", label: "Practice Areas" },
+  { href: "/about/", label: "About Darren" },
+  { href: "/contact/", label: "Contact" },
 ] as const;
 
 export const CTA_LABEL = "Start your intake";

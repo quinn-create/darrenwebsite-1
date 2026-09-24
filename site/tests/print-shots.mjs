@@ -9,7 +9,7 @@ const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PAT
 const opts = { reducedMotion: "reduce", deviceScaleFactor: 2 };
 
 const desk = await (await browser.newContext({ ...opts, viewport: { width: 1440, height: 900 } })).newPage();
-for (const [name, path] of [["home", "/"], ["practice", "/practice-areas/dui-dwi"], ["about", "/about"], ["contact", "/contact"], ["intake", "/intake"]]) {
+for (const [name, path] of [["home", "/"], ["practice", "/practice-areas/dui-dwi/"], ["about", "/about/"], ["contact", "/contact/"], ["intake", "/intake/"]]) {
   await desk.goto("http://localhost:3000" + path, { waitUntil: "networkidle" });
   await desk.screenshot({ path: `${out}/desktop-${name}.jpg`, quality: 85, type: "jpeg" });
   if (name === "home") await desk.screenshot({ path: `${out}/desktop-home-full.jpg`, fullPage: true, quality: 85, type: "jpeg" });

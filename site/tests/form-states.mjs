@@ -27,17 +27,17 @@ for (const width of [390, 1440]) {
 
   await page.goto("http://localhost:3001/intake");
   await fill("send");
-  await page.route("**/api/intake", async (r) => { await new Promise((x) => setTimeout(x, 1500)); await r.continue(); });
+  await page.route("**/api/intake/", async (r) => { await new Promise((x) => setTimeout(x, 1500)); await r.continue(); });
   await page.getByRole("button", { name: "Send inquiry" }).click();
   await page.getByRole("button", { name: "Sending…" }).waitFor();
   await shot("submitting");
   await page.getByText("Your inquiry was received").waitFor();
-  await page.unroute("**/api/intake");
+  await page.unroute("**/api/intake/");
   await shot("success");
 
   await page.goto("http://localhost:3001/intake");
   await fill("retry");
-  await page.route("**/api/intake", (r) => r.abort("failed"));
+  await page.route("**/api/intake/", (r) => r.abort("failed"));
   await page.getByRole("button", { name: "Send inquiry" }).click();
   await page.getByRole("button", { name: "Try again" }).waitFor();
   await shot("retry");

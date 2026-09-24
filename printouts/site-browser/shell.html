@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Darren Drake website preview</title>
+<style>
+  :root {
+    --bg: #e9edf3; --bar: #ffffff; --text: #0f172a; --muted: #5b6475; --line: #cfd6e2;
+    --field: #f1f4f8; --accent: #0e7490; --stage: #d9dfe8; --toast: #0f172a; --toast-text: #f8fafc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1120; --bar: #111a2c; --text: #e8edf6; --muted: #9aa6ba; --line: #26324a;
+      --field: #0b1322; --accent: #67e8f9; --stage: #070c17; --toast: #e8edf6; --toast-text: #0b1120;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { background: var(--bg); color: var(--text); font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; }
+  .bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bar); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .btn { min-width: 36px; height: 36px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--field); color: var(--text); font: inherit; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .btn:hover:not(:disabled) { border-color: var(--accent); }
+  .btn:disabled { opacity: .4; cursor: default; }
+  .btn:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .address { flex: 1 1 260px; min-width: 0; height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--field); position: relative; }
+  .address .lock { color: var(--muted); font-size: 12px; white-space: nowrap; }
+  .address .url { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .address select { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { height: 34px; padding: 0 12px; border: 0; background: var(--field); color: var(--text); font: inherit; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--bar); font-weight: 600; }
+  .note { font-size: 12px; color: var(--muted); padding: 4px 12px; background: var(--bar); border-bottom: 1px solid var(--line); }
+  .stage { flex: 1; min-height: 0; background: var(--stage); display: flex; justify-content: center; align-items: flex-start; overflow: hidden; padding: 12px; }
+  .frame { position: relative; overflow: hidden; background: #090f1c; box-shadow: 0 8px 30px rgb(0 0 0 / .25); border-radius: 8px; }
+  .frame.phone { border-radius: 28px; border: 8px solid #1f2937; }
+  iframe { border: 0; display: block; transform-origin: 0 0; background: #090f1c; }
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); max-width: calc(100% - 32px); background: var(--toast); color: var(--toast-text); padding: 10px 16px; border-radius: 10px; font-size: 14px; box-shadow: 0 6px 24px rgb(0 0 0 / .3); opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .toast.show { opacity: 1; }
+  @media (max-width: 560px) { .hide-sm { display: none; } }
+</style>
+</head>
+<body>
+  <div class="bar" role="toolbar" aria-label="Preview browser">
+    <button class="btn" id="back" aria-label="Back" title="Back">&#8592;</button>
+    <button class="btn" id="fwd" aria-label="Forward" title="Forward">&#8594;</button>
+    <button class="btn" id="home" aria-label="Home page" title="Home page">&#8962;</button>
+    <label class="address" title="Choose a page">
+      <span class="lock">&#128274; ddrakelaw.com</span>
+      <span class="url" id="url">/</span>
+      <span aria-hidden="true">&#9662;</span>
+      <select id="pages" aria-label="Go to page"></select>
+    </label>
+    <div class="seg" role="group" aria-label="Screen size">
+      <button id="desk" aria-pressed="true">Laptop</button>
+      <button id="phone" aria-pressed="false">Phone</button>
+    </div>
+  </div>
+  <div class="note">Private preview of the new site, captured 24 September 2026. Not live. Links between pages work. Sending the form, calling, and the phone-size menu button are turned off in this copy.</div>
+  <div class="stage" id="stage"><div class="frame" id="frame"><iframe id="view" title="Website preview"></iframe></div></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const blobUrls = DATA.assets.map((a) => {
+  const bin = atob(a.data), bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return URL.createObjectURL(new Blob([bytes], { type: a.mime }));
+});
+const fill = (s) => s.replace(/asset:\/\/(\d+)/g, (_, i) => blobUrls[+i]);
+// Without the site's scripts, the form's option buttons need plain CSS to show when they're picked.
+const PREVIEW_CSS = "label:has(> input:checked){border-color:#67e8f9 !important;background:rgb(103 232 249 / .15) !important}" +
+  "label:has(> input:checked) > span[aria-hidden]{background:#67e8f9;border-color:#67e8f9}";
+const css = "<style>" + fill(DATA.css) + PREVIEW_CSS + "</style>";
+
+const $ = (id) => document.getElementById(id);
+const view = $("view"), frame = $("frame"), stage = $("stage");
+let hist = [], pos = -1, device = "desk", pendingHash = "";
+
+for (const route of DATA.order) {
+  const o = document.createElement("option");
+  o.value = route; o.textContent = DATA.pages[route].title + "  (" + route + ")";
+  $("pages").appendChild(o);
+}
+
+function normalize(href) {
+  const u = new URL(href, "https://ddrakelaw.com/");
+  let p = u.pathname.endsWith("/") ? u.pathname : u.pathname + "/";
+  return { path: p, hash: u.hash };
+}
+
+function show(route, hash) {
+  const page = DATA.pages[route];
+  if (!page) { toast("That page isn't part of this preview."); return false; }
+  pendingHash = hash || "";
+  view.srcdoc = fill(page.html.replace("<!--SITE-CSS-->", css));
+  $("url").textContent = route;
+  $("pages").value = route;
+  document.title = page.title + " · Darren Drake website preview";
+  return true;
+}
+
+function go(route, hash) {
+  if (route === hist[pos] && hash) { scrollToHash(hash); return; }
+  if (!show(route, hash)) return;
+  hist = hist.slice(0, pos + 1); hist.push(route); pos = hist.length - 1; updateNav();
+}
+function updateNav() { $("back").disabled = pos <= 0; $("fwd").disabled = pos >= hist.length - 1; }
+$("back").onclick = () => { if (pos > 0) { pos--; show(hist[pos]); updateNav(); } };
+$("fwd").onclick = () => { if (pos < hist.length - 1) { pos++; show(hist[pos]); updateNav(); } };
+$("home").onclick = () => go("/");
+$("pages").onchange = (e) => go(e.target.value);
+
+function scrollToHash(hash) {
+  const el = view.contentDocument && view.contentDocument.getElementById(decodeURIComponent(hash.slice(1)));
+  if (el) { el.scrollIntoView(); if (el.tabIndex < 0 && !/^(A|BUTTON|INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) el.setAttribute("tabindex", "-1"); el.focus({ preventScroll: true }); }
+}
+
+let toastTimer;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 3200); }
+
+view.addEventListener("load", () => {
+  const doc = view.contentDocument;
+  if (!doc) return;
+  if (pendingHash) scrollToHash(pendingHash);
+  doc.addEventListener("click", (e) => {
+    const a = e.target.closest && e.target.closest("a[href]");
+    if (a) {
+      const href = a.getAttribute("href");
+      if (href.startsWith("#")) { e.preventDefault(); scrollToHash(href); return; }
+      if (href.startsWith("tel:")) { e.preventDefault(); toast("On a phone this would call " + href.slice(4).replace("+1", "") + "."); return; }
+      if (href.startsWith("mailto:")) { e.preventDefault(); toast("This would open an email to " + href.slice(7) + "."); return; }
+      if (/^https?:/.test(href) && !href.includes("ddrakelaw.com")) { a.target = "_blank"; a.rel = "noopener"; return; }
+      e.preventDefault();
+      const n = normalize(href); go(n.path, n.hash); return;
+    }
+    const b = e.target.closest && e.target.closest("button");
+    if (b && b.type !== "submit" && /menu/i.test(b.getAttribute("aria-label") || "")) {
+      toast("The phone menu opens on the real site. Use the address bar above to change pages.");
+    }
+  }, true);
+  doc.addEventListener("submit", (e) => { e.preventDefault(); toast("This copy can't send. On the real site the form goes to Kelly and Darren."); }, true);
+});
+
+function layout() {
+  const w = device === "desk" ? 1280 : 390;
+  const availW = stage.clientWidth - 24 - (device === "phone" ? 16 : 0);
+  const availH = stage.clientHeight - 24 - (device === "phone" ? 16 : 0);
+  const scale = Math.min(1, availW / w);
+  const h = device === "desk" ? availH / scale : Math.min(844, availH / scale);
+  view.style.width = w + "px"; view.style.height = h + "px"; view.style.transform = "scale(" + scale + ")";
+  frame.style.width = w * scale + "px"; frame.style.height = h * scale + "px";
+  frame.classList.toggle("phone", device === "phone");
+}
+function setDevice(d) { device = d; $("desk").setAttribute("aria-pressed", d === "desk"); $("phone").setAttribute("aria-pressed", d === "phone"); layout(); }
+$("desk").onclick = () => setDevice("desk");
+$("phone").onclick = () => setDevice("phone");
+addEventListener("resize", layout);
+
+layout();
+go("/");
+</script>
+</body>
+</html>

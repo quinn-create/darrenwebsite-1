@@ -197,3 +197,14 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
 - **Accessibility page:** complete. Contact is by phone or the form, and it was reviewed in September 2026.
 - **3 placeholders left:** privacy approval (2) and the local photo (1).
 - **Setup steps for Darren:** `plans/for-darren/go-live-setup.md` (Vercel, Postmark, Telegram, private previews).
+
+## Update, 24 September 2026: tab navigation
+
+- **Components:** `components/ui/tabs.tsx` and `components/ui/badge.tsx` were added as supplied, using the `radix-ui` package. `tabs.tsx` also exports `tabsListVariants` and `tabsTriggerVariants`.
+- **Menu:** `components/NavTabs.tsx` draws the main menu with those tab styles on ordinary links marked with `aria-current`. It doesn't use ARIA tabs, which are only for switching panels within one page.
+- **Desktop:** a pill tab bar in the header.
+- **Phones:** a full-width four-tab row under the logo, with short labels (Home, Practice, About, Contact) that carry their full names for screen readers. It replaces the ☰ menu sheet, and it works without JavaScript. The header also has a "Call" pill.
+- **Header:** `Header.tsx` is now a server component.
+- **Scroll padding:** increased to 136px on phones, for the taller header.
+- **Not applied:** the CSS snippet supplied with the component. Its `--color-destructive-foreground` line has a typo, and the site already maps that colour.
+- **Tests:** the e2e suite has 25 checks. The ☰ menu test was replaced by phone and desktop tab checks.

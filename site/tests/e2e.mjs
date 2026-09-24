@@ -34,11 +34,11 @@ function assert(cond, msg) {
 // The site's one form (components/ui/form-1.tsx), on /intake/ and /contact/.
 async function fillValid(page, { reach = "Call" } = {}) {
   await page.locator("#cf-yourName").fill(`Test Person ${RUN}-${++seq}`);
-  await page.getByText("Arrested in Rutherford County").click();
-  await page.getByText(reach, { exact: true }).first().click();
+  await page.locator("form").getByText("Arrested in Rutherford County").click();
+  await page.locator("form").getByText(reach, { exact: true }).first().click();
   if (reach === "Email") await page.locator("#cf-email").fill("test@example.com");
   else await page.locator("#cf-phone").fill("615-555-0123");
-  await page.getByText("Sometime this week").click();
+  await page.locator("form").getByText("Sometime this week").click();
   await page.locator("#cf-message").fill("Test inquiry, please ignore.");
 }
 
@@ -69,13 +69,13 @@ await check("Summary link moves focus to the field", async () => {
 
 await check("Call/text needs a phone, email needs an email; bad values rejected; ASAP shows the callback note", async () => {
   await page.locator("#cf-yourName").fill("Test Person");
-  await page.getByText("Other", { exact: true }).click();
-  await page.getByText("Text", { exact: true }).click();
+  await page.locator("form").getByText("Other", { exact: true }).click();
+  await page.locator("form").getByText("Text", { exact: true }).click();
   assert(await page.locator("#cf-phone-error").isVisible(), "phone should be required after choosing Text");
-  await page.getByText("Email", { exact: true }).first().click();
+  await page.locator("form").getByText("Email", { exact: true }).first().click();
   await page.locator("#cf-email").fill("not-an-email");
   await page.locator("#cf-phone").fill("12");
-  await page.getByText("As soon as possible").click();
+  await page.locator("form").getByText("As soon as possible").click();
   assert(await page.getByText("We generally return calls within a day").isVisible(), "ASAP note missing");
   await page.getByRole("button", { name: "Send message" }).click();
   const text = await page.locator(SUMMARY).innerText();
@@ -85,7 +85,7 @@ await check("Call/text needs a phone, email needs an email; bad values rejected;
   await page.locator("#cf-email").fill("test@example.com");
   await page.waitForTimeout(100);
   assert((await page.locator(SUMMARY).count()) === 0, "errors should clear once fixed");
-  await page.getByText("Sometime this week").click();
+  await page.locator("form").getByText("Sometime this week").click();
   assert(!(await page.getByText("We generally return calls within a day").isVisible()), "ASAP note should hide");
 });
 
@@ -104,13 +104,13 @@ await check("Configured (test destination): 'Sending…' state, success only aft
   assert((await page.locator("#contact-demo-note").count()) === 0, "demo note should be hidden when configured");
   await page.locator("#cf-yourName").fill(`Test Person ${RUN}-${++seq}`);
   await page.locator("#cf-clientName").fill("Test Client");
-  await page.getByText("Arrested in Rutherford County").click();
-  await page.getByText("Other", { exact: true }).click();
-  await page.getByText("Call", { exact: true }).click();
-  await page.getByText("Email", { exact: true }).first().click();
+  await page.locator("form").getByText("Arrested in Rutherford County").click();
+  await page.locator("form").getByText("Other", { exact: true }).click();
+  await page.locator("form").getByText("Call", { exact: true }).click();
+  await page.locator("form").getByText("Email", { exact: true }).first().click();
   await page.locator("#cf-phone").fill("615-555-0123");
   await page.locator("#cf-email").fill("test@example.com");
-  await page.getByText("As soon as possible").click();
+  await page.locator("form").getByText("As soon as possible").click();
   await page.route("**/api/contact/", async (route) => {
     await new Promise((r) => setTimeout(r, 800));
     await route.continue();
@@ -185,23 +185,29 @@ await check("Keyboard-only completion of the form", async () => {
   await page.getByText("Message received").waitFor({ timeout: 5000 });
 });
 
-await check("Mobile menu: opens, traps focus, closes on Esc and returns focus", async () => {
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+await check("Phone tab bar: visible without opening anything, works without JavaScript, marks the current page", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, javaScriptEnabled: false });
   const p = await ctx.newPage();
-  await p.goto(DEMO + "/");
-  const btn = p.getByRole("button", { name: "Open menu" });
-  await btn.click();
-  assert((await btn.getAttribute("aria-expanded")) === "true", "aria-expanded not true");
-  const dialog = p.getByRole("dialog", { name: "Menu" });
-  await dialog.waitFor();
-  for (let i = 0; i < 12; i++) await p.keyboard.press("Tab");
-  const inside = await p.evaluate(() => !!document.activeElement?.closest("#mobile-menu"));
-  assert(inside, "focus escaped the menu");
-  await p.keyboard.press("Escape");
-  assert((await dialog.count()) === 0, "menu did not close");
-  const label = await p.evaluate(() => document.activeElement?.textContent);
-  assert(/Open menu/.test(label ?? ""), "focus not returned to menu button");
+  await p.goto(DEMO + "/about/");
+  const nav = p.getByRole("navigation", { name: "Main (phone)" });
+  assert(await nav.isVisible(), "phone tab bar not visible");
+  const links = await nav.getByRole("link").allInnerTexts();
+  assert(links.join("|") === "Home|Practice|About|Contact", `tabs: ${links.join(", ")}`);
+  const current = await nav.locator('[aria-current="page"]').getAttribute("aria-label");
+  assert(current === "About Darren", `current tab: ${current}`);
+  await nav.getByRole("link", { name: "Practice Areas" }).click();
+  await p.waitForURL("**/practice-areas/");
+  assert((await p.getByRole("navigation", { name: "Main", exact: true }).isVisible()) === false, "desktop tabs should be hidden on phones");
   await ctx.close();
+});
+
+await check("Desktop tabs: current page marked, and every tab is at least 44 px tall", async () => {
+  await page.goto(DEMO + "/practice-areas/dui-dwi/");
+  const nav = page.getByRole("navigation", { name: "Main", exact: true });
+  const current = await nav.locator('[aria-current="page"]').innerText();
+  assert(current === "Practice Areas", `current tab: ${current}`);
+  const heights = await nav.getByRole("link").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
+  assert(heights.every((h) => h >= 44), `tab heights: ${heights.join(", ")}`);
 });
 
 await check("Mobile hero: headline and CTA appear before the portrait; sticky bar hidden while hero CTA visible", async () => {
@@ -348,7 +354,7 @@ await check("Every cyan button is at least 52 px tall", async () => {
   assert(small.length === 0, small.join("; "));
 });
 
-await check("Axe scan at phone and tablet widths, including the open menu", async () => {
+await check("Axe scan at phone and tablet widths", async () => {
   const summary = [];
   for (const width of [390, 768]) {
     const ctx = await browser.newContext({ viewport: { width, height: 900 } });
@@ -359,11 +365,6 @@ await check("Axe scan at phone and tablet widths, including the open menu", asyn
       const res = await p.evaluate(async () => axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] }));
       for (const v of res.violations) summary.push(`${width}px ${path}: ${v.id} (${v.nodes.length})`);
     }
-    await p.goto(DEMO + "/");
-    await p.getByRole("button", { name: "Open menu" }).click();
-    await p.addScriptTag({ content: axeSource });
-    const res = await p.evaluate(async () => axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] }));
-    for (const v of res.violations) summary.push(`${width}px menu: ${v.id} (${v.nodes.length})`);
     await ctx.close();
   }
   assert(summary.length === 0, summary.join("; "));

@@ -17,11 +17,12 @@ export const FIRM = {
   serviceArea: "Murfreesboro, Rutherford County & Smyrna",
 } as const;
 
+// `short` is the label on the phone-size tab bar, where four tabs share one row.
 export const NAV = [
-  { href: "/", label: "Home" },
-  { href: "/practice-areas/", label: "Practice Areas" },
-  { href: "/about/", label: "About Darren" },
-  { href: "/contact/", label: "Contact" },
+  { href: "/", label: "Home", short: "Home" },
+  { href: "/practice-areas/", label: "Practice Areas", short: "Practice" },
+  { href: "/about/", label: "About Darren", short: "About" },
+  { href: "/contact/", label: "Contact", short: "Contact" },
 ] as const;
 
 export const CTA_LABEL = "Start your intake";

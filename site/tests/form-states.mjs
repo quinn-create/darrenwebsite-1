@@ -8,10 +8,10 @@ for (const width of [390, 1440]) {
   const shot = (name) => page.screenshot({ path: `screenshots/intake-${name}-${width}.png`, fullPage: true });
   const fill = async (suffix) => {
     await page.locator("#cf-yourName").fill(`Screenshot Test ${width}-${suffix}`);
-    await page.getByText("Arrested in Rutherford County").click();
-    await page.getByText("Call", { exact: true }).click();
+    await page.locator("form").getByText("Arrested in Rutherford County").click();
+    await page.locator("form").getByText("Call", { exact: true }).click();
     await page.locator("#cf-phone").fill("615-555-0123");
-    await page.getByText("As soon as possible").click();
+    await page.locator("form").getByText("As soon as possible").click();
     await page.locator("#cf-message").fill("Test inquiry for screenshots, please ignore.");
   };
 

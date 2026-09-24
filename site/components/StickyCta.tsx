@@ -12,7 +12,9 @@ const FIELD = "input, select, textarea";
 export function StickyCta() {
   const pathname = usePathname();
   const [fieldFocused, setFieldFocused] = useState(false);
-  const [heroCtaVisible, setHeroCtaVisible] = useState(false);
+  // Visibility of the current page's hero CTA, keyed by path so a stale value never carries over.
+  const [heroCta, setHeroCta] = useState<{ path: string; visible: boolean } | null>(null);
+  const heroCtaVisible = heroCta?.path === pathname && heroCta.visible;
   const hidden = pathname === "/intake" || fieldFocused || heroCtaVisible;
 
   useEffect(() => {
@@ -28,11 +30,8 @@ export function StickyCta() {
 
   useEffect(() => {
     const target = document.querySelector("[data-hero-cta]");
-    if (!target) {
-      setHeroCtaVisible(false);
-      return;
-    }
-    const observer = new IntersectionObserver(([entry]) => setHeroCtaVisible(entry.isIntersecting));
+    if (!target) return;
+    const observer = new IntersectionObserver(([entry]) => setHeroCta({ path: pathname, visible: entry.isIntersecting }));
     observer.observe(target);
     return () => observer.disconnect();
   }, [pathname]);

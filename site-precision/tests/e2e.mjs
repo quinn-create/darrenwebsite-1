@@ -1,4 +1,4 @@
-// End-to-end checks for the Signal preview. Uses test data only.
+// End-to-end checks for the Precision preview. Uses test data only.
 // Needs two servers from the same build:
 //   next start -p 3000                                  (no destination: demo mode)
 //   INTAKE_DESTINATION=local-test next start -p 3001    (writes to .data/intake-test.jsonl)
@@ -178,22 +178,23 @@ await check("Mobile menu: opens, traps focus, closes on Esc and returns focus", 
   await ctx.close();
 });
 
-await check("Mobile hero: headline and CTA appear before the portrait; sticky bar hidden while hero CTA visible", async () => {
+await check("Mobile hero: CTA and next steps appear before the portrait; nothing sticky on mobile", async () => {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const p = await ctx.newPage();
   await p.goto(DEMO + "/");
-  const cta = await p.locator("[data-hero-cta]").boundingBox();
-  const img = await p.getByAltText("Darren Drake, attorney at law").boundingBox();
-  assert(cta && img && cta.y < img.y, "CTA not above portrait");
-  assert(img.height <= 321, `portrait height ${img.height} exceeds 320`);
-  await p.waitForTimeout(300);
-  const barAtTop = await p.locator(".fixed.bottom-0").count();
-  await p.mouse.wheel(0, 1400);
-  await p.waitForTimeout(400);
-  const barAfterScroll = await p.locator(".fixed.bottom-0").count();
-  assert(barAtTop === 0 && barAfterScroll === 1, `sticky bar top=${barAtTop} after=${barAfterScroll}`);
+  const hero = p.locator('section[aria-labelledby="hero-title"]');
+  const cta = await hero.locator("a.btn-primary").boundingBox();
+  const steps = await hero.getByRole("list", { name: "What happens next" }).boundingBox();
+  const img = await hero.getByAltText("Darren Drake, attorney at law").boundingBox();
+  assert(cta && steps && img && cta.y < steps.y && steps.y < img.y, "order should be CTA, steps, portrait");
+  assert(cta.y + cta.height < 844, "CTA not in the first screen");
+  const headerPos = await p.locator("header").evaluate((el) => getComputedStyle(el).position);
+  const fixedCount = await p.evaluate(
+    () => [...document.querySelectorAll("body *")].filter((el) => ["fixed", "sticky"].includes(getComputedStyle(el).position)).length,
+  );
   await ctx.close();
-  return `portrait ${Math.round(img.height)}px tall`;
+  assert(headerPos !== "sticky" && fixedCount === 0, `mobile header ${headerPos}, ${fixedCount} fixed/sticky elements`);
+  return `CTA bottom at ${Math.round(cta.y + cta.height)}px`;
 });
 
 await check("No horizontal scroll at 320 px on any page", async () => {
@@ -222,24 +223,40 @@ await check("200% zoom (720 px CSS viewport at 1440): no horizontal scroll", asy
   assert(bad.length === 0, `overflow: ${bad.join(", ")}`);
 });
 
-await check("Reduced motion: no hero animation", async () => {
+await check("No animations on any page (Precision has no entrance motion)", async () => {
+  const running = [];
+  for (const path of PAGES) {
+    await page.goto(DEMO + path);
+    const n = await page.evaluate(() => document.getAnimations().length);
+    if (n) running.push(`${path} (${n})`);
+  }
+  assert(running.length === 0, `animations found: ${running.join(", ")}`);
+});
+
+await check("Reduced motion: transitions removed", async () => {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
   const p = await ctx.newPage();
   await p.goto(DEMO + "/");
-  const anim = await p.locator(".hero-rise").first().evaluate((el) => getComputedStyle(el).animationName);
-  const glow = await p.locator(".portrait-glow").evaluate((el) => getComputedStyle(el).animationName);
+  const t = await p.locator(".btn-primary").first().evaluate((el) => getComputedStyle(el).transitionDuration);
   await ctx.close();
-  assert(anim === "none" && glow === "none", `animations still running: ${anim}, ${glow}`);
+  assert(t === "0s", `button transition ${t}`);
 });
 
-await check("Motion allowed: hero entrance runs once (420 ms)", async () => {
-  await page.goto(DEMO + "/");
-  const info = await page.locator(".hero-rise").first().evaluate((el) => {
-    const s = getComputedStyle(el);
-    return `${s.animationName} ${s.animationDuration} x${s.animationIterationCount}`;
-  });
-  assert(info === "rise 0.42s x1", info);
-  return info;
+await check("Works without JavaScript: pages, nav, FAQ and intake fields render", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, javaScriptEnabled: false });
+  const p = await ctx.newPage();
+  for (const path of PAGES) {
+    await p.goto(DEMO + path);
+    assert((await p.locator("h1").count()) === 1, `${path}: missing h1`);
+  }
+  await p.goto(DEMO + "/");
+  assert(await p.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Practice Areas" }).isVisible(), "nav missing");
+  const faq = p.locator("details").first();
+  await faq.locator("summary").click();
+  assert((await faq.getAttribute("open")) !== null, "FAQ did not open without JS");
+  await p.goto(DEMO + "/intake");
+  assert(await p.locator("#fullName").isVisible(), "intake fields missing");
+  await ctx.close();
 });
 
 await check("Keyboard: skip link is first and moves focus to main", async () => {

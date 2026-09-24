@@ -16,7 +16,7 @@ const executablePath = process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium";
 const PAGES = ["/", "/practice-areas/", "/practice-areas/first-time-offenders/", "/practice-areas/domestic-assault/", "/practice-areas/criminal-defense/", "/about/", "/contact/", "/intake/", "/privacy/", "/accessibility/", "/legal-notice/"];
 
 const results = [];
-const SUMMARY = '[aria-labelledby="error-summary-title"]';
+const SUMMARY = '[aria-labelledby="contact-error-title"]';
 const RUN = Date.now().toString(36);
 let seq = 0;
 async function check(name, fn) {
@@ -31,14 +31,15 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
-async function fillValid(page, { method = "phone" } = {}) {
-  await page.getByLabel("Full name").fill(`Test Person ${RUN}-${++seq}`);
-  await page.getByLabel("DUI/DWI").check();
-  await page.getByLabel(method === "phone" ? "Phone" : "Email", { exact: true }).first().check();
-  if (method === "phone") await page.locator("#phone").fill("615-555-0123");
-  else await page.locator("#email").fill("test@example.com");
-  await page.locator("#county").fill("Not sure");
-  await page.locator("#message").fill("Test inquiry, please ignore.");
+// The site's one form (components/ui/form-1.tsx), on /intake/ and /contact/.
+async function fillValid(page, { reach = "Call" } = {}) {
+  await page.locator("#cf-yourName").fill(`Test Person ${RUN}-${++seq}`);
+  await page.getByText("Arrested in Rutherford County").click();
+  await page.getByText(reach, { exact: true }).first().click();
+  if (reach === "Email") await page.locator("#cf-email").fill("test@example.com");
+  else await page.locator("#cf-phone").fill("615-555-0123");
+  await page.getByText("Sometime this week").click();
+  await page.locator("#cf-message").fill("Test inquiry, please ignore.");
 }
 
 await rm(".data/intake-test.jsonl", { force: true });
@@ -48,14 +49,14 @@ const page = await desktop.newPage();
 
 await check("Required-field errors: summary gets focus and lists each problem", async () => {
   await page.goto(DEMO + "/intake/");
-  await page.getByRole("button", { name: "Send inquiry" }).click();
+  await page.getByRole("button", { name: "Send message" }).click();
   const summary = page.locator(SUMMARY);
   await summary.waitFor();
   const focused = await page.evaluate(() => document.activeElement?.getAttribute("role"));
   assert(focused === "alert", "error summary not focused");
   const items = await summary.locator("li").count();
-  assert(items === 3, `expected 3 errors (name, matter, contact method), got ${items}`);
-  const invalid = await page.locator("#fullName").getAttribute("aria-invalid");
+  assert(items === 4, `expected 4 errors (name, about, reach, callback), got ${items}`);
+  const invalid = await page.locator("#cf-yourName").getAttribute("aria-invalid");
   assert(invalid === "true", "name field not marked invalid");
   return `${items} errors listed`;
 });
@@ -63,68 +64,87 @@ await check("Required-field errors: summary gets focus and lists each problem", 
 await check("Summary link moves focus to the field", async () => {
   await page.locator(SUMMARY).getByRole("link").first().click();
   const id = await page.evaluate(() => document.activeElement?.id);
-  assert(id === "fullName", `focus went to ${id}`);
+  assert(id === "cf-yourName", `focus went to ${id}`);
 });
 
-await check("Only the chosen contact method is required; invalid email/phone rejected", async () => {
-  await page.locator("#fullName").fill("Test Person");
-  await page.getByLabel("Domestic assault").check();
-  await page.getByLabel("Email", { exact: true }).first().check();
-  await page.locator("#email").fill("not-an-email");
-  await page.locator("#phone").fill("12");
-  await page.getByRole("button", { name: "Send inquiry" }).click();
+await check("Call/text needs a phone, email needs an email; bad values rejected; ASAP shows the callback note", async () => {
+  await page.locator("#cf-yourName").fill("Test Person");
+  await page.getByText("Other", { exact: true }).click();
+  await page.getByText("Text", { exact: true }).click();
+  assert(await page.locator("#cf-phone-error").isVisible(), "phone should be required after choosing Text");
+  await page.getByText("Email", { exact: true }).first().click();
+  await page.locator("#cf-email").fill("not-an-email");
+  await page.locator("#cf-phone").fill("12");
+  await page.getByText("As soon as possible").click();
+  assert(await page.getByText("We generally return calls within a day").isVisible(), "ASAP note missing");
+  await page.getByRole("button", { name: "Send message" }).click();
   const text = await page.locator(SUMMARY).innerText();
   assert(/Email: Enter an email address like/.test(text), "email format error missing");
-  assert(/Phone: Enter a 10-digit/.test(text), "optional phone with bad value should still be flagged");
-  await page.locator("#phone").fill("");
-  await page.locator("#email").fill("test@example.com");
+  assert(/Phone: Enter a 10-digit/.test(text), "bad phone should be flagged");
+  await page.locator("#cf-phone").fill("615-555-0123");
+  await page.locator("#cf-email").fill("test@example.com");
   await page.waitForTimeout(100);
   assert((await page.locator(SUMMARY).count()) === 0, "errors should clear once fixed");
+  await page.getByText("Sometime this week").click();
+  assert(!(await page.getByText("We generally return calls within a day").isVisible()), "ASAP note should hide");
 });
 
-await check("Demo mode: 'not connected' banner shown, nothing claimed as sent, values kept", async () => {
+await check("Demo mode: 'not connected' note shown, nothing claimed as sent, values kept", async () => {
   await page.goto(DEMO + "/intake/");
-  assert(await page.getByRole("note").getByText("Demo form, not connected").isVisible(), "banner missing");
+  assert(await page.locator("#contact-demo-note").isVisible(), "demo note missing");
   await fillValid(page);
-  await page.getByRole("button", { name: "Send inquiry" }).click();
+  await page.getByRole("button", { name: "Send message" }).click();
   await page.getByText("Not sent: this demo form isn't connected yet.").waitFor();
-  assert((await page.getByText("Your inquiry was received").count()) === 0, "must not show success");
-  assert((await page.locator("#fullName").inputValue()).startsWith("Test Person"), "values not preserved");
+  assert((await page.getByText("Message received").count()) === 0, "must not show success");
+  assert((await page.locator("#cf-yourName").inputValue()).startsWith("Test Person"), "values not preserved");
 });
 
 await check("Configured (test destination): 'Sending…' state, success only after server acceptance", async () => {
   await page.goto(LIVE + "/intake/");
-  assert((await page.getByRole("note").count()) === 0, "banner should be hidden when configured");
-  await fillValid(page);
-  await page.route("**/api/intake/", async (route) => {
+  assert((await page.locator("#contact-demo-note").count()) === 0, "demo note should be hidden when configured");
+  await page.locator("#cf-yourName").fill(`Test Person ${RUN}-${++seq}`);
+  await page.locator("#cf-clientName").fill("Test Client");
+  await page.getByText("Arrested in Rutherford County").click();
+  await page.getByText("Other", { exact: true }).click();
+  await page.getByText("Call", { exact: true }).click();
+  await page.getByText("Email", { exact: true }).first().click();
+  await page.locator("#cf-phone").fill("615-555-0123");
+  await page.locator("#cf-email").fill("test@example.com");
+  await page.getByText("As soon as possible").click();
+  await page.route("**/api/contact/", async (route) => {
     await new Promise((r) => setTimeout(r, 800));
     await route.continue();
   });
-  await page.getByRole("button", { name: "Send inquiry" }).click();
+  await page.getByRole("button", { name: "Send message" }).click();
   const sending = page.getByRole("button", { name: "Sending…" });
   await sending.waitFor();
   assert(await sending.isDisabled(), "button should be disabled while sending");
   await page.getByText("Your inquiry was received. Submitting it does not establish representation.").waitFor();
   const focusedRole = await page.evaluate(() => document.activeElement?.getAttribute("role"));
   assert(focusedRole === "status", "success message should receive focus");
-  await page.unroute("**/api/intake/");
+  await page.unroute("**/api/contact/");
   const lines = (await readFile(".data/intake-test.jsonl", "utf8")).trim().split("\n");
   assert(lines.length === 1, `expected 1 stored test inquiry, got ${lines.length}`);
+  const saved = JSON.parse(lines[0]);
+  assert(
+    saved.clientName === "Test Client" && saved.about.length === 2 && saved.reach.join(",") === "call,email" && saved.callback === "asap",
+    JSON.stringify(saved),
+  );
 });
 
 await check("Double-click submit sends only once", async () => {
   await page.goto(LIVE + "/intake/");
-  await fillValid(page, { method: "email" });
-  await page.locator("#message").fill("Double click test.");
+  await fillValid(page, { reach: "Email" });
+  await page.locator("#cf-message").fill("Double click test.");
   let posts = 0;
-  await page.route("**/api/intake/", async (route) => {
+  await page.route("**/api/contact/", async (route) => {
     posts++;
     await new Promise((r) => setTimeout(r, 500));
     await route.continue();
   });
-  await page.getByRole("button", { name: "Send inquiry" }).dblclick();
-  await page.getByText("Your inquiry was received").waitFor();
-  await page.unroute("**/api/intake/");
+  await page.getByRole("button", { name: "Send message" }).dblclick();
+  await page.getByText("Message received").waitFor();
+  await page.unroute("**/api/contact/");
   assert(posts === 1, `expected 1 request, got ${posts}`);
   const lines = (await readFile(".data/intake-test.jsonl", "utf8")).trim().split("\n");
   assert(lines.length === 2, `expected 2 stored test inquiries total, got ${lines.length}`);
@@ -133,30 +153,36 @@ await check("Double-click submit sends only once", async () => {
 await check("Network failure: values kept, retry offered, retry succeeds", async () => {
   await page.goto(LIVE + "/intake/");
   await fillValid(page);
-  await page.locator("#message").fill("Network failure test.");
-  await page.route("**/api/intake/", (route) => route.abort("failed"));
-  await page.getByRole("button", { name: "Send inquiry" }).click();
+  await page.locator("#cf-message").fill("Network failure test.");
+  await page.route("**/api/contact/", (route) => route.abort("failed"));
+  await page.getByRole("button", { name: "Send message" }).click();
   await page.getByText("could not be sent because of a connection problem").waitFor();
-  assert((await page.locator("#message").inputValue()) === "Network failure test.", "values lost");
+  assert((await page.locator("#cf-message").inputValue()) === "Network failure test.", "values lost");
   assert(await page.getByRole("link", { name: "(615) 546-5551" }).first().isVisible(), "phone link missing");
-  await page.unroute("**/api/intake/");
-  await page.getByRole("button", { name: "Try again" }).click();
-  await page.getByText("Your inquiry was received").waitFor();
+  await page.unroute("**/api/contact/");
+  await page.getByRole("button", { name: "Send message" }).click();
+  await page.getByText("Message received").waitFor();
 });
 
-await check("Keyboard-only completion of the intake form", async () => {
+await check("Keyboard-only completion of the form", async () => {
   await page.goto(LIVE + "/intake/");
-  await page.locator("#fullName").focus();
+  await page.locator("#cf-yourName").focus();
   await page.keyboard.type("Keyboard Tester");
-  await page.keyboard.press("Tab"); // matter type group (first radio)
+  await page.keyboard.press("Tab"); // client's name
+  await page.keyboard.press("Tab"); // "Arrested in Rutherford County"
   await page.keyboard.press("Space");
-  await page.keyboard.press("Tab"); // contact method group
-  await page.keyboard.press("ArrowRight"); // Email
+  await page.keyboard.press("Tab"); // "Other"
+  await page.keyboard.press("Tab"); // "Call"
+  await page.keyboard.press("Tab"); // "Text"
+  await page.keyboard.press("Tab"); // "Email"
+  await page.keyboard.press("Space");
   await page.keyboard.press("Tab"); // phone
   await page.keyboard.press("Tab"); // email
   await page.keyboard.type("keyboard@example.com");
+  await page.keyboard.press("Tab"); // callback group (first radio)
+  await page.keyboard.press("Space");
   await page.keyboard.press("Enter");
-  await page.getByText("Your inquiry was received").waitFor({ timeout: 5000 });
+  await page.getByText("Message received").waitFor({ timeout: 5000 });
 });
 
 await check("Mobile menu: opens, traps focus, closes on Esc and returns focus", async () => {
@@ -362,7 +388,7 @@ await check("Axe accessibility scan (WCAG 2.0/2.1/2.2 A & AA) on every page", as
 
 await check("Axe scan of the intake page with errors shown", async () => {
   await page.goto(DEMO + "/intake/");
-  await page.getByRole("button", { name: "Send inquiry" }).click();
+  await page.getByRole("button", { name: "Send message" }).click();
   await page.locator(SUMMARY).waitFor();
   await page.addScriptTag({ content: axeSource });
   const res = await page.evaluate(async () =>
@@ -382,47 +408,16 @@ await check("Home shows the three featured practice areas; Practice Areas lists 
   return home.join(", ");
 });
 
-const CONTACT_SUMMARY = '[aria-labelledby="contact-error-title"]';
-
-await check("Contact form: required errors, call/text needs a phone, ASAP shows the callback note", async () => {
+await check("Contact page uses the same form", async () => {
   await page.goto(DEMO + "/contact/");
-  await page.getByRole("button", { name: "Send message" }).click();
-  await page.locator(CONTACT_SUMMARY).waitFor();
-  const focused = await page.evaluate(() => document.activeElement?.getAttribute("aria-labelledby"));
-  assert(focused === "contact-error-title", "error summary should take focus");
-  const items = await page.locator(`${CONTACT_SUMMARY} li`).count();
-  assert(items === 4, `expected 4 errors (name, about, reach, callback), got ${items}`);
-  await page.getByText("Text", { exact: true }).click();
-  assert(await page.locator("#cf-phone-error").isVisible(), "phone should be required after choosing Text");
-  await page.getByText("As soon as possible").click();
-  assert(await page.getByText("We generally return calls within a day").isVisible(), "ASAP note missing");
-  await page.getByText("Sometime this week").click();
-  assert(!(await page.getByText("We generally return calls within a day").isVisible()), "ASAP note should hide");
+  assert(await page.locator("#cf-yourName").isVisible(), "form missing on /contact/");
+  assert((await page.getByText("full intake form").count()) === 0, "old intake-form link should be gone");
 });
 
-await check("Contact form (test destination): success only after server acceptance, saved as a contact inquiry", async () => {
-  await page.goto(LIVE + "/contact/");
-  await page.locator("#cf-yourName").fill(`Test Person ${RUN}-${++seq}`);
-  await page.locator("#cf-clientName").fill("Test Client");
-  await page.getByText("Arrested in Rutherford County").click();
-  await page.getByText("Other", { exact: true }).click();
-  await page.getByText("Call", { exact: true }).click();
-  await page.getByText("Email", { exact: true }).first().click();
-  await page.locator("#cf-phone").fill("615-555-0123");
-  await page.locator("#cf-email").fill("test@example.com");
-  await page.getByText("As soon as possible").click();
-  await page.getByRole("button", { name: "Send message" }).click();
-  await page.getByText("Message received").waitFor();
-  const lines = (await readFile(".data/intake-test.jsonl", "utf8")).trim().split("\n");
-  const last = JSON.parse(lines.at(-1));
-  assert(last.kind === "contact", `expected kind contact, got ${last.kind}`);
-  assert(last.about.length === 2 && last.reach.join(",") === "call,email" && last.callback === "asap", JSON.stringify(last));
-});
-
-await check("Axe scan of the contact form with errors shown", async () => {
+await check("Axe scan of the contact page with errors shown", async () => {
   await page.goto(DEMO + "/contact/");
   await page.getByRole("button", { name: "Send message" }).click();
-  await page.locator(CONTACT_SUMMARY).waitFor();
+  await page.locator(SUMMARY).waitFor();
   await page.addScriptTag({ content: axeSource });
   const res = await page.evaluate(async () =>
      

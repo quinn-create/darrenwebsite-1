@@ -3,6 +3,7 @@
 // Adapted from the prebuiltui "form-1" contact form: same layout (badge, large heading,
 // icons inside rounded fields, full-width button), restyled with the Signal tokens and
 // connected to /api/contact. Success is shown only after the server accepts the inquiry.
+import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Check, Phone } from "lucide-react";
 import { track } from "@/lib/analytics";
@@ -398,7 +399,11 @@ export function ContactForm({
           </svg>
         </button>
         <p className="mt-4 text-center text-[15px] text-muted">
-          Sending this form does not create an attorney-client relationship.
+          Sending this form does not create an attorney-client relationship.{" "}
+          <Link href="/privacy/" className="link-action">
+            Read the privacy notice
+          </Link>
+          .
         </p>
       </div>
     </form>

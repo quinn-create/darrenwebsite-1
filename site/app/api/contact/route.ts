@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { EMPTY_CONTACT, validateContact, type ContactValues } from "@/lib/contact-rules";
 import { clientIp, createGuard, json } from "@/lib/form-guard";
-import { deliver, type ContactInquiry } from "@/lib/intake-delivery";
+import { deliver, type Inquiry } from "@/lib/intake-delivery";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -55,8 +55,7 @@ export async function POST(request: Request) {
     return json({ status: "accepted", id: duplicate, duplicate: true }, 200);
   }
 
-  const inquiry: ContactInquiry = {
-    kind: "contact",
+  const inquiry: Inquiry = {
     id: randomUUID(),
     receivedAt: new Date(now).toISOString(),
     ...values,

@@ -1,6 +1,6 @@
 // Validation rules shared by the contact form (client) and /api/contact (server),
 // so both sides always agree. Kept dependency-free to stay out of the client bundle budget.
-import { phoneDigits } from "./intake-rules";
+// This is the site's only form: it is used on /intake/ and /contact/.
 
 export const ABOUT_OPTIONS = [
   { value: "rutherford-arrest", label: "Arrested in Rutherford County" },
@@ -62,6 +62,11 @@ export const CONTACT_FIELD_ORDER: ContactField[] = [
 ];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+export function phoneDigits(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  return digits.length === 11 && digits.startsWith("1") ? digits.slice(1) : digits;
+}
 
 const known = (list: readonly { value: string }[], values: string[]) =>
   values.every((v) => list.some((o) => o.value === v));

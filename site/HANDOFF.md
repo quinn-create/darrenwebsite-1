@@ -164,7 +164,7 @@ Lab speed test: LCP about 0.78 s, 228 KB total.
   - how to reach you: Call, Text and/or Email, with phone and email required to match;
   - when to hear back: As soon as possible or Sometime this week;
   - an optional message.
-  The rules live in `lib/contact-rules.ts` and are shared with `POST /api/contact/`. Delivery reuses the intake destination, and each inquiry is labelled `kind: "contact"` or `"intake"`. Rate limiting and de-duplication are shared in `lib/form-guard.ts`.
-- **Placement:** the form is on the Contact page (option A) while the owner decides. The options are compared in `printouts/Contact-Form-Options.pdf`.
+  The rules live in `lib/contact-rules.ts` and are shared with `POST /api/contact/`. Delivery still uses `INTAKE_DESTINATION`. Rate limiting and de-duplication are in `lib/form-guard.ts`.
+- **Placement: option B (chosen 24 September 2026).** This is now the site's only form. It is on `/intake/`, where every "Start your intake" button leads (the form's heading is the page heading), and on `/contact/` next to the office details. The old intake form (`components/IntakeForm.tsx`, `lib/intake-rules.ts`, `/api/intake/`) was removed. As a result, the county and the next court date are no longer collected up front; the office asks on the callback. The options are compared in `printouts/Contact-Form-Options.pdf`.
 - **Needs confirmation:** the "As soon as possible" note ("We generally return calls within a day.") carries a `[CONFIRM WITH DARREN]` marker, so the placeholder guard blocks release until he approves it. There are now 37 placeholders in total.
-- **Tests:** the e2e suite now has 25 checks, adding the home-page cards, contact-form validation, test-destination delivery, and axe with errors shown.
+- **Tests:** the e2e suite has 24 checks. The form tests (errors, demo mode, test delivery, double-click, network failure, keyboard-only, axe) now run against the new form on `/intake/`, plus one check that `/contact/` uses the same form.

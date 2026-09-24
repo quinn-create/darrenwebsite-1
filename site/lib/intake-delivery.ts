@@ -2,22 +2,10 @@ import "server-only";
 import { appendFile, mkdir, open } from "node:fs/promises";
 import path from "node:path";
 
-type Envelope = { id: string; receivedAt: string };
-
-export type IntakeInquiry = Envelope & {
-  kind: "intake";
-  fullName: string;
-  matterType: string;
-  contactMethod: string;
-  phone: string;
-  email: string;
-  county: string;
-  courtDate: string;
-  message: string;
-};
-
-export type ContactInquiry = Envelope & {
-  kind: "contact";
+// One inquiry from the website form (components/ui/form-1.tsx via /api/contact).
+export type Inquiry = {
+  id: string;
+  receivedAt: string;
   yourName: string;
   clientName: string;
   about: string[];
@@ -27,9 +15,6 @@ export type ContactInquiry = Envelope & {
   callback: string;
   message: string;
 };
-
-// Both forms deliver to the same destination; `kind` tells the firm which form it came from.
-export type Inquiry = IntakeInquiry | ContactInquiry;
 
 export type DeliveryResult =
   | { ok: true }

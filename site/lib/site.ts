@@ -123,8 +123,5 @@ export const HOME_FAQ = [
   },
 ];
 
-export const INTAKE_HELPER =
-  "Please share a brief overview and your contact details. Do not include sensitive documents or detailed confidential information in this initial inquiry. Sending this form does not create an attorney-client relationship.";
-
 export const INTAKE_SUCCESS =
   "Your inquiry was received. Submitting it does not establish representation.";

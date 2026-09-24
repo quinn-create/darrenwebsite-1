@@ -1,7 +1,7 @@
 import "server-only";
 import { createHash } from "node:crypto";
 
-// Shared protections for the form API routes (intake and contact).
+// Protections for the form API route: per-IP rate limit and short-term de-duplication.
 // In-memory limits are per server instance. Replace with a shared store (e.g. Redis) in production.
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX = 5;

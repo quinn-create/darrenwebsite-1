@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Container } from "@/components/Container";
 import { PageIntro } from "@/components/Sections";
 import { ContactForm } from "@/components/ui/form-1";
@@ -25,13 +24,6 @@ export default function Contact() {
         <Container className="grid items-start gap-6 lg:grid-cols-[3fr_2fr]">
           <div className="rounded-card border border-border bg-surface px-5 py-8 sm:px-8 lg:px-10 lg:py-12">
             <ContactForm configured={isConfigured()} />
-            <p className="mt-8 text-center text-[16px] text-muted">
-              Want to give more detail, such as your court date?{" "}
-              <Link href="/intake/" className="link-action">
-                Use the full intake form
-              </Link>
-              .
-            </p>
           </div>
           <div className="rounded-card border border-border bg-surface p-6 lg:p-10">
             <h2 className="h3">Call the office</h2>

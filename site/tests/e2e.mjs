@@ -456,6 +456,135 @@ await check("Phone bar on a practice page: \"Ask about\" that area, opens the fo
   await ctx.close();
 });
 
+// ---- FAQ "Jump to" buttons (plans/faq-jump-links-plan.md, section 6.1) ----
+const JUMP_NAV = 'nav[aria-label="Jump to a FAQ topic"]';
+const PRACTICE_SLUGS = ["first-time-offenders", "dui-dwi", "domestic-assault", "criminal-defense", "expungement"];
+
+await check("FAQ jump 1: home page shows two jump buttons in topic order", async () => {
+  await page.goto(DEMO + "/");
+  const nav = page.locator(JUMP_NAV);
+  assert(await nav.isVisible(), "jump nav missing on home");
+  const labels = await nav.getByRole("link").allInnerTexts();
+  assert(labels.join("|") === "Getting started|Working with the office", `labels: ${labels.join(", ")}`);
+});
+
+await check("FAQ jump 2: practice pages have no jump buttons and keep their two FAQs", async () => {
+  for (const slug of PRACTICE_SLUGS) {
+    await page.goto(`${DEMO}/practice-areas/${slug}/`);
+    assert((await page.locator(JUMP_NAV).count()) === 0, `${slug}: jump nav should not show`);
+    const n = await page.locator("section[aria-labelledby=faq] details").count();
+    assert(n === 2, `${slug}: expected 2 FAQs, got ${n}`);
+  }
+});
+
+await check("FAQ jump 3: a button scrolls below the sticky header, opens the group's first question and focuses it", async () => {
+  await page.goto(DEMO + "/");
+  await page.locator(JUMP_NAV).getByRole("link", { name: "Working with the office" }).click();
+  await page.waitForTimeout(900);
+  const group = page.locator("#faq-faq-working-with-us");
+  const headTop = (await group.locator("h3").boundingBox()).y;
+  const headerBottom = await page.evaluate(() => document.querySelector("header").getBoundingClientRect().bottom);
+  assert(headTop >= headerBottom - 1, `group heading at ${headTop}, header ends at ${headerBottom}`);
+  assert(await group.locator("details").first().evaluate((d) => d.open), "first question not opened");
+  const focused = await page.evaluate(() => {
+    const el = document.activeElement;
+    return el?.tagName === "SUMMARY" && !!el.closest("#faq-faq-working-with-us");
+  });
+  assert(focused, "focus not on the group's first question");
+});
+
+await check("FAQ jump 4: works without JavaScript (address changes, group scrolled into view)", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, javaScriptEnabled: false });
+  const p = await ctx.newPage();
+  await p.goto(DEMO + "/");
+  await p.locator(JUMP_NAV).getByRole("link", { name: "Working with the office" }).click();
+  await p.waitForTimeout(400);
+  assert(p.url().endsWith("#faq-faq-working-with-us"), `url: ${p.url()}`);
+  const box = await p.locator("#faq-faq-working-with-us").boundingBox();
+  assert(box.y >= 0 && box.y < 900, `group not in view (y=${box.y})`);
+  await ctx.close();
+});
+
+await check("FAQ jump 5: keyboard reaches each button with a visible focus ring; Enter jumps", async () => {
+  await page.goto(DEMO + "/");
+  let label = "";
+  for (let i = 0; i < 80 && label !== "Getting started"; i++) {
+    await page.keyboard.press("Tab");
+    label = await page.evaluate(() => (document.activeElement?.closest('nav[aria-label="Jump to a FAQ topic"]') ? document.activeElement.textContent.trim() : ""));
+  }
+  assert(label === "Getting started", "Tab never reached the first jump button");
+  const ring1 = await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle);
+  await page.keyboard.press("Tab");
+  const second = await page.evaluate(() => document.activeElement.textContent.trim());
+  assert(second === "Working with the office", `second tab stop: ${second}`);
+  const ring2 = await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle);
+  assert(ring1 !== "none" && ring2 !== "none", `focus ring missing (${ring1}, ${ring2})`);
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(900);
+  assert(await page.locator("#faq-faq-working-with-us details").first().evaluate((d) => d.open), "Enter did not open the group");
+});
+
+await check("FAQ jump 6: buttons are at least 44 px tall on a phone", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const p = await ctx.newPage();
+  await p.goto(DEMO + "/");
+  const heights = await p.locator(`${JUMP_NAV} a`).evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
+  assert(heights.length === 2 && heights.every((h) => h >= 44), `heights: ${heights.join(", ")}`);
+  await ctx.close();
+});
+
+await check("FAQ jump 7: no sideways scroll at 320 px", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 320, height: 800 } });
+  const p = await ctx.newPage();
+  await p.goto(DEMO + "/");
+  const over = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  assert(over <= 0, `overflows by ${over}px`);
+  await ctx.close();
+});
+
+await check("FAQ jump 8: every question and answer matches the approved text in lib/site.ts", async () => {
+  const src = readFileSync("lib/site.ts", "utf8");
+  const phone = src.match(/PHONE_DISPLAY = "([^"]+)"/)[1];
+  const unq = (t) => t.replace(/\$\{PHONE_DISPLAY\}/g, phone).replace(/\\'/g, "'");
+  const approved = [...src.matchAll(/q: "([^"]+)",\s*topic: "[^"]+",\s*a: (?:"((?:[^"\\]|\\.)*)"|`([^`]*)`)/g)].map((m) => ({
+    q: m[1],
+    a: unq(m[2] ?? m[3]),
+  }));
+  assert(approved.length === 14, `expected 14 approved FAQs in lib/site.ts, parsed ${approved.length}`);
+  const want = new Map(approved.map((f) => [f.q, f.a]));
+  let compared = 0;
+  for (const path of ["/", ...PRACTICE_SLUGS.map((s) => `/practice-areas/${s}/`)]) {
+    await page.goto(DEMO + path);
+    const shown = await page.locator("section[aria-labelledby=faq] details").evaluateAll((ds) =>
+      ds.map((d) => ({ q: d.querySelector("summary span").textContent.trim(), a: d.querySelector("p").textContent.trim() })),
+    );
+    for (const f of shown) {
+      assert(want.has(f.q), `${path}: unapproved question "${f.q}"`);
+      assert(want.get(f.q) === f.a, `${path}: answer changed for "${f.q}"`);
+      compared++;
+    }
+  }
+  assert(compared === 14, `compared ${compared} FAQs, expected 14`);
+  return `${compared} FAQs match`;
+});
+
+await check("FAQ jump 9: axe finds 0 violations on the home page with a FAQ group open (1440 and 390 px)", async () => {
+  const summary = [];
+  for (const width of [1440, 390]) {
+    const ctx = await browser.newContext({ viewport: { width, height: 900 } });
+    const p = await ctx.newPage();
+    await p.goto(DEMO + "/");
+    await p.locator(JUMP_NAV).getByRole("link", { name: "Getting started" }).click();
+    await p.waitForTimeout(800);
+    await p.addScriptTag({ content: axeSource });
+    const res = await p.evaluate(async () => axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] }));
+    for (const v of res.violations) summary.push(`${width}px: ${v.id} (${v.nodes.length})`);
+    await ctx.close();
+  }
+  assert(summary.length === 0, summary.join("; "));
+  return "0 violations";
+});
+
 await check("Contact page uses the same form", async () => {
   await page.goto(DEMO + "/contact/");
   assert(await page.locator("#cf-yourName").isVisible(), "form missing on /contact/");

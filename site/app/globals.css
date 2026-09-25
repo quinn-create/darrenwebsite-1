@@ -214,6 +214,22 @@ body {
 .btn-secondary:active {
   transform: scale(0.98);
 }
+/* FAQ "Jump to" buttons (components/FaqJumpLinks.tsx) and their target groups. */
+.chip-link {
+  min-height: 44px;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-hover) ease,
+    background-color var(--transition-hover) ease;
+}
+.chip-link:hover {
+  border-color: var(--color-action);
+  background: rgb(103 232 249 / 0.08);
+}
+.faq-group {
+  scroll-margin-top: 16px;
+}
 /* Round icon-only button (e.g. the call button in the phone bar). */
 .btn-icon {
   width: 52px;

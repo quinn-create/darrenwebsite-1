@@ -23,7 +23,7 @@ Written 24 September 2026. Each idea names the pattern it borrows from, and whet
 2. **Google rating badge** (Amazon- and Shopify-style social proof). Darren chose the live star rating. It needs his Google Business Profile, a Maps key and his ethics sign-off.
 3. **"What happens next" timeline** (Amazon order tracking, Apple support). **Built 24 Sep 2026:** four steps with icons, connected across the page on desktop and down it on phones.
 4. **Page-specific call bar on phones** (Amazon's sticky "Buy"). **Built 24 Sep 2026:** "Ask about <area>" plus a call button; the form opens with the topic filled in, and the topic reaches the office in the email and PDF.
-5. **Short FAQ search, or "jump to" chips** (Microsoft support). Useful once there are more than about 8 FAQs.
+5. **"Jump to" buttons for FAQs** (Microsoft support). **Built 25 Sep 2026** (`plans/faq-jump-links-plan.md`): topic buttons appear when a page has 4 or more FAQs in 2 or more topics. Today that's the home page; practice pages get them automatically as questions are added.
 6. **Subtle scroll reveals** (Apple product pages). Sections fade up 12 px once as they come into view. Text must stay readable before any motion, and nothing moves for people who prefer reduced motion.
 7. **Light theme option** (Microsoft, GitHub). Some older visitors read dark pages less easily. Adding a light palette is a medium-sized job.
 8. **Speed polish** (Amazon's focus on speed). After launch, check real-phone speed. Keep images in AVIF and JavaScript small; both are already within budget.

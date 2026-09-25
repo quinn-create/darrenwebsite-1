@@ -38,6 +38,18 @@ export type PracticeSlug =
   | "criminal-defense"
   | "expungement";
 
+// FAQ topics for the "Jump to" buttons (components/FaqJumpLinks.tsx), in display order.
+// They are navigation labels only; the questions and answers themselves are Darren-approved.
+export const FAQ_TOPICS = [
+  { id: "getting-started", label: "Getting started" },
+  { id: "your-case", label: "Your case" },
+  { id: "working-with-us", label: "Working with the office" },
+] as const;
+export type FaqTopicId = (typeof FAQ_TOPICS)[number]["id"];
+export type FaqItem = { q: string; a: string; topic: FaqTopicId };
+// Jump buttons appear only with at least this many FAQs, spread over at least 2 topics.
+export const FAQ_JUMP_MIN = 4;
+
 // `featured` areas are the three cards on the home page; the Practice Areas page lists all.
 export const PRACTICES: {
   slug: PracticeSlug;
@@ -46,7 +58,7 @@ export const PRACTICES: {
   summary: string;
   overview: string[];
   featured?: boolean;
-  faq: { q: string; a: string }[];
+  faq: FaqItem[];
 }[] = [
   {
     slug: "first-time-offenders",
@@ -61,10 +73,12 @@ export const PRACTICES: {
     faq: [
       {
         q: "I've never been charged before. What should I do first?",
+        topic: "your-case",
         a: "Write down your court date and keep any paperwork you were given. Don't discuss what happened with anyone other than a lawyer, and reach out to the office as early as you can so there's time to prepare.",
       },
       {
         q: "What information should I have ready when I reach out?",
+        topic: "getting-started",
         a: "Your name, the charge if you know it, where you were arrested, your next court date, and any paperwork you received. It's fine if you don't have all of it.",
       },
     ],
@@ -81,10 +95,12 @@ export const PRACTICES: {
     faq: [
       {
         q: "What should I do first if I have been charged?",
+        topic: "your-case",
         a: "Keep your court date and any paperwork you were given, don't discuss what happened with anyone other than a lawyer, and reach out to the office as early as you can.",
       },
       {
         q: "What information should I have ready when I reach out?",
+        topic: "getting-started",
         a: "Your name, the charge if you know it, where you were arrested, your next court date, and any paperwork you received. It's fine if you don't have all of it.",
       },
     ],
@@ -102,10 +118,12 @@ export const PRACTICES: {
     faq: [
       {
         q: "What happens after a DUI/DWI arrest?",
+        topic: "your-case",
         a: "Every case is different. Generally, you'll receive paperwork with a court date, and there may be separate questions about your driver's license. Darren can explain what applies to your situation.",
       },
       {
         q: "Should I contact the office before my first court date?",
+        topic: "getting-started",
         a: "Yes. Reaching out early gives more time to review your situation and prepare. Contact the office as soon as you can after an arrest.",
       },
     ],
@@ -123,10 +141,12 @@ export const PRACTICES: {
     faq: [
       {
         q: "What happens after a domestic assault arrest?",
+        topic: "your-case",
         a: "Generally, there will be a court date, and there may be bond conditions such as an order not to contact certain people. Follow any conditions exactly, even if the other person reaches out to you. Darren can explain what applies to your case.",
       },
       {
         q: "What should I avoid doing while my case is open?",
+        topic: "your-case",
         a: "Don't contact anyone you've been ordered not to contact, don't post about the case on social media, and don't discuss what happened with anyone other than your lawyer.",
       },
     ],
@@ -143,10 +163,12 @@ export const PRACTICES: {
     faq: [
       {
         q: "How do I know whether my record may be eligible?",
+        topic: "your-case",
         a: "Eligibility depends on the charge, how the case ended and how much time has passed. Darren can review your record and tell you whether it may qualify.",
       },
       {
         q: "What documents are useful to have on hand?",
+        topic: "getting-started",
         a: "Any court paperwork you have, such as case numbers or the final judgment. If you don't have it, the office can talk with you about how to get it.",
       },
     ],
@@ -184,21 +206,25 @@ export const STEPS = [
   },
 ] as const;
 
-export const HOME_FAQ = [
+export const HOME_FAQ: FaqItem[] = [
   {
     q: "Does submitting the form mean you represent me?",
+    topic: "working-with-us",
     a: "No. Sending an inquiry does not create an attorney-client relationship. The office will review it and discuss next steps if the firm can assist.",
   },
   {
     q: "What should I include in my inquiry?",
+    topic: "getting-started",
     a: "Your name, how and when you'd like to hear back, and a short overview if you like. Please don't include sensitive documents or detailed confidential information.",
   },
   {
     q: "What areas do you serve?",
+    topic: "working-with-us",
     a: "Murfreesboro, Smyrna and the rest of Rutherford County.",
   },
   {
     q: "Can I call instead?",
+    topic: "getting-started",
     a: `Yes — ${PHONE_DISPLAY}.`,
   },
 ];

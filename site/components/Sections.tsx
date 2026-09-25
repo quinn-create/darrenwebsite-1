@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, ClipboardCheck, MessagesSquare, PhoneCall, Send } from "lucide-react";
-import { CTA_HREF, CTA_LABEL, PRACTICES, STEPS } from "@/lib/site";
+import { CTA_HREF, CTA_LABEL, FAQ_JUMP_MIN, FAQ_TOPICS, PRACTICES, STEPS, type FaqItem } from "@/lib/site";
+import { FaqJumpLinks } from "./FaqJumpLinks";
 import { PhoneLink } from "./PhoneLink";
 import { Container } from "./Container";
 import { PracticeIcon } from "./PracticeIcon";
@@ -86,26 +87,53 @@ export function ContactSteps({ id = "how-contact-works" }: { id?: string }) {
   );
 }
 
-export function Faq({ items, id = "faq" }: { items: { q: string; a: string }[]; id?: string }) {
+function FaqList({ items }: { items: FaqItem[] }) {
+  return (
+    <div className="faq overflow-hidden rounded-card border border-border bg-surface">
+      {items.map((item, i) => (
+        <details key={item.q} className={i > 0 ? "border-t border-border/60" : ""}>
+          <summary className="flex min-h-16 items-center justify-between gap-6 px-6 py-4 text-[18px] font-bold">
+            <span>{item.q}</span>
+            <span aria-hidden="true" className="chev text-[28px] font-normal leading-none text-action">
+              +
+            </span>
+          </summary>
+          <p className="measure px-6 pb-6 text-muted">{item.a}</p>
+        </details>
+      ))}
+    </div>
+  );
+}
+
+// With enough questions (FAQ_JUMP_MIN, over 2+ topics) the list is grouped by topic and gets
+// "Jump to" buttons; otherwise it renders exactly as a single list.
+export function Faq({ items, id = "faq" }: { items: FaqItem[]; id?: string }) {
+  const topics = FAQ_TOPICS.filter((t) => items.some((item) => item.topic === t.id));
+  const grouped = items.length >= FAQ_JUMP_MIN && topics.length >= 2;
+  const groupId = (topic: string) => `faq-${id}-${topic}`;
   return (
     <section aria-labelledby={id} className="py-14 lg:py-24">
       <Container>
         <h2 id={id} className="h2">
           Frequently asked questions
         </h2>
-        <div className="faq mt-8 overflow-hidden rounded-card border border-border bg-surface">
-          {items.map((item, i) => (
-            <details key={item.q} className={i > 0 ? "border-t border-border/60" : ""}>
-              <summary className="flex min-h-16 items-center justify-between gap-6 px-6 py-4 text-[18px] font-bold">
-                <span>{item.q}</span>
-                <span aria-hidden="true" className="chev text-[28px] font-normal leading-none text-action">
-                  +
-                </span>
-              </summary>
-              <p className="measure px-6 pb-6 text-muted">{item.a}</p>
-            </details>
-          ))}
-        </div>
+        {grouped ? (
+          <>
+            <FaqJumpLinks groups={topics.map((t) => ({ id: groupId(t.id), label: t.label }))} />
+            <div className="mt-10 flex flex-col gap-10">
+              {topics.map((t) => (
+                <div key={t.id} id={groupId(t.id)} className="faq-group">
+                  <h3 className="mb-4 text-[14px] font-bold uppercase tracking-[0.1em] text-muted">{t.label}</h3>
+                  <FaqList items={items.filter((item) => item.topic === t.id)} />
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="mt-8">
+            <FaqList items={items} />
+          </div>
+        )}
       </Container>
     </section>
   );

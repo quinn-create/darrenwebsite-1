@@ -242,3 +242,13 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
 - **Topic delivery:** `/api/contact/` drops unknown topics. The topic title is saved with the inquiry and appears in the email subject (for example "New website inquiry (DUI/DWI)") and as a "Topic" row in the PDF.
 - **New style:** `.btn-icon` (in `globals.css`) is a round 52 px icon button.
 - **Tests:** e2e 27/27, including the bar label, the topic carried to the form, the topic saved on delivery, and unknown topics ignored. Delivery 4/4.
+
+## Update, 25 September 2026: FAQ "Jump to" buttons (plans/faq-jump-links-plan.md)
+
+- **Topics:** every FAQ has a `topic`, one of `FAQ_TOPICS` in `lib/site.ts` (Getting started, Your case, Working with the office). The `FaqItem` type makes it required. No question or answer wording changed.
+- **Grouping:** `Faq` in `components/Sections.tsx` groups the list by topic and shows "Jump to" buttons (`components/FaqJumpLinks.tsx`), but only when a page has at least `FAQ_JUMP_MIN` (4) FAQs across 2 or more topics.
+  - Today that's the home page only.
+  - Practice pages (2 FAQs each) render exactly as before, and gain buttons automatically when they reach 4.
+- **Behaviour:** the buttons are plain `#faq-faq-<topic>` links that scroll to the group without JavaScript. With JavaScript they also open the group's first question and focus it. Smooth scrolling only happens when the visitor hasn't asked for reduced motion.
+- **Styles:** `.chip-link` (44 px minimum, cyan hover) and `.faq-group` in `globals.css`.
+- **Tests:** e2e 36/36. The 9 new "FAQ jump" checks include one that compares every question and answer with `lib/site.ts`. Delivery 4/4. The placeholder count is unchanged at 3.

@@ -4,14 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Phone } from "lucide-react";
-import { CTA_HREF, CTA_LABEL, PHONE_DISPLAY, PHONE_HREF, practiceBySlug } from "@/lib/site";
+import { CTA_HREF, CTA_LABEL, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site-basics";
 
 const FIELD = "input, select, textarea";
 
 // Opaque mobile contact bar. Hidden on the Contact page (it holds the form), while the page's own hero CTA is
 // on screen, and whenever a form field has focus (so it never sits over the keyboard).
 // It stays hidden until the page has been measured, so slow phones never flash two buttons.
-export function StickyCta() {
+// `practices` is just each area's slug and title, passed from the layout, so the practice
+// wording in lib/site.ts stays out of the browser's JavaScript.
+export function StickyCta({ practices }: { practices: { slug: string; title: string }[] }) {
   const pathname = usePathname();
   const [fieldFocused, setFieldFocused] = useState(false);
   const onIntake = pathname.replace(/\/+$/, "") === "/contact";
@@ -58,7 +60,8 @@ export function StickyCta() {
 
   if (hidden) return null;
   // On a practice page the bar names that area and opens the form with it filled in.
-  const practice = practiceBySlug(pathname.match(/^\/practice-areas\/([^/]+)/)?.[1]);
+  const slug = pathname.match(/^\/practice-areas\/([^/]+)/)?.[1];
+  const practice = practices.find((p) => p.slug === slug);
   return (
     <div className="fixed inset-x-0 bottom-0 z-30 flex gap-3 border-t border-border/40 bg-bg px-5 pb-[calc(16px+env(safe-area-inset-bottom))] pt-4 lg:hidden">
       <Link

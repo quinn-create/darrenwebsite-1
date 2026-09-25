@@ -1,8 +1,10 @@
 // Firm facts and shared copy. Practice wording and FAQs were approved by Darren on
 // 24 September 2026; anything unconfirmed carries a bracketed marker until reviewed.
-
-export const PHONE_DISPLAY = "(615) 546-5551";
-export const PHONE_HREF = "tel:+16155465551";
+//
+// Server-only in practice: browser (client) components import lib/site-basics.ts instead,
+// so this file's page wording is never sent twice (plans/speed-check-plan.md).
+import { PHONE_DISPLAY } from "./site-basics";
+export * from "./site-basics";
 
 // Every firm fact lives here, so each is changed in one place once Darren confirms it.
 // Bracketed values are placeholders: scripts/check-placeholders.mjs refuses a
@@ -22,17 +24,6 @@ export const FIRM = {
   serviceArea: "Murfreesboro, Rutherford County & Smyrna",
 } as const;
 
-// `short` is the label on the phone-size tab bar, where four tabs share one row.
-// `desktop: false` leaves an item out of the desktop tabs (the "Contact us" button covers it).
-export const NAV = [
-  { href: "/", label: "Home", short: "Home" },
-  { href: "/practice-areas/", label: "Practice Areas", short: "Practice" },
-  { href: "/about/", label: "About Darren", short: "About" },
-  { href: "/contact/", label: "Contact", short: "Contact", desktop: false },
-] as const;
-
-// The main call to action everywhere on the site. The form lives on the Contact page;
-// the old /intake/ address redirects there.
 // Link-preview (Open Graph / X) wording. plans/link-previews-plan.md, section 4.
 export const SHARE_TITLE = "Darren Drake · Attorney at Law · Murfreesboro, TN";
 export const SHARE_ALT = `Darren Drake, Attorney at Law, Murfreesboro, Tennessee. Call ${PHONE_DISPLAY}.`;
@@ -48,18 +39,6 @@ export const OPEN_GRAPH_BASE = {
   type: "website",
   locale: "en_US",
 } as const;
-
-// Gentle scroll reveals (plans/scroll-reveals-plan.md). false turns them off everywhere.
-export const SCROLL_REVEALS = true;
-
-// Light theme option (plans/light-theme-plan.md). false removes the header button and the
-// theme script, and the site is dark only. THEME_DEFAULT "system" would start visitors who
-// haven't chosen on their device's light/dark setting; "dark" keeps the Signal design first.
-export const LIGHT_THEME = true;
-export const THEME_DEFAULT: "dark" | "system" = "dark";
-
-export const CTA_LABEL = "Contact us";
-export const CTA_HREF = "/contact/";
 
 export type PracticeSlug =
   | "first-time-offenders"
@@ -259,5 +238,3 @@ export const HOME_FAQ: FaqItem[] = [
   },
 ];
 
-export const INTAKE_SUCCESS =
-  "Your inquiry was received. Submitting it does not establish representation.";

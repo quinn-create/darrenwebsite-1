@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
+import { PHONE_DISPLAY, PHONE_HREF } from "@/lib/site-basics";
 
 // Shown if a page fails to load. Keeps the phone number reachable.
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {

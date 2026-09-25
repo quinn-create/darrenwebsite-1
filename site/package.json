@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/",
+    "speed": "node tests/speed.mjs",
     "check:placeholders": "node scripts/check-placeholders.mjs",
     "build:production": "node scripts/check-placeholders.mjs && SITE_ENV=production next build"
   },

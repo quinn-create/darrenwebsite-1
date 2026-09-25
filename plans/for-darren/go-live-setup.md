@@ -78,3 +78,8 @@ If an app still shows an old preview, it has cached the old site. Facebook and L
    Set the website field to `https://ddrakelaw.com/`.
 4. **Old addresses:** for 2–4 weeks, watch **Pages → Not found (404)** in Search Console. Tell Claude about any old WordPress address that shows up, and a redirect will be added.
 5. **Bing Webmaster Tools:** import the site from Search Console (one click).
+
+**Speed (after the switch):**
+1. **PageSpeed Insights** (pagespeed.web.dev): test the home page, `/practice-areas/dui-dwi/` and `/contact/` on the live address. Send Claude the mobile scores to add to `printouts/speed-report.md`.
+2. **Search Console → Core Web Vitals:** after about 28 days of real visitors, check that phone and desktop both show "Good URLs" and no "Poor" ones. Before that, Google doesn't have enough data.
+3. After any larger change (a new page, photo or feature), ask Claude to re-run `npm run speed`. It fails loudly if the site got slower.

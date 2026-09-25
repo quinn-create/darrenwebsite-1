@@ -20,7 +20,7 @@ import {
   type ContactField,
   type ContactValues,
 } from "@/lib/contact-rules";
-import { INTAKE_SUCCESS, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
+import { INTAKE_SUCCESS, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site-basics";
 import { cn } from "@/lib/utils";
 
 type Status =

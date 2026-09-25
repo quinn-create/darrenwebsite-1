@@ -544,7 +544,7 @@ await check("FAQ jump 7: no sideways scroll at 320 px", async () => {
 
 await check("FAQ jump 8: every question and answer matches the approved text in lib/site.ts", async () => {
   const src = readFileSync("lib/site.ts", "utf8");
-  const phone = src.match(/PHONE_DISPLAY = "([^"]+)"/)[1];
+  const phone = readFileSync("lib/site-basics.ts", "utf8").match(/PHONE_DISPLAY = "([^"]+)"/)[1];
   const unq = (t) => t.replace(/\$\{PHONE_DISPLAY\}/g, phone).replace(/\\'/g, "'");
   const approved = [...src.matchAll(/q: "([^"]+)",\s*topic: "[^"]+",\s*a: (?:"((?:[^"\\]|\\.)*)"|`([^`]*)`)/g)].map((m) => ({
     q: m[1],
@@ -646,7 +646,7 @@ await check("Share card 5: every other page falls back to the home card", async 
 });
 
 await check("Share card 6: the card's alt text carries the phone number from lib/site.ts", async () => {
-  const phone = readFileSync("lib/site.ts", "utf8").match(/PHONE_DISPLAY = "([^"]+)"/)[1];
+  const phone = readFileSync("lib/site-basics.ts", "utf8").match(/PHONE_DISPLAY = "([^"]+)"/)[1];
   const alt = (await metaOf("/"))["og:image:alt"];
   assert(alt.includes(phone), `alt text: ${alt}`);
 });
@@ -770,7 +770,7 @@ await check("Reveal 9: no layout shift across a full scroll", async () => {
 
 await check("Reveal 10: the off switch renders nothing when SCROLL_REVEALS is false", async () => {
   const comp = readFileSync("components/ScrollReveal.tsx", "utf8");
-  const site = readFileSync("lib/site.ts", "utf8");
+  const site = readFileSync("lib/site-basics.ts", "utf8");
   assert(/export const SCROLL_REVEALS = (true|false);/.test(site), "SCROLL_REVEALS constant missing");
   assert(comp.includes("return SCROLL_REVEALS ? <Reveals /> : null;"), "ScrollReveal is not gated on SCROLL_REVEALS");
   assert(readFileSync("app/globals.css", "utf8").includes("html.reveal-ready [data-reveal]:not(.is-revealed)"), "offset is not gated on reveal-ready");
@@ -1221,7 +1221,7 @@ await check("Theme 11: dark palette unchanged (every token equals the Signal val
 });
 
 await check("Theme 12: switches — LIGHT_THEME gates the button and head script; THEME_DEFAULT stays dark", async () => {
-  const site = await readFile("lib/site.ts", "utf8");
+  const site = await readFile("lib/site-basics.ts", "utf8");
   assert(/export const LIGHT_THEME = true;/.test(site), "LIGHT_THEME not true");
   assert(/export const THEME_DEFAULT: "dark" \| "system" = "dark";/.test(site), "THEME_DEFAULT not dark");
   const toggleSrc = await readFile("components/ThemeToggle.tsx", "utf8");
@@ -1232,6 +1232,147 @@ await check("Theme 12: switches — LIGHT_THEME gates the button and head script
   const script = html.match(/<script>(\(function\(\)\{var d=document\.documentElement;[^<]*)<\/script>/)?.[1];
   assert(script && script.includes('localStorage.getItem("theme")') && !script.includes("matchMedia"), "served head script unexpected");
   assert(html.indexOf(script) < html.indexOf("<body"), "theme script not in <head>");
+});
+
+// ---- Speed (plans/speed-check-plan.md, 6.1) ----
+const SPEED_PAGES = [...PAGES, "/practice-areas/dui-dwi/", "/practice-areas/expungement/"];
+// The font file's unicode-range (Latin subset); must match app/layout.tsx.
+const LATIN = "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+  .split(", ")
+  .map((r) => r.slice(2).split("-").map((h) => parseInt(h, 16)))
+  .map(([a, b]) => [a, b ?? a]);
+// Characters shown on purpose outside the font, drawn by the system font exactly as before.
+const OUTSIDE_FONT = { "→": "arrow after 'About Darren' (Home page)" };
+
+await check("Speed 1: one preloaded font file, one font request, old font CSS gone", async () => {
+  for (const path of SPEED_PAGES) {
+    const res = await fetch(DEMO + path);
+    const html = await res.text();
+    // Static pages carry a <link> tag; per-request pages (Contact) send the same preload as a Link header.
+    const preloads = [...(html.match(/<link rel="preload"[^>]*as="font"[^>]*>/g) ?? []), ...(res.headers.get("link") ?? "").split(/,\s*</).filter((l) => /as="?font/.test(l))];
+    assert(preloads.length === 1 && /font\/woff2/.test(preloads[0]) && /crossorigin/.test(preloads[0]), `${path}: ${preloads.length} font preloads`);
+  }
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const p = await ctx.newPage();
+  const fonts = [];
+  p.on("response", (r) => r.request().resourceType() === "font" && fonts.push(r.url()));
+  await p.goto(DEMO + "/");
+  await p.evaluate(() => document.fonts.ready);
+  assert(fonts.length === 1, `${fonts.length} font requests: ${fonts.join(", ")}`);
+  const css = await p.evaluate(() => [...document.styleSheets].flatMap((s) => [...s.cssRules].map((r) => r.cssText)).join("\n"));
+  assert(!/Manrope Variable|cyrillic|vietnamese/.test(css), "old fontsource @font-face rules still present");
+  await ctx.close();
+});
+
+await check("Speed 2: size-matched stand-in font (next/font fallback with size-adjust)", async () => {
+  await page.goto(DEMO + "/");
+  const r = await page.evaluate(() => {
+    const family = getComputedStyle(document.body).fontFamily;
+    const faces = [...document.styleSheets].flatMap((s) => [...s.cssRules]).filter((x) => x instanceof CSSFontFaceRule);
+    const fallback = faces.find((f) => /Fallback/.test(f.style.getPropertyValue("font-family")));
+    return { family, fallbackFamily: fallback?.style.getPropertyValue("font-family"), sizeAdjust: fallback?.style.getPropertyValue("size-adjust"), src: fallback?.style.getPropertyValue("src") };
+  });
+  assert(/^['"]?manrope/i.test(r.family), `body font-family starts with ${r.family}`);
+  assert(r.fallbackFamily && r.family.includes(r.fallbackFamily.replace(/['"]/g, "").trim().split(" ")[0]), `fallback not in stack: ${JSON.stringify(r)}`);
+  assert(r.sizeAdjust && r.sizeAdjust !== "100%", `size-adjust ${r.sizeAdjust}`);
+  assert(/Arial/i.test(r.src), `fallback src ${r.src}`);
+});
+
+await check("Speed 3: every character shown is in the font's Latin range (or a listed exception)", async () => {
+  const chars = new Map();
+  const add = (text, where) => { for (const ch of text) if (!chars.has(ch)) chars.set(ch, where); };
+  for (const path of SPEED_PAGES) {
+    await page.goto(DEMO + path);
+    add(await page.evaluate(() => document.body.innerText + [...document.querySelectorAll("[placeholder]")].map((e) => e.placeholder).join("")), path);
+  }
+  await page.goto(DEMO + "/contact/");
+  await page.getByRole("button", { name: "Send message" }).click();
+  await page.locator(SUMMARY).waitFor();
+  add(await page.evaluate(() => document.body.innerText), "/contact/ errors");
+  const outside = [...chars].filter(([ch]) => {
+    const cp = ch.codePointAt(0);
+    return !LATIN.some(([a, b]) => cp >= a && cp <= b) && !(ch in OUTSIDE_FONT);
+  });
+  assert(outside.length === 0, outside.map(([ch, where]) => `"${ch}" U+${ch.codePointAt(0).toString(16).toUpperCase()} on ${where}`).join(", "));
+});
+
+await check("Speed 4: no jump on a first visit (phone, 4× CPU, slow 4G): CLS ≤ 0.01", async () => {
+  for (const path of ["/", "/practice-areas/dui-dwi/", "/about/", "/contact/"]) {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    const p = await ctx.newPage();
+    const cdp = await ctx.newCDPSession(p);
+    await cdp.send("Network.enable");
+    await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 150, downloadThroughput: (1638.4 * 1024) / 8, uploadThroughput: (750 * 1024) / 8 });
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+    await p.addInitScript(() => {
+      window.__cls = 0;
+      new PerformanceObserver((l) => l.getEntries().forEach((e) => !e.hadRecentInput && (window.__cls += e.value))).observe({ type: "layout-shift", buffered: true });
+    });
+    await p.goto(DEMO + path, { waitUntil: "load" });
+    await p.waitForTimeout(2500);
+    const cls = await p.evaluate(() => window.__cls);
+    await ctx.close();
+    assert(cls <= 0.01, `${path}: CLS ${cls.toFixed(4)}`);
+  }
+});
+
+await check("Speed 5: practice and FAQ wording is not in the browser's JavaScript", async () => {
+  const { readdir } = await import("node:fs/promises");
+  const dir = ".next/static/chunks";
+  const files = (await readdir(dir)).filter((f) => f.endsWith(".js"));
+  const js = (await Promise.all(files.map((f) => readFile(`${dir}/${f}`, "utf8")))).join("\n");
+  const samples = [
+    "Darren helps people who have never been through the court system",
+    "A criminal charge raises urgent questions about your freedom",
+    "The office will review it and discuss next steps if the firm can assist",
+    "and a short overview if you like",
+    "there may be separate questions about your driver",
+  ];
+  const found = samples.filter((s) => js.includes(s));
+  assert(found.length === 0, `found in client JS: ${found.join(" | ")}`);
+});
+
+await check("Speed 6: the carousel still works (server list, client arrows)", async () => {
+  const errors = [];
+  const onErr = (e) => errors.push(e.message ?? e.text());
+  page.on("pageerror", onErr);
+  await page.goto(DEMO + "/");
+  const list = page.locator("#all-practice-list");
+  assert((await page.locator('section[aria-roledescription="carousel"]').count()) === 1, "carousel section missing");
+  assert((await list.locator('li[aria-roledescription="slide"]').count()) === 5, "expected 5 slides");
+  assert((await list.locator("li").first().getAttribute("aria-label")) === "1 of 5: First-Time Offenders", "slide label");
+  const prev = page.getByRole("button", { name: "Previous practice areas" });
+  const next = page.getByRole("button", { name: "Next practice areas" });
+  await list.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(200);
+  assert(await prev.isDisabled(), "Previous should start disabled");
+  await next.click();
+  await page.waitForFunction(() => document.getElementById("all-practice-list").scrollLeft > 50);
+  await page.waitForTimeout(600);
+  assert(!(await prev.isDisabled()), "Previous should enable after scrolling");
+  for (let i = 0; i < 5 && !(await next.isDisabled()); i++) {
+    await next.click();
+    await page.waitForTimeout(600);
+  }
+  assert(await next.isDisabled(), "Next should be disabled at the end");
+  page.off("pageerror", onErr);
+  assert(errors.length === 0, errors.join("; "));
+});
+
+await check("Speed 7: phone bar still names each practice area and is hidden on Contact", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const p = await ctx.newPage();
+  const areas = { "first-time-offenders": "First-Time Offenders", "criminal-defense": "Criminal Defense", "dui-dwi": "DUI/DWI", "domestic-assault": "Domestic Assault", expungement: "Expungement" };
+  for (const [slug, title] of Object.entries(areas)) {
+    await p.goto(`${DEMO}/practice-areas/${slug}/`);
+    const link = p.getByRole("link", { name: `Ask about ${title}` });
+    await link.waitFor();
+    assert((await link.getAttribute("href")) === `/contact/?topic=${slug}`, `${slug}: ${await link.getAttribute("href")}`);
+  }
+  await p.goto(DEMO + "/contact/");
+  await p.waitForTimeout(400);
+  assert((await p.getByRole("link", { name: /^Ask about/ }).count()) === 0, "bar shown on /contact/");
+  await ctx.close();
 });
 
 await browser.close();

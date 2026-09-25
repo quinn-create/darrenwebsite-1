@@ -1,14 +1,34 @@
 import type { Metadata, Viewport } from "next";
-import "@fontsource-variable/manrope/wght.css";
+import localFont from "next/font/local";
 import "./globals.css";
 import { IS_PRODUCTION, SITE_URL } from "@/lib/env";
 import { businessGraph, jsonLd } from "@/lib/structured-data";
-import { LIGHT_THEME, OPEN_GRAPH_BASE, SHARE_TITLE, SITE_DESCRIPTION } from "@/lib/site";
+import { LIGHT_THEME, OPEN_GRAPH_BASE, PRACTICES, SHARE_TITLE, SITE_DESCRIPTION } from "@/lib/site";
 import { THEME_COLOR, themeScript } from "@/lib/theme";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { StickyCta } from "@/components/StickyCta";
+
+// Manrope, Latin subset only (the site is English). next/font preloads the file and adds a
+// size-matched Arial stand-in, so text doesn't re-wrap when the font arrives
+// (plans/speed-check-plan.md). Licence: app/fonts/OFL.txt.
+const manrope = localFont({
+  src: "./fonts/manrope-latin-wght.woff2",
+  weight: "200 800",
+  display: "swap",
+  preload: true,
+  adjustFontFallback: "Arial",
+  variable: "--font-manrope",
+  // Same range as the fontsource file it came from, so other characters fall back exactly as before.
+  declarations: [
+    {
+      prop: "unicode-range",
+      value:
+        "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD",
+    },
+  ],
+});
 
 export const metadata: Metadata = {
   title: {
@@ -35,7 +55,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // The theme script edits <html> before React loads, hence suppressHydrationWarning.
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={manrope.variable} suppressHydrationWarning>
       {LIGHT_THEME && (
         <head>
           <meta name="theme-color" content={THEME_COLOR.dark} />
@@ -51,7 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
         <ScrollReveal />
         <Footer />
-        <StickyCta />
+        <StickyCta practices={PRACTICES.map(({ slug, title }) => ({ slug, title }))} />
       </body>
     </html>
   );

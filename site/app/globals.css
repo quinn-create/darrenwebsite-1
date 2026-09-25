@@ -93,7 +93,7 @@ html[data-theme="light"] {
   --color-destructive-foreground: var(--color-surface);
   --color-input: var(--color-border);
   --color-ring: var(--color-focus);
-  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 /* shadcn/ui base: borders default to the theme border color, not the text color (Tailwind 4 default). */

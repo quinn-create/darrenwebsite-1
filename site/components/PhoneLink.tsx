@@ -1,5 +1,5 @@
 import { Phone } from "lucide-react";
-import { PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
+import { PHONE_DISPLAY, PHONE_HREF } from "@/lib/site-basics";
 import { cn } from "@/lib/utils";
 
 // One consistent treatment for the phone number: evenly spaced digits (tabular figures),

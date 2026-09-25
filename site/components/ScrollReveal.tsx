@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { SCROLL_REVEALS } from "@/lib/site";
+import { SCROLL_REVEALS } from "@/lib/site-basics";
 
 // Gentle scroll reveals (plans/scroll-reveals-plan.md). Marked blocks ([data-reveal]) rise
 // 12 px into place once as they come into view. Only at 768 px+, with motion allowed and

@@ -70,7 +70,13 @@ const nextConfig: NextConfig = {
     ];
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // The Contact page is rendered per request (it reads ?topic=). Next marks such pages
+      // no-store, which stops the browser's instant back/forward cache. Nothing on it is
+      // personal, so "no-cache" (always re-check with the server) is enough.
+      { source: "/contact/", headers: [{ key: "Cache-Control", value: "private, no-cache, max-age=0, must-revalidate" }] },
+    ];
   },
 };
 

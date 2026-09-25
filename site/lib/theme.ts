@@ -1,6 +1,6 @@
 // Light theme option (plans/light-theme-plan.md). The colours themselves live in
 // app/globals.css under html[data-theme="light"]; this file holds what scripts need.
-import { THEME_DEFAULT } from "./site";
+import { THEME_DEFAULT } from "./site-basics";
 
 export const THEME_STORAGE_KEY = "theme";
 // Browser toolbar colour on phones: each theme's page background.

@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { tabsListVariants, tabsTriggerVariants } from "@/components/ui/tabs";
-import { NAV } from "@/lib/site";
-import { cn } from "@/lib/utils";
+import { NAV } from "@/lib/site-basics";
 
 // Compare without trailing slashes, so "/about" and "/about/" both count.
 const trim = (p: string) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
@@ -18,17 +16,21 @@ export function isActive(pathname: string, href: string) {
 // The site's main navigation, drawn with the tabs component's styles (components/ui/tabs.tsx).
 // Each tab is an ordinary link with aria-current, so it works without JavaScript and reads as
 // navigation to screen readers; ARIA tabs are only for switching panels within one page.
-export function NavTabs({ compact = false, className }: { compact?: boolean; className?: string }) {
+// The class names come from navTabClasses() (components/nav-tab-classes.ts), worked out on the
+// server by the header, so the class-merging code never reaches the browser.
+export function NavTabs({
+  compact = false,
+  className,
+  classes,
+}: {
+  compact?: boolean;
+  className?: string;
+  classes: { list: string; trigger: string };
+}) {
   const pathname = usePathname() ?? "/";
   return (
     <nav aria-label={compact ? "Main (phone)" : "Main"} className={className}>
-      <ul
-        className={cn(
-          tabsListVariants({ variant: "default", shape: "pill", size: compact ? "sm" : "lg" }),
-          "border border-border/60 bg-surface",
-          compact && "grid w-full grid-cols-4",
-        )}
-      >
+      <ul className={classes.list}>
         {NAV.filter((item) => compact || !("desktop" in item && item.desktop === false)).map((item) => {
           const active = isActive(pathname, item.href);
           return (
@@ -38,11 +40,7 @@ export function NavTabs({ compact = false, className }: { compact?: boolean; cla
                 aria-current={active ? "page" : undefined}
                 aria-label={compact && item.short !== item.label ? item.label : undefined}
                 data-state={active ? "active" : "inactive"}
-                className={cn(
-                  tabsTriggerVariants({ variant: "default", size: compact ? "sm" : "lg" }),
-                  "min-h-11 rounded-full font-semibold text-muted data-[state=active]:bg-bg data-[state=active]:text-text data-[state=active]:ring-1 data-[state=active]:ring-action/70",
-                  compact ? "w-full px-2 text-[15px]" : "px-5 text-[16px]",
-                )}
+                className={classes.trigger}
               >
                 {compact ? item.short : item.label}
               </Link>

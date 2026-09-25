@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
-import { LIGHT_THEME } from "@/lib/site";
+import { LIGHT_THEME } from "@/lib/site-basics";
 import { THEME_COLOR, THEME_STORAGE_KEY } from "@/lib/theme";
 
 // Header button that switches the site between the dark Signal colours and the light

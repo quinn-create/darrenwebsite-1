@@ -355,7 +355,34 @@ body {
   }
 }
 
+/* Gentle scroll reveals (components/ScrollReveal.tsx, plans/scroll-reveals-plan.md).
+   Uses the separate `translate` property, so it composes with the cards' hover `transform`.
+   Only moves things (never fades), only at 768 px+ with motion allowed, and only once the
+   script has set html.reveal-ready — without it nothing is offset. */
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  html.reveal-ready [data-reveal] {
+    transition: translate var(--transition-primary) cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms);
+  }
+  /* Cards keep their own hover transitions alongside the reveal. */
+  html.reveal-ready .card[data-reveal] {
+    transition:
+      translate var(--transition-primary) cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms),
+      transform var(--transition-hover) ease,
+      border-color var(--transition-hover) ease;
+  }
+  html.reveal-ready [data-reveal]:not(.is-revealed) {
+    translate: 0 12px;
+  }
+  html.reveal-instant [data-reveal] {
+    transition: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    translate: none !important;
+    transition: none !important;
+  }
   *,
   *::before,
   *::after {

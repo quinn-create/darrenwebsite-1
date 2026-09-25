@@ -651,6 +651,147 @@ await check("Share card 6: the card's alt text carries the phone number from lib
   assert(alt.includes(phone), `alt text: ${alt}`);
 });
 
+// ---- Gentle scroll reveals (plans/scroll-reveals-plan.md, section 6.1) ----
+const TIMELINE = 'section[aria-labelledby="how-contact-works"] [data-reveal]';
+const translates = (p) => p.locator("[data-reveal]").evaluateAll((els) => els.map((e) => getComputedStyle(e).translate));
+const scrollThrough = async (p) => {
+  const h = await p.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y <= h; y += 400) {
+    await p.evaluate((v) => window.scrollTo(0, v), y);
+    await p.waitForTimeout(40);
+  }
+};
+
+await check("Reveal 1: reduced motion — nothing is ever offset and reveals never switch on", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
+  const p = await ctx.newPage();
+  await p.goto(DEMO + "/");
+  await p.waitForTimeout(300);
+  const h = await p.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y <= h; y += 400) {
+    await p.evaluate((v) => window.scrollTo(0, v), y);
+    const t = await translates(p);
+    assert(t.every((v) => v === "none"), `offset at y=${y}: ${t.join(",")}`);
+  }
+  assert(!(await p.evaluate(() => document.documentElement.classList.contains("reveal-ready"))), "reveal-ready set under reduced motion");
+  await ctx.close();
+});
+
+await check("Reveal 2: without JavaScript nothing is offset", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, javaScriptEnabled: false });
+  const p = await ctx.newPage();
+  await p.goto(DEMO + "/");
+  const t = await translates(p);
+  assert(t.length >= 8 && t.every((v) => v === "none"), `translates: ${t.join(",")}`);
+  await ctx.close();
+});
+
+await check("Reveal 3: phones stay still (390 px, motion allowed)", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const p = await ctx.newPage();
+  await p.goto(DEMO + "/");
+  await p.waitForTimeout(400);
+  assert(!(await p.evaluate(() => document.documentElement.classList.contains("reveal-ready"))), "reveal-ready set on a phone");
+  await scrollThrough(p);
+  const t = await translates(p);
+  assert(t.every((v) => v === "none"), `offset on phone: ${t.join(",")}`);
+  await ctx.close();
+});
+
+const motionCtx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: "no-preference" });
+const mp = await motionCtx.newPage();
+
+await check("Reveal 4 + 7: a section below the fold starts 12 px low, settles, and its text never fades", async () => {
+  await mp.goto(DEMO + "/");
+  await mp.waitForFunction(() => document.documentElement.classList.contains("reveal-ready"));
+  const el = mp.locator(TIMELINE);
+  const before = await el.evaluate((e) => getComputedStyle(e).translate);
+  assert(before === "0px 12px", `initial translate: ${before}`);
+  await el.evaluate((e) => e.scrollIntoView({ block: "center" }));
+  const opacities = await el.evaluate(async (e) => {
+    const out = [];
+    for (let i = 0; i < 12; i++) {
+      out.push(getComputedStyle(e).opacity);
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    return out;
+  });
+  assert(opacities.every((o) => o === "1"), `opacity samples: ${opacities.join(",")}`);
+  await mp.waitForTimeout(200);
+  const after = await el.evaluate((e) => getComputedStyle(e).translate);
+  assert(after === "none", `settled translate: ${after}`);
+});
+
+await check("Reveal 5: once only — scrolling away and back never re-animates", async () => {
+  const el = mp.locator(TIMELINE);
+  await mp.evaluate(() => window.scrollTo(0, 0));
+  await mp.waitForTimeout(300);
+  assert((await el.evaluate((e) => getComputedStyle(e).translate)) === "none", "offset returned after scrolling away");
+  await el.evaluate((e) => e.scrollIntoView({ block: "center" }));
+  await mp.waitForTimeout(100);
+  const anims = await el.evaluate((e) => e.getAnimations().length);
+  assert(anims === 0, `${anims} animations running on re-entry`);
+});
+
+await check("Reveal 6: nothing animates on page load (blocks already on screen)", async () => {
+  await mp.goto(DEMO + "/");
+  await mp.waitForFunction(() => document.documentElement.classList.contains("reveal-ready"));
+  const head = mp.locator('section[aria-labelledby="practice-title"] > div > [data-reveal]').first();
+  const t = await head.evaluate((e) => getComputedStyle(e).translate);
+  const anims = await head.evaluate((e) => e.getAnimations().length);
+  assert(t === "none" && anims === 0, `on-screen heading translate=${t}, animations=${anims}`);
+});
+
+await check("Reveal 8: featured cards stagger 0 / 60 / 120 ms; no other delay over 120 ms", async () => {
+  const delays = await mp
+    .locator('section[aria-labelledby="practice-title"] li.card[data-reveal]')
+    .evaluateAll((els) => els.map((e) => getComputedStyle(e).transitionDelay.split(",")[0].trim()));
+  assert(delays.join("|") === "0s|0.06s|0.12s", `card delays: ${delays.join(", ")}`);
+  const all = await mp.locator("[data-reveal]").evaluateAll((els) =>
+    els.flatMap((e) => getComputedStyle(e).transitionDelay.split(",").map((d) => parseFloat(d))),
+  );
+  assert(Math.max(...all) <= 0.12, `max delay ${Math.max(...all)}s`);
+});
+
+await check("Reveal 9: no layout shift across a full scroll", async () => {
+  await mp.addInitScript(() => {
+    window.__cls = 0;
+    new PerformanceObserver((list) => {
+      for (const e of list.getEntries()) if (!e.hadRecentInput) window.__cls += e.value;
+    }).observe({ type: "layout-shift", buffered: true });
+  });
+  await mp.goto(DEMO + "/");
+  await mp.waitForFunction(() => document.documentElement.classList.contains("reveal-ready"));
+  await scrollThrough(mp);
+  await mp.waitForTimeout(600);
+  const cls = await mp.evaluate(() => window.__cls);
+  assert(cls === 0, `layout shift total ${cls}`);
+});
+
+await check("Reveal 10: the off switch renders nothing when SCROLL_REVEALS is false", async () => {
+  const comp = readFileSync("components/ScrollReveal.tsx", "utf8");
+  const site = readFileSync("lib/site.ts", "utf8");
+  assert(/export const SCROLL_REVEALS = (true|false);/.test(site), "SCROLL_REVEALS constant missing");
+  assert(comp.includes("return SCROLL_REVEALS ? <Reveals /> : null;"), "ScrollReveal is not gated on SCROLL_REVEALS");
+  assert(readFileSync("app/globals.css", "utf8").includes("html.reveal-ready [data-reveal]:not(.is-revealed)"), "offset is not gated on reveal-ready");
+  return "gated in the component and the CSS";
+});
+
+await check("Reveal 11: axe finds 0 violations after scrolling (home and a practice page, 1440 px)", async () => {
+  const summary = [];
+  for (const path of ["/", "/practice-areas/dui-dwi/"]) {
+    await mp.goto(DEMO + path);
+    await scrollThrough(mp);
+    await mp.waitForTimeout(600);
+    await mp.addScriptTag({ content: axeSource });
+    const res = await mp.evaluate(async () => axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] }));
+    for (const v of res.violations) summary.push(`${path}: ${v.id} (${v.nodes.length})`);
+  }
+  assert(summary.length === 0, summary.join("; "));
+  return "0 violations";
+});
+await motionCtx.close();
+
 await check("Contact page uses the same form", async () => {
   await page.goto(DEMO + "/contact/");
   assert(await page.locator("#cf-yourName").isVisible(), "form missing on /contact/");

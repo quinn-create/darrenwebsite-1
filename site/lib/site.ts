@@ -44,6 +44,9 @@ export const OPEN_GRAPH_BASE = {
   locale: "en_US",
 } as const;
 
+// Gentle scroll reveals (plans/scroll-reveals-plan.md). false turns them off everywhere.
+export const SCROLL_REVEALS = true;
+
 export const CTA_LABEL = "Contact us";
 export const CTA_HREF = "/contact/";
 

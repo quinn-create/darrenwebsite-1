@@ -48,7 +48,7 @@ export default async function PracticePage({ params }: Props) {
         ]}
       />
       <section aria-labelledby="overview-title" className="pb-6">
-        <Container className="grid gap-10 lg:grid-cols-12 lg:gap-8">
+        <Container reveal className="grid gap-10 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-8">
             <h2 id="overview-title" className="h2">
               Overview

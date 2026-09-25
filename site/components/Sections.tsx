@@ -1,3 +1,4 @@
+import type React from "react";
 import Link from "next/link";
 import { ArrowRight, ClipboardCheck, MessagesSquare, PhoneCall, Send } from "lucide-react";
 import { CTA_HREF, CTA_LABEL, FAQ_JUMP_MIN, FAQ_TOPICS, PRACTICES, STEPS, type FaqItem } from "@/lib/site";
@@ -17,8 +18,13 @@ export function PracticeCards({
   const practices = featuredOnly ? PRACTICES.filter((p) => p.featured) : PRACTICES;
   return (
     <ul className="grid gap-6 md:grid-cols-3">
-      {practices.map((p) => (
-        <li key={p.slug} className="card flex flex-col gap-4 p-6 lg:p-8">
+      {practices.map((p, i) => (
+        <li
+          key={p.slug}
+          data-reveal=""
+          style={{ "--reveal-delay": `${i < 3 ? i * 60 : 0}ms` } as React.CSSProperties}
+          className="card flex flex-col gap-4 p-6 lg:p-8"
+        >
           <PracticeIcon name={p.icon} />
           <Heading className="h3">{p.title}</Heading>
           <p className="text-muted">{p.summary}</p>
@@ -41,7 +47,7 @@ const STEP_ICONS = { send: Send, review: ClipboardCheck, reply: PhoneCall, next:
 export function ContactSteps({ id = "how-contact-works" }: { id?: string }) {
   return (
     <section aria-labelledby={id} className="py-14 lg:py-24">
-      <Container>
+      <Container reveal>
         <p className="eyebrow uppercase">How it works</p>
         <h2 id={id} className="h2 mt-2">
           What happens next
@@ -113,7 +119,7 @@ export function Faq({ items, id = "faq" }: { items: FaqItem[]; id?: string }) {
   const groupId = (topic: string) => `faq-${id}-${topic}`;
   return (
     <section aria-labelledby={id} className="py-14 lg:py-24">
-      <Container>
+      <Container reveal>
         <h2 id={id} className="h2">
           Frequently asked questions
         </h2>
@@ -142,7 +148,7 @@ export function Faq({ items, id = "faq" }: { items: FaqItem[]; id?: string }) {
 export function IntakeBand({ id = "intake-band" }: { id?: string }) {
   return (
     <section aria-labelledby={id} className="border-y border-border/40 bg-surface py-14 lg:py-24">
-      <Container className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+      <Container reveal className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 id={id} className="h2">
             Ready when you are.

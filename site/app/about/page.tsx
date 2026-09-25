@@ -13,7 +13,7 @@ export default function About() {
     <>
       <section className="pb-14 pt-10 lg:pb-24 lg:pt-16">
         <Container className="grid gap-12 lg:grid-cols-12 lg:gap-8">
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7" data-reveal="">
             <Breadcrumbs items={[{ href: "/", label: "Home" }, { label: "About Darren" }]} />
             <h1 className="h1 mt-4">About Darren Drake</h1>
             <div className="measure mt-8 flex flex-col gap-5 text-muted">

@@ -5,6 +5,7 @@ import { IS_PRODUCTION, SITE_URL } from "@/lib/env";
 import { OPEN_GRAPH_BASE, SHARE_TITLE, SITE_DESCRIPTION } from "@/lib/site";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { StickyCta } from "@/components/StickyCta";
 
 export const metadata: Metadata = {
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main id="main" tabIndex={-1} className="outline-none">
           {children}
         </main>
+        <ScrollReveal />
         <Footer />
         <StickyCta />
       </body>

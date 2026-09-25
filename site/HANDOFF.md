@@ -267,3 +267,22 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
 - **Samples:** `printouts/share-cards/` holds all six cards, plus `preview-sheet.png` at phone-preview size.
 - **Tests:** e2e 42/42. The 6 new "Share card" checks cover size, file size, uniqueness, tags, fallback and live data. Delivery 4/4. The placeholder count is unchanged at 3.
 - **Launch day:** the Facebook, LinkedIn, X and iMessage checks need the public address. They're listed under launch day in `plans/for-darren/go-live-setup.md`.
+
+## Update, 25 September 2026: gentle scroll reveals (plans/scroll-reveals-plan.md)
+
+- **What moves:** marked blocks (`data-reveal`, or `<Container reveal>`) rise 12 px into place once, over 420 ms, as they scroll into view.
+  - **Home:** the practice heading, the 3 featured cards (staggered 0/60/120 ms), the carousel, Meet Darren, the timeline, the FAQ and the closing band.
+  - **Practice pages:** the overview, the timeline and the FAQ.
+  - **Practice Areas:** the card grid, first 3 staggered.
+  - **About:** the text column.
+  - **Never marked:** the hero, header, page titles, the Contact page, legal pages and forms.
+- **How:**
+  - `components/ScrollReveal.tsx`, mounted once in `app/layout.tsx`, uses a single IntersectionObserver.
+  - It runs only at 768 px and wider, with motion allowed and JavaScript on; otherwise nothing is offset.
+  - Blocks already on screen are revealed instantly on load, so nothing animates at page load.
+  - The CSS uses the separate `translate` property, so it composes with the cards' hover `transform` without overriding it. It never touches opacity.
+- **Off switch:** set `SCROLL_REVEALS = false` in `lib/site.ts`.
+- **Brand note:** the Signal spec allows one entrance animation (the hero). These reveals are an extension Quinn requested on 25 Sep 2026, using the spec's own timing. Turn them off with the switch if Darren prefers the strict rule.
+- **Cost:** 375 bytes of gzipped JavaScript, and no layout shift (measured CLS 0).
+- **Tests:** e2e 52/52. The 10 new "Reveal" checks cover reduced motion, no JavaScript, phones, settling, once-only, no animation on load, opacity always 1, stagger, CLS 0, the off switch and axe. Both hero-motion tests are unchanged and passing. Delivery 4/4. The placeholder count is unchanged at 3.
+- **Recording:** `printouts/site-preview/scroll-reveals-1440.webm`, plus `scroll-reveals-frame-{1,2,3}.png`. The stills slowed the transition to 1.4 s only to catch a mid-rise frame.

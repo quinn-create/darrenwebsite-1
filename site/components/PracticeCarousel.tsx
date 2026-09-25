@@ -49,7 +49,7 @@ export function PracticeCarousel() {
     "inline-flex size-11 items-center justify-center rounded-full border border-border/70 bg-surface text-text transition-colors hover:border-action disabled:cursor-default disabled:opacity-40 disabled:hover:border-border/70";
 
   return (
-    <section aria-labelledby="all-practice-title" aria-roledescription="carousel" className="mt-14">
+    <section aria-labelledby="all-practice-title" aria-roledescription="carousel" data-reveal="" className="mt-14">
       <div className="flex items-end justify-between gap-4">
         <div>
           <h3 id="all-practice-title" className="h3">

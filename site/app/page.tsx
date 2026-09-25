@@ -67,10 +67,12 @@ export default function Home() {
 
       <section aria-labelledby="practice-title" className="pb-14 pt-6 lg:pb-24 lg:pt-6">
         <Container>
-          <p className="eyebrow uppercase">Practice areas</p>
-          <h2 id="practice-title" className="h2 mt-2">
-            How Darren can help
-          </h2>
+          <div data-reveal="">
+            <p className="eyebrow uppercase">Practice areas</p>
+            <h2 id="practice-title" className="h2 mt-2">
+              How Darren can help
+            </h2>
+          </div>
           <div className="mt-10">
             <PracticeCards featuredOnly />
           </div>
@@ -79,7 +81,7 @@ export default function Home() {
       </section>
 
       <section aria-labelledby="meet-title" className="py-14 lg:py-24">
-        <Container className="grid gap-10 lg:grid-cols-12 lg:gap-8">
+        <Container reveal className="grid gap-10 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-7">
             <p className="eyebrow uppercase">About</p>
             <h2 id="meet-title" className="h2 mt-2">

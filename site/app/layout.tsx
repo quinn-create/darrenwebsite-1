@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/manrope/wght.css";
 import "./globals.css";
 import { IS_PRODUCTION, SITE_URL } from "@/lib/env";
+import { businessGraph, jsonLd } from "@/lib/structured-data";
 import { OPEN_GRAPH_BASE, SHARE_TITLE, SITE_DESCRIPTION } from "@/lib/site";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -10,7 +11,7 @@ import { StickyCta } from "@/components/StickyCta";
 
 export const metadata: Metadata = {
   title: {
-    default: "Darren Drake, Attorney at Law | Murfreesboro, Rutherford County & Smyrna",
+    default: "Darren Drake, Attorney at Law | Murfreesboro, TN",
     template: "%s | Darren Drake, Attorney at Law",
   },
   description: SITE_DESCRIPTION,
@@ -32,6 +33,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="antialiased">
+        {/* Business details for search engines (plans/seo-fixes-plan.md). */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(businessGraph()) }} />
         <Header />
         <main id="main" tabIndex={-1} className="outline-none">
           {children}

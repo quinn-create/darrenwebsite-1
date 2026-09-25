@@ -286,3 +286,20 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
 - **Cost:** 375 bytes of gzipped JavaScript, and no layout shift (measured CLS 0).
 - **Tests:** e2e 52/52. The 10 new "Reveal" checks cover reduced motion, no JavaScript, phones, settling, once-only, no animation on load, opacity always 1, stagger, CLS 0, the off switch and axe. Both hero-motion tests are unchanged and passing. Delivery 4/4. The placeholder count is unchanged at 3.
 - **Recording:** `printouts/site-preview/scroll-reveals-1440.webm`, plus `scroll-reveals-frame-{1,2,3}.png`. The stills slowed the transition to 1.4 s only to catch a mid-rise frame.
+
+## Update, 25 September 2026: SEO fixes (plans/seo-fixes-plan.md)
+- **Canonicals:** every page sets `alternates.canonical` (its path, with a trailing `/`). `metadataBase` turns it into `https://ddrakelaw.com/...`. Query text such as `?utm_source=` never reaches the canonical. A new page needs its own `alternates.canonical`.
+- **Business data:** `lib/structured-data.ts` builds one JSON-LD graph, rendered on every page from `app/layout.tsx`:
+  - the firm (`LegalService` + `LocalBusiness`): name, address, phone, Mon–Fri 8–5, area served, portrait, the five practice titles;
+  - Darren (`Person`): job title, both SIU schools, both memberships;
+  - the website.
+
+  Every value comes from `lib/site.ts`. `FIRM` now holds the address parts (`street`, `city`, `region`, `postalCode`), and `FIRM.address` is built from them, so the visible address and the data can't drift. Confirmed facts only: no ratings, reviews, prices, social links, coordinates, founding date, awards or FAQ data. Add `sameAs` or a rating only once Darren confirms them.
+- **Breadcrumbs:** every crumb now carries its `href`, and the last is the current page (shown as plain text). `Breadcrumbs` in `components/Sections.tsx` also renders the matching `BreadcrumbList` data, so the two always agree. There's none on the home page.
+- **Search listings:**
+  - home title "Darren Drake, Attorney at Law | Murfreesboro, TN" (48 characters);
+  - `SITE_DESCRIPTION` shortened to 156 characters (it's shared with link previews).
+- **Sitemap dates:** `app/sitemap.ts` reads each page's last git commit date at build time. If the build has no git history it falls back to the build date, which is harmless.
+- **Still hidden:** preview builds keep `noindex` and `Disallow: /`. A test-only production build (`SITE_ENV=production npx next build`, never deployed) showed `index, follow`, `Allow: /`, `Disallow: /api/` and the sitemap line, and identical canonicals and JSON-LD. The normal build was restored afterwards.
+- **Tests:** e2e 62/62, including the 10 new "SEO" checks: canonicals; firm values; data matching the Contact page; no unconfirmed fields; Darren's node; breadcrumbs; title and description lengths; sitemap; still hidden; script-safety, type allow-list and `@id` references. Delivery 4/4. The placeholder count is unchanged at 3.
+- **Report:** `printouts/seo-report.md`. The launch-day search tasks are in `plans/for-darren/go-live-setup.md`.

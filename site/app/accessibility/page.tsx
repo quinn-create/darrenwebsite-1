@@ -6,6 +6,7 @@ import { PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Accessibility",
   description: "How the Darren Drake, Attorney at Law website approaches accessibility, and how to report a problem.",
+  alternates: { canonical: "/accessibility/" },
 };
 
 // Draft for the firm to approve. It states the standard we aim for; it never claims "ADA compliant".
@@ -15,7 +16,7 @@ export default function Accessibility() {
       <PageIntro
         title="Accessibility"
         lead="We want everyone to be able to use this website, including people who use a screen reader, keyboard or zoom."
-        crumbs={[{ href: "/", label: "Home" }, { label: "Accessibility" }]}
+        crumbs={[{ href: "/", label: "Home" }, { href: "/accessibility/", label: "Accessibility" }]}
       />
       <section className="pb-14 lg:pb-24">
         <Container>

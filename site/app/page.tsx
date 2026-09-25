@@ -10,6 +10,7 @@ import { CTA_HREF, CTA_LABEL, HOME_FAQ, OPEN_GRAPH_BASE } from "@/lib/site";
 
 // The home page's own address for link previews (og:url); everything else comes from the layout.
 export const metadata: Metadata = {
+  alternates: { canonical: "/" },
   openGraph: { ...OPEN_GRAPH_BASE, url: "/" },
 };
 

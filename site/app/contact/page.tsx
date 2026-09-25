@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Contact",
   description: "Contact Darren Drake, attorney at law. Send a message online or call (615) 546-5551.",
+  alternates: { canonical: "/contact/" },
 };
 
 // ?topic=<practice slug> comes from the "Ask about …" phone bar on practice pages.
@@ -21,7 +22,7 @@ export default async function Contact({ searchParams }: { searchParams: Promise<
       <PageIntro
         title="Contact us"
         lead="Send a short message, or call the office."
-        crumbs={[{ href: "/", label: "Home" }, { label: "Contact" }]}
+        crumbs={[{ href: "/", label: "Home" }, { href: "/contact/", label: "Contact" }]}
       />
       <section aria-label="Contact details" className="pb-14 lg:pb-24">
         <Container className="grid items-start gap-6 lg:grid-cols-[3fr_2fr]">

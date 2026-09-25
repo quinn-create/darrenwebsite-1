@@ -62,3 +62,19 @@ The production build refuses to go live while any unapproved text remains. Right
 - **iMessage/WhatsApp:** text the link to yourself and confirm the card appears.
 
 If an app still shows an old preview, it has cached the old site. Facebook and LinkedIn refresh when you press Scrape Again or Inspect; iMessage can take up to a day.
+
+**Search (after the switch):**
+1. **Google Search Console:**
+   - verify ddrakelaw.com by adding the DNS record it gives you in Cloudflare;
+   - submit `https://ddrakelaw.com/sitemap.xml`;
+   - use **URL Inspection → Request indexing** on the home page and the five practice pages.
+2. **Rich Results Test** (search.google.com/test/rich-results): test the home page and one practice page. Confirm "LocalBusiness" (or "LegalService") and "Breadcrumbs" are found, with no errors.
+3. **Google Business Profile:** check that it matches the site exactly:
+   - Darren Drake Law PLLC;
+   - 138 S. Cannon Ave, Murfreesboro, TN 37129;
+   - (615) 546-5551;
+   - Mon–Fri 8am–5pm.
+
+   Set the website field to `https://ddrakelaw.com/`.
+4. **Old addresses:** for 2–4 weeks, watch **Pages → Not found (404)** in Search Console. Tell Claude about any old WordPress address that shows up, and a redirect will be added.
+5. **Bing Webmaster Tools:** import the site from Search Console (one click).

@@ -1,6 +1,7 @@
 import type React from "react";
 import Link from "next/link";
 import { ArrowRight, ClipboardCheck, MessagesSquare, PhoneCall, Send } from "lucide-react";
+import { breadcrumbList, jsonLd, type Crumb } from "@/lib/structured-data";
 import { CTA_HREF, CTA_LABEL, FAQ_JUMP_MIN, FAQ_TOPICS, PRACTICES, STEPS, type FaqItem } from "@/lib/site";
 import { FaqJumpLinks } from "./FaqJumpLinks";
 import { PhoneLink } from "./PhoneLink";
@@ -166,14 +167,17 @@ export function IntakeBand({ id = "intake-band" }: { id?: string }) {
   );
 }
 
-export function Breadcrumbs({ items }: { items: { href?: string; label: string }[] }) {
+// Every crumb carries its path; the last one is the current page (shown as plain text, and
+// its path is the page's canonical address). The same list feeds the search-engine
+// breadcrumb data, so the visible and structured breadcrumbs can never disagree.
+export function Breadcrumbs({ items }: { items: Crumb[] }) {
   return (
     <nav aria-label="Breadcrumb" className="text-[15px] text-muted">
       <ol className="flex flex-wrap items-center gap-2">
         {items.map((item, i) => (
           <li key={item.label} className="flex items-center gap-2">
             {i > 0 && <span aria-hidden="true">/</span>}
-            {item.href ? (
+            {i < items.length - 1 ? (
               <Link href={item.href} className="link-secondary inline-flex min-h-11 items-center">
                 {item.label}
               </Link>
@@ -185,8 +189,13 @@ export function Breadcrumbs({ items }: { items: { href?: string; label: string }
           </li>
         ))}
       </ol>
+      <BreadcrumbJsonLd items={items} />
     </nav>
   );
+}
+
+export function BreadcrumbJsonLd({ items }: { items: Crumb[] }) {
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbList(items)) }} />;
 }
 
 export function PageIntro({
@@ -196,7 +205,7 @@ export function PageIntro({
 }: {
   title: string;
   lead?: string;
-  crumbs?: { href?: string; label: string }[];
+  crumbs?: Crumb[];
 }) {
   return (
     <section className="pb-6 pt-10 lg:pb-10 lg:pt-16">

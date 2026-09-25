@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: practice.title,
     description: `${practice.summary} Contact Darren Drake or call (615) 546-5551.`,
+    alternates: { canonical: `/practice-areas/${practice.slug}/` },
     // A page-level openGraph replaces the layout's, so repeat the shared fields here.
     openGraph: {
       ...OPEN_GRAPH_BASE,
@@ -44,7 +45,7 @@ export default async function PracticePage({ params }: Props) {
         crumbs={[
           { href: "/", label: "Home" },
           { href: "/practice-areas/", label: "Practice Areas" },
-          { label: practice.title },
+          { href: `/practice-areas/${practice.slug}/`, label: practice.title },
         ]}
       />
       <section aria-labelledby="overview-title" className="pb-6">

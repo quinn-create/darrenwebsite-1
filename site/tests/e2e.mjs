@@ -810,6 +810,144 @@ await check("Axe scan of the contact page with errors shown", async () => {
   assert(res.violations.length === 0, res.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target).join(" ")}`).join(", "));
 });
 
+// ---- SEO (plans/seo-fixes-plan.md, 6.1 and 6.4) ----
+const SITE = "https://ddrakelaw.com";
+const ALL_PAGES = [...PAGES, "/practice-areas/dui-dwi/", "/practice-areas/expungement/"];
+const html = async (path) => (await fetch(DEMO + path)).text();
+const ldBlocks = (h) => [...h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+const ld = (h) => ldBlocks(h).map((t) => JSON.parse(t));
+const firmGraph = (h) => ld(h).find((d) => d["@graph"])["@graph"];
+const node = (graph, id) => graph.find((n) => n["@id"] === `${SITE}/#${id}`);
+function walk(v, fn) {
+  if (Array.isArray(v)) v.forEach((x) => walk(x, fn));
+  else if (v && typeof v === "object") { fn(v); Object.values(v).forEach((x) => walk(x, fn)); }
+}
+
+await check("SEO 1: every page has one clean canonical, even with ?utm_source", async () => {
+  assert(ALL_PAGES.length === 12, `expected 12 pages, got ${ALL_PAGES.length}`);
+  for (const path of ALL_PAGES) {
+    for (const q of ["", "?utm_source=test"]) {
+      const links = [...(await html(path + q)).matchAll(/<link rel="canonical" href="([^"]+)"/g)].map((m) => m[1]);
+      assert(links.length === 1, `${path}${q}: ${links.length} canonicals`);
+      assert(links[0] === SITE + path, `${path}${q}: canonical ${links[0]}`);
+    }
+  }
+});
+
+await check("SEO 2: business data parses and has the confirmed firm details", async () => {
+  const f = node(firmGraph(await html("/")), "firm");
+  assert(f, "no #firm node");
+  assert(JSON.stringify(f["@type"]) === JSON.stringify(["LegalService", "LocalBusiness"]), "type");
+  assert(f.name === "Darren Drake Law PLLC", `name ${f.name}`);
+  assert(f.telephone === "+1-615-546-5551", `telephone ${f.telephone}`);
+  assert(f.address.postalCode === "37129" && f.address.addressLocality === "Murfreesboro", "address");
+  const h = f.openingHoursSpecification;
+  assert(h.length === 1 && h[0].dayOfWeek.join() === "Monday,Tuesday,Wednesday,Thursday,Friday" && h[0].opens === "08:00" && h[0].closes === "17:00", "hours");
+  const served = f.areaServed.map((a) => a.name);
+  for (const n of ["Murfreesboro", "Smyrna", "Rutherford County"]) assert(served.includes(n), `areaServed missing ${n}`);
+  assert(f.knowsAbout.join("|") === "First-Time Offenders|Criminal Defense|DUI/DWI|Domestic Assault|Expungement", `knowsAbout ${f.knowsAbout}`);
+});
+
+await check("SEO 3: structured address, phone and hours match the Contact page", async () => {
+  await page.goto(DEMO + "/contact/");
+  const f = node(firmGraph(await page.content()), "firm");
+  const shown = await page.locator("dt:has-text('Office') + dd").innerText();
+  const a = f.address;
+  assert(`${a.streetAddress}, ${a.addressLocality}, ${a.addressRegion} ${a.postalCode}` === shown.trim(), `address "${shown}"`);
+  const phone = await page.locator("main .phone-num").first().innerText();
+  assert(phone.replace(/\D/g, "") === f.telephone.replace(/\D/g, "").slice(1), `phone ${phone}`);
+  const hours = (await page.locator("dt:has-text('Hours') + dd").innerText()).trim();
+  const s = f.openingHoursSpecification[0];
+  assert(hours === "Monday–Friday, 8am–5pm" && s.dayOfWeek[0] === "Monday" && s.dayOfWeek.at(-1) === "Friday" && s.opens === "08:00" && s.closes === "17:00", `hours "${hours}"`);
+});
+
+await check("SEO 4: no unconfirmed fields anywhere in the structured data", async () => {
+  const banned = ["aggregateRating", "review", "priceRange", "sameAs", "geo", "foundingDate", "award"];
+  for (const path of ALL_PAGES) {
+    walk(ld(await html(path)), (o) => {
+      for (const k of banned) assert(!(k in o), `${path}: found ${k}`);
+    });
+  }
+});
+
+await check("SEO 5: Darren's node has the confirmed schools and memberships", async () => {
+  const d = node(firmGraph(await html("/about/")), "darren");
+  assert(d && d["@type"] === "Person" && d.name === "Darren Drake" && d.jobTitle === "Attorney at Law", "basics");
+  assert(d.worksFor["@id"] === `${SITE}/#firm`, "worksFor");
+  assert(d.alumniOf.map((x) => x.name).join("|") === "Southern Illinois University School of Law|Southern Illinois University Carbondale", "alumniOf");
+  assert(d.memberOf.map((x) => x.name).join("|") === "Tennessee Association of Criminal Defense Lawyers|Rutherford & Cannon County Bar Association", "memberOf");
+});
+
+await check("SEO 6: breadcrumb data matches the visible breadcrumbs; none on home", async () => {
+  await page.goto(DEMO + "/practice-areas/dui-dwi/");
+  const list = ld(await page.content()).find((d) => d["@type"] === "BreadcrumbList");
+  assert(list, "no BreadcrumbList");
+  const items = list.itemListElement;
+  assert(items.map((i) => i.position).join() === "1,2,3", "positions");
+  assert(items.map((i) => i.item).join() === `${SITE}/,${SITE}/practice-areas/,${SITE}/practice-areas/dui-dwi/`, "urls");
+  const visible = (await page.locator('nav[aria-label="Breadcrumb"] li').allInnerTexts()).map((t) => t.replace("/", "").trim());
+  assert(items.map((i) => i.name).join("|") === visible.join("|"), `names ${visible}`);
+  assert(visible.join("|") === "Home|Practice Areas|DUI/DWI", `visible ${visible}`);
+  for (const path of ALL_PAGES.filter((p) => p !== "/")) {
+    const b = ld(await html(path)).filter((d) => d["@type"] === "BreadcrumbList");
+    assert(b.length === 1 && b[0].itemListElement.at(-1).item === SITE + path, `${path}: breadcrumb data`);
+  }
+  assert(!ld(await html("/")).some((d) => d["@type"] === "BreadcrumbList"), "home has a BreadcrumbList");
+});
+
+await check("SEO 7: titles ≤ 60 characters; home description ≤ 160", async () => {
+  const decode = (s) => s.replace(/&amp;/g, "&").replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"');
+  for (const path of ALL_PAGES) {
+    const h = await html(path);
+    const title = decode(h.match(/<title>([^<]*)<\/title>/)[1]);
+    assert(title.length <= 60, `${path}: title ${title.length} chars`);
+    if (path === "/") {
+      assert(title === "Darren Drake, Attorney at Law | Murfreesboro, TN", `home title "${title}"`);
+      const desc = decode(h.match(/<meta name="description" content="([^"]*)"/)[1]);
+      assert(desc.length <= 160, `home description ${desc.length} chars`);
+    }
+  }
+});
+
+await check("SEO 8: sitemap has 12 canonical entries with ISO lastmod dates", async () => {
+  const xml = await html("/sitemap.xml");
+  const urls = [...xml.matchAll(/<url>([\s\S]*?)<\/url>/g)].map((m) => m[1]);
+  assert(urls.length === 12, `${urls.length} entries`);
+  const locs = urls.map((u) => u.match(/<loc>([^<]+)<\/loc>/)[1]);
+  assert([...locs].sort().join() === ALL_PAGES.map((p) => SITE + p).sort().join(), "locs differ from canonicals");
+  for (const u of urls) {
+    const lm = u.match(/<lastmod>([^<]+)<\/lastmod>/)?.[1];
+    assert(lm && /^\d{4}-\d\d-\d\dT/.test(lm) && !Number.isNaN(Date.parse(lm)), `bad lastmod ${lm}`);
+  }
+});
+
+await check("SEO 9: preview build is still hidden (noindex everywhere, Disallow: /)", async () => {
+  for (const path of ALL_PAGES) {
+    assert(/<meta name="robots" content="noindex, nofollow"/.test(await html(path)), `${path}: no noindex`);
+  }
+  assert(/Disallow: \/\s*$/m.test(await html("/robots.txt")), "robots.txt lacks Disallow: /");
+});
+
+await check("SEO 10: JSON-LD is script-safe; types allow-listed; every @id reference resolves", async () => {
+  const allowed = new Set(["LegalService", "LocalBusiness", "Person", "WebSite", "BreadcrumbList", "ListItem", "PostalAddress", "OpeningHoursSpecification", "City", "AdministrativeArea", "Organization", "EducationalOrganization"]);
+  for (const path of ALL_PAGES) {
+    const blocks = ldBlocks(await html(path));
+    for (const t of blocks) assert(!t.includes("<"), `${path}: raw "<" in JSON-LD`);
+    const docs = blocks.map((t) => JSON.parse(t));
+    const ids = new Set();
+    const refs = [];
+    walk(docs, (o) => {
+      if (o["@type"]) [o["@type"]].flat().forEach((ty) => assert(allowed.has(ty), `${path}: type ${ty}`));
+      if (o["@id"] && Object.keys(o).length > 1) ids.add(o["@id"]);
+      else if (o["@id"]) refs.push(o["@id"]);
+    });
+    for (const r of refs) assert(ids.has(r), `${path}: dangling ${r}`);
+  }
+  // The escaping itself: "<" becomes \u003c.
+  const src = await readFile("lib/structured-data.ts", "utf8");
+  assert(src.includes('JSON.stringify(data).replace(/</g, "\\\\u003c")'), "jsonLd no longer escapes <");
+});
+
 await browser.close();
 await rm(".data/intake-test.jsonl", { force: true });
 

@@ -8,11 +8,16 @@ export const PHONE_HREF = "tel:+16155465551";
 // Bracketed values are placeholders: scripts/check-placeholders.mjs refuses a
 // production release while any remain (candidates from the old site are in
 // plans/research/current-site.md and need Darren's confirmation first).
+// The address parts feed the search-engine data (lib/structured-data.ts); the visible
+// address is built from them, so the two can never disagree.
+const ADDRESS = { street: "138 S. Cannon Ave", city: "Murfreesboro", region: "TN", postalCode: "37129" } as const;
+
 export const FIRM = {
   name: "Darren Drake",
   descriptor: "Attorney at Law",
   legalName: "Darren Drake Law PLLC",
-  address: "138 S. Cannon Ave, Murfreesboro, TN 37129",
+  ...ADDRESS,
+  address: `${ADDRESS.street}, ${ADDRESS.city}, ${ADDRESS.region} ${ADDRESS.postalCode}`,
   hours: "Monday–Friday, 8am–5pm",
   serviceArea: "Murfreesboro, Rutherford County & Smyrna",
 } as const;
@@ -33,7 +38,7 @@ export const SHARE_TITLE = "Darren Drake · Attorney at Law · Murfreesboro, TN"
 export const SHARE_ALT = `Darren Drake, Attorney at Law, Murfreesboro, Tennessee. Call ${PHONE_DISPLAY}.`;
 export const SHARE_SITE_NAME = "Darren Drake Law PLLC";
 export const SITE_DESCRIPTION =
-  "Darren Drake, attorney at law serving Murfreesboro, Rutherford County and Smyrna. First-time offenses, DUI/DWI, domestic assault and other criminal defense. Contact the office or call (615) 546-5551.";
+  `Criminal defense attorney in Murfreesboro, TN, serving Rutherford County and Smyrna. First-time offenses, DUI/DWI and domestic assault. Call ${PHONE_DISPLAY}.`;
 // Shared Open Graph fields. A page that sets its own openGraph replaces the layout's
 // entirely, so pages spread this in rather than repeating it.
 export const OPEN_GRAPH_BASE = {

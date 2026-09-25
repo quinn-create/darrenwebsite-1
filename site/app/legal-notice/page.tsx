@@ -6,6 +6,7 @@ import { FIRM, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Legal Notice",
   description: "Legal notice for the Darren Drake, Attorney at Law website.",
+  alternates: { canonical: "/legal-notice/" },
 };
 
 // Draft built from the brand guidelines' approved wording, for the firm to approve.
@@ -14,7 +15,7 @@ export default function LegalNotice() {
     <>
       <PageIntro
         title="Legal notice"
-        crumbs={[{ href: "/", label: "Home" }, { label: "Legal notice" }]}
+        crumbs={[{ href: "/", label: "Home" }, { href: "/legal-notice/", label: "Legal notice" }]}
       />
       <section className="pb-14 lg:pb-24">
         <Container>

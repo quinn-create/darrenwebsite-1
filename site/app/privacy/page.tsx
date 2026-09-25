@@ -6,6 +6,7 @@ import { FIRM, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Privacy",
   description: "Privacy notice for the Darren Drake Law PLLC website.",
+  alternates: { canonical: "/privacy/" },
 };
 
 // Draft written from how the site actually works (24 Sep 2026). Darren to approve or edit;
@@ -16,7 +17,7 @@ export default function Privacy() {
       <PageIntro
         title="Privacy notice"
         lead="This notice explains what happens to the information you send through this website. [DRAFT — DARREN TO APPROVE]"
-        crumbs={[{ href: "/", label: "Home" }, { label: "Privacy" }]}
+        crumbs={[{ href: "/", label: "Home" }, { href: "/privacy/", label: "Privacy" }]}
       />
       <section className="pb-14 lg:pb-24">
         <Container>

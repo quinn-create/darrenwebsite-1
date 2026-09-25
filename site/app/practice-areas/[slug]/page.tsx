@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Container } from "@/components/Container";
 import { PracticeIcon } from "@/components/PracticeIcon";
 import { ContactSteps, Faq, IntakeBand, PageIntro } from "@/components/Sections";
-import { PRACTICES } from "@/lib/site";
+import { OPEN_GRAPH_BASE, PRACTICES } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -20,6 +20,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: practice.title,
     description: `${practice.summary} Contact Darren Drake or call (615) 546-5551.`,
+    // A page-level openGraph replaces the layout's, so repeat the shared fields here.
+    openGraph: {
+      ...OPEN_GRAPH_BASE,
+      title: `${practice.title} · Darren Drake`,
+      description: `${practice.summary} Contact Darren Drake or call (615) 546-5551.`,
+      url: `/practice-areas/${practice.slug}/`,
+    },
+    twitter: { card: "summary_large_image", title: `${practice.title} · Darren Drake` },
   };
 }
 

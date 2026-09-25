@@ -28,4 +28,4 @@ Written 24 September 2026. Each idea names the pattern it borrows from, and whet
 7. **Light theme option** (Microsoft, GitHub). Some older visitors read dark pages less easily. Adding a light palette is a medium-sized job.
 8. **Speed polish** (Amazon's focus on speed). After launch, check real-phone speed. Keep images in AVIF and JavaScript small; both are already within budget.
 9. **Consistent icon set.** One icon family (lucide) with the same stroke width everywhere, which is already mostly true. Review it once the photo is in.
-10. **Better link previews.** A branded image for texts and social posts, using the approved portrait and the firm name, so shared links look finished.
+10. **Better link previews.** **Built 25 Sep 2026** (`plans/link-previews-plan.md`): a 1200 × 630 share card for the home page (used by every page without its own), plus one per practice area. The cards are built from `lib/site.ts`, and samples are in `printouts/share-cards/`.

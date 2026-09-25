@@ -252,3 +252,18 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
 - **Behaviour:** the buttons are plain `#faq-faq-<topic>` links that scroll to the group without JavaScript. With JavaScript they also open the group's first question and focus it. Smooth scrolling only happens when the visitor hasn't asked for reduced motion.
 - **Styles:** `.chip-link` (44 px minimum, cyan hover) and `.faq-group` in `globals.css`.
 - **Tests:** e2e 36/36. The 9 new "FAQ jump" checks include one that compares every question and answer with `lib/site.ts`. Delivery 4/4. The placeholder count is unchanged at 3.
+
+## Update, 25 September 2026: link-preview share cards (plans/link-previews-plan.md)
+
+- **Cards:** `lib/share-card.tsx` draws a 1200 × 630 card with `next/og`. It shows the approved 4:5 portrait, the name, "Attorney at Law · Murfreesboro, TN" and `PHONE_DISPLAY`, all read from `lib/site.ts`. It uses static Manrope `.woff` files from the new `@fontsource/manrope` package, because the card renderer can't read woff2.
+- **Where they come from:**
+  - `app/opengraph-image.tsx` and `app/twitter-image.tsx` supply the default card, used by the home page and every page without its own.
+  - `app/practice-areas/[slug]/opengraph-image.tsx` and `twitter-image.tsx` add the practice title, with per-page alt text via `generateImageMetadata`. Their address is `…/opengraph-image/card`.
+- **File size:** the renderer's PNG was about 550 KB. The cards are re-saved in full colour (palette off) at maximum compression with `sharp`, which Next.js already includes, bringing them to about 390 KB each. If `sharp` is ever missing, the original PNG is served instead.
+- **Tags:** `OPEN_GRAPH_BASE`, `SHARE_TITLE`, `SHARE_ALT` and `SITE_DESCRIPTION` in `lib/site.ts` supply the tags.
+  - The layout sets the defaults, plus `twitter.card` = `summary_large_image`.
+  - The home page adds `og:url`.
+  - Practice pages set "<Title> · Darren Drake" and their own `og:url`. A page-level `openGraph` replaces the layout's, which is why pages spread in `OPEN_GRAPH_BASE`.
+- **Samples:** `printouts/share-cards/` holds all six cards, plus `preview-sheet.png` at phone-preview size.
+- **Tests:** e2e 42/42. The 6 new "Share card" checks cover size, file size, uniqueness, tags, fallback and live data. Delivery 4/4. The placeholder count is unchanged at 3.
+- **Launch day:** the Facebook, LinkedIn, X and iMessage checks need the public address. They're listed under launch day in `plans/for-darren/go-live-setup.md`.

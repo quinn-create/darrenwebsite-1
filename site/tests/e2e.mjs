@@ -585,6 +585,72 @@ await check("FAQ jump 9: axe finds 0 violations on the home page with a FAQ grou
   return "0 violations";
 });
 
+// ---- Link-preview share cards (plans/link-previews-plan.md, section 7.1) ----
+const metaOf = async (path) => {
+  const html = await (await fetch(DEMO + path)).text();
+  const tags = {};
+  for (const m of html.matchAll(/<meta (?:property|name)="((?:og|twitter):[^"]+)" content="([^"]*)"/g)) tags[m[1]] ??= m[2];
+  return tags;
+};
+// Image addresses are absolute (the live site's URL); fetch the same path from this server.
+const localUrl = (abs) => DEMO + new URL(abs).pathname + new URL(abs).search;
+const CARD_PAGES = ["/", ...PRACTICE_SLUGS.map((s) => `/practice-areas/${s}/`)];
+
+await check("Share card 1: all six cards are 1200 × 630 PNGs under 500 KB", async () => {
+  const sizes = [];
+  for (const path of CARD_PAGES) {
+    const img = (await metaOf(path))["og:image"];
+    assert(img, `${path}: no og:image`);
+    const res = await fetch(localUrl(img));
+    assert(res.status === 200 && res.headers.get("content-type") === "image/png", `${path}: ${res.status} ${res.headers.get("content-type")}`);
+    const buf = Buffer.from(await res.arrayBuffer());
+    const w = buf.readUInt32BE(16), h = buf.readUInt32BE(20);
+    assert(w === 1200 && h === 630, `${path}: ${w}×${h}`);
+    assert(buf.length < 500 * 1024, `${path}: ${Math.round(buf.length / 1024)} KB`);
+    sizes.push(Math.round(buf.length / 1024));
+  }
+  return `${sizes.join(", ")} KB`;
+});
+
+await check("Share card 2: each of the six cards is different", async () => {
+  const { createHash } = await import("node:crypto");
+  const hashes = new Set();
+  for (const path of CARD_PAGES) {
+    const buf = Buffer.from(await (await fetch(localUrl((await metaOf(path))["og:image"]))).arrayBuffer());
+    hashes.add(createHash("sha256").update(buf).digest("hex"));
+  }
+  assert(hashes.size === 6, `only ${hashes.size} distinct cards`);
+});
+
+await check("Share card 3: home page has the full set of Open Graph and X tags with an absolute image address", async () => {
+  const t = await metaOf("/");
+  for (const k of ["og:title", "og:description", "og:url", "og:site_name", "og:image", "og:image:alt", "twitter:image"]) assert(t[k], `missing ${k}`);
+  assert(t["og:image:width"] === "1200" && t["og:image:height"] === "630", "image size tags wrong");
+  assert(t["twitter:card"] === "summary_large_image", `twitter:card = ${t["twitter:card"]}`);
+  assert(/^https?:\/\//.test(t["og:image"]), `og:image not absolute: ${t["og:image"]}`);
+  assert(t["og:title"] === "Darren Drake · Attorney at Law · Murfreesboro, TN", `og:title = ${t["og:title"]}`);
+});
+
+await check("Share card 4: a practice page has its own title and card", async () => {
+  const t = await metaOf("/practice-areas/dui-dwi/");
+  assert(t["og:title"] === "DUI/DWI · Darren Drake", `og:title = ${t["og:title"]}`);
+  assert(t["og:image"].includes("/practice-areas/dui-dwi/"), `og:image = ${t["og:image"]}`);
+});
+
+await check("Share card 5: every other page falls back to the home card", async () => {
+  const home = (await metaOf("/"))["og:image"];
+  for (const path of ["/about/", "/contact/", "/privacy/", "/accessibility/", "/legal-notice/"]) {
+    const img = (await metaOf(path))["og:image"];
+    assert(img === home, `${path}: og:image = ${img}`);
+  }
+});
+
+await check("Share card 6: the card's alt text carries the phone number from lib/site.ts", async () => {
+  const phone = readFileSync("lib/site.ts", "utf8").match(/PHONE_DISPLAY = "([^"]+)"/)[1];
+  const alt = (await metaOf("/"))["og:image:alt"];
+  assert(alt.includes(phone), `alt text: ${alt}`);
+});
+
 await check("Contact page uses the same form", async () => {
   await page.goto(DEMO + "/contact/");
   assert(await page.locator("#cf-yourName").isVisible(), "form missing on /contact/");

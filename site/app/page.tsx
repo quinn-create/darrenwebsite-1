@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Anchor, MapPin, Scale } from "lucide-react";
 import { Container } from "@/components/Container";
@@ -5,7 +6,12 @@ import { Portrait } from "@/components/Portrait";
 import { PhoneLink } from "@/components/PhoneLink";
 import { PracticeCarousel } from "@/components/PracticeCarousel";
 import { ContactSteps, Faq, IntakeBand, PracticeCards } from "@/components/Sections";
-import { CTA_HREF, CTA_LABEL, HOME_FAQ } from "@/lib/site";
+import { CTA_HREF, CTA_LABEL, HOME_FAQ, OPEN_GRAPH_BASE } from "@/lib/site";
+
+// The home page's own address for link previews (og:url); everything else comes from the layout.
+export const metadata: Metadata = {
+  openGraph: { ...OPEN_GRAPH_BASE, url: "/" },
+};
 
 // Confirmed facts only (plans/for-darren/answers-2026-09-24.md), shown as a quiet strip under the hero.
 const CREDENTIALS = [

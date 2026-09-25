@@ -28,6 +28,22 @@ export const NAV = [
 
 // The main call to action everywhere on the site. The form lives on the Contact page;
 // the old /intake/ address redirects there.
+// Link-preview (Open Graph / X) wording. plans/link-previews-plan.md, section 4.
+export const SHARE_TITLE = "Darren Drake · Attorney at Law · Murfreesboro, TN";
+export const SHARE_ALT = `Darren Drake, Attorney at Law, Murfreesboro, Tennessee. Call ${PHONE_DISPLAY}.`;
+export const SHARE_SITE_NAME = "Darren Drake Law PLLC";
+export const SITE_DESCRIPTION =
+  "Darren Drake, attorney at law serving Murfreesboro, Rutherford County and Smyrna. First-time offenses, DUI/DWI, domestic assault and other criminal defense. Contact the office or call (615) 546-5551.";
+// Shared Open Graph fields. A page that sets its own openGraph replaces the layout's
+// entirely, so pages spread this in rather than repeating it.
+export const OPEN_GRAPH_BASE = {
+  title: SHARE_TITLE,
+  description: SITE_DESCRIPTION,
+  siteName: SHARE_SITE_NAME,
+  type: "website",
+  locale: "en_US",
+} as const;
+
 export const CTA_LABEL = "Contact us";
 export const CTA_HREF = "/contact/";
 

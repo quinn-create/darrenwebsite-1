@@ -53,4 +53,12 @@ After that, Darren can click through the site and ask for edits.
 - Point ddrakelaw.com at Vercel.
 - Switch `SITE_ENV` to `production`.
 
-The production build refuses to go live while any unapproved text remains. Right now that's the privacy notice, the accessibility page and the local photo. See the plan, Section 11.
+The production build refuses to go live while any unapproved text remains. Right now that's the privacy notice approval, how long inquiries are kept, and the local photo. See the plan, Section 11.
+
+**Check the link-preview cards (after the switch):**
+- **Facebook:** paste the home page and one practice page into the Sharing Debugger (developers.facebook.com/tools/debug), press **Scrape Again**, and confirm the navy card with Darren's photo shows.
+- **LinkedIn:** the same in Post Inspector (linkedin.com/post-inspector).
+- **X:** start a post containing the link, without posting it, and confirm the large card appears.
+- **iMessage/WhatsApp:** text the link to yourself and confirm the card appears.
+
+If an app still shows an old preview, it has cached the old site. Facebook and LinkedIn refresh when you press Scrape Again or Inspect; iMessage can take up to a day.

@@ -2,6 +2,8 @@
 
 **To run it:** open a Claude Code session on this repository (branch `claude/sleepy-clarke-wjlh48`) and say *"Run plans/faq-jump-links-plan.md."* Nothing else is needed from you. Every decision is made below, and every check is automated.
 
+**Next:** when this plan is finished, run `plans/link-previews-plan.md`, the share cards for texts and social posts. To run both in one go, say *"Run plans/faq-jump-links-plan.md, then plans/link-previews-plan.md."*
+
 Written 25 September 2026.
 
 ---

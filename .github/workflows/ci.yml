@@ -44,9 +44,6 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Typecheck
-        run: npx tsc --noEmit
-
       - name: Placeholder guard (self-test, then list what's waiting on the firm)
         run: |
           node scripts/check-placeholders.mjs --self-test
@@ -57,6 +54,10 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # After the build: it writes next-env.d.ts (not stored in git), which types image imports.
+      - name: Typecheck
+        run: npx tsc --noEmit
 
       - name: Start the test servers
         run: |

@@ -419,3 +419,20 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
 - **Next adds** `.next-consent/types` to `tsconfig.json`'s include list; the folder is also excluded, so that's harmless.
 - **Rule:** never add a tag, pixel or embed except through `components/consent/Consent.tsx`. See the rules in the plan.
 - **Once IDs are set,** re-run `npm run speed`: the Google and Meta scripts are large, and the budgets may need a documented adjustment for visitors who accept.
+
+## Update, 25 September 2026: site review and improvements
+- **Health check (all passing):**
+  - typecheck, lint and build;
+  - e2e 87/87, consent 13/13, delivery 4/4;
+  - a crawl of all 12 pages at 320, 390 and 1440 px: every internal link works; no console errors, horizontal scrolling or broken images; heading order is correct; unknown addresses return 404.
+- **Improvements:**
+  - **Footer "Contact us"** uses the same pill button as the rest of the site. It was a square shadcn button.
+  - **Home "Meet Darren":** an "At a glance" card of confirmed facts replaces the local-photo placeholder, as plan decision D11 recommended ("the facts card at launch"). The facts are Navy 1996–2002, law degree, DUI Court board, memberships, office and hours. A licensed photo can still replace it later. **Placeholders are now 2**, both in the privacy notice.
+  - **Practice pages:** an "Other practice areas" row links to the other four areas.
+  - **Not-found page:** "Contact us", a call button, and links to every practice area, since old WordPress addresses that aren't redirected land here.
+  - **Contact page:** a "Get directions" link opens Google Maps for the office in a new tab. It's a plain link, with no embed and no tracking.
+  - **5 new "Review" e2e checks** cover these.
+- **Speed test on a different machine:** after a container restart, `npm run speed` measured phone TBT around 200–250 ms on every page, above the home page's 152 ms budget.
+  - An A/B run of the previous commit on the same machine gave the same figures (home 225 ms before, 216–223 ms after), and page weights were unchanged (159 KB JS; Contact 173 KB). So the slower host explains the difference, not the code.
+  - The budget was left as it is. Compare before/after on the same machine when judging a change.
+  - `printouts/speed-report.md` keeps the last passing run from the original machine.

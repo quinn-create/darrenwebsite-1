@@ -1,7 +1,6 @@
 import Link from "next/link"
 
 import { Wordmark } from "@/components/Wordmark"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { CookieLinks } from "@/components/consent/CookieLinks"
 import { TRACKING_ON } from "@/lib/tracking"
@@ -31,9 +30,9 @@ function FooterSection({ className }: { className?: string }) {
             <p className="mb-6 mt-6 text-muted-foreground">
               Tell Darren Drake about your legal matter and how to reach you.
             </p>
-            <Button asChild className="h-[52px] px-6 text-base font-semibold">
-              <Link href={CTA_HREF}>{CTA_LABEL}</Link>
-            </Button>
+            <Link href={CTA_HREF} className="btn-primary btn-compact">
+              {CTA_LABEL}
+            </Link>
           </div>
 
           <div>

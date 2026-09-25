@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/Container";
 import { PracticeIcon } from "@/components/PracticeIcon";
@@ -69,7 +71,37 @@ export default async function PracticePage({ params }: Props) {
       </section>
       <ContactSteps />
       <Faq items={practice.faq} />
+      <OtherPractices current={practice.slug} />
       <IntakeBand />
     </>
+  );
+}
+
+// Links to the other practice areas, so a visitor who landed on the wrong page (or has more
+// than one concern) can move on without going back to the menu.
+function OtherPractices({ current }: { current: string }) {
+  const others = PRACTICES.filter((p) => p.slug !== current);
+  return (
+    <section aria-labelledby="other-practices-title" className="pb-14 lg:pb-24">
+      <Container reveal>
+        <h2 id="other-practices-title" className="h3">
+          Other practice areas
+        </h2>
+        <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {others.map((p) => (
+            <li key={p.slug}>
+              <Link
+                href={`/practice-areas/${p.slug}/`}
+                className="card flex h-full min-h-16 items-center gap-3 px-5 py-4 font-semibold text-text"
+              >
+                <PracticeIcon name={p.icon} size={24} />
+                <span className="flex-1">{p.title}</span>
+                <ArrowRight aria-hidden="true" size={18} strokeWidth={1.5} className="text-muted" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
   );
 }

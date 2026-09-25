@@ -1393,6 +1393,45 @@ await check("Cookies off: with no tracker IDs there's no banner, no footer cooki
   await ctx.close();
 });
 
+// ---- Review improvements (25 Sep 2026) ----
+await check("Review 1: footer 'Contact us' uses the same pill button as the rest of the site", async () => {
+  await page.goto(DEMO + "/");
+  const cls = await page.locator("footer").getByRole("link", { name: "Contact us" }).getAttribute("class");
+  assert(/\bbtn-primary\b/.test(cls), `footer CTA classes: ${cls}`);
+});
+
+await check("Review 2: Meet Darren shows the 'At a glance' facts card, not a placeholder", async () => {
+  await page.goto(DEMO + "/");
+  const card = page.locator("section[aria-labelledby='meet-title']");
+  const text = (await card.innerText()).replace("AT A GLANCE", "At a glance");
+  for (const s of ["At a glance", "U.S. Navy, 1996–2002", "Southern Illinois University School of Law", "Rutherford County DUI Court", "138 S. Cannon Ave", "Monday–Friday, 8am–5pm"]) assert(text.includes(s), `missing "${s}"`);
+  assert(!/TO BE SUPPLIED|Local architecture photo/i.test(await page.content()), "photo placeholder still on the page");
+});
+
+await check("Review 3: each practice page links to the other four practice areas", async () => {
+  for (const slug of PRACTICE_SLUGS) {
+    await page.goto(`${DEMO}/practice-areas/${slug}/`);
+    const hrefs = await page.locator("section[aria-labelledby='other-practices-title'] a").evaluateAll((as) => as.map((a) => a.getAttribute("href")));
+    assert(hrefs.length === PRACTICE_SLUGS.length - 1 && !hrefs.includes(`/practice-areas/${slug}/`), `${slug}: ${hrefs}`);
+  }
+});
+
+await check("Review 4: the not-found page offers contact, a call button and every practice area", async () => {
+  const res = await page.goto(DEMO + "/this-page-does-not-exist/");
+  assert(res.status() === 404, `status ${res.status()}`);
+  assert(await page.locator("main").getByRole("link", { name: "Contact us" }).isVisible(), "no Contact us");
+  assert(await page.locator('main a[href^="tel:"]').first().isVisible(), "no call button");
+  for (const slug of PRACTICE_SLUGS) assert((await page.locator(`main a[href="/practice-areas/${slug}/"]`).count()) === 1, `missing ${slug}`);
+});
+
+await check("Review 5: Contact page has a 'Get directions' link to the office on Google Maps", async () => {
+  await page.goto(DEMO + "/contact/");
+  const a = page.getByRole("link", { name: /Get directions/ });
+  const href = await a.getAttribute("href");
+  assert(href.startsWith("https://www.google.com/maps/search/?api=1&query=") && decodeURIComponent(href).includes("138 S. Cannon Ave, Murfreesboro, TN 37129"), href);
+  assert((await a.getAttribute("target")) === "_blank" && /noopener/.test(await a.getAttribute("rel")), "must open safely in a new tab");
+});
+
 await browser.close();
 await rm(".data/intake-test.jsonl", { force: true });
 

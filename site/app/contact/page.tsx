@@ -44,6 +44,16 @@ export default async function Contact({ searchParams }: { searchParams: Promise<
               <div>
                 <dt className="label text-text">Office</dt>
                 <dd>{FIRM.address}</dd>
+                <dd>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${FIRM.legalName}, ${FIRM.address}`)}`}
+                    className="link-action inline-flex min-h-11 items-center font-semibold"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Get directions<span className="sr-only"> (opens Google Maps in a new tab)</span>
+                  </a>
+                </dd>
               </div>
               <div>
                 <dt className="label text-text">Hours</dt>

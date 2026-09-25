@@ -7,12 +7,13 @@ import { readFile, rm } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { chromium } from "playwright-core";
+import { chromiumPath } from "./browser.mjs";
 
 const require = createRequire(import.meta.url);
 const axeSource = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 const DEMO = "http://localhost:3000";
 const LIVE = "http://localhost:3001";
-const executablePath = process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium";
+const executablePath = chromiumPath();
 const PAGES = ["/", "/practice-areas/", "/practice-areas/first-time-offenders/", "/practice-areas/domestic-assault/", "/practice-areas/criminal-defense/", "/about/", "/contact/", "/privacy/", "/accessibility/", "/legal-notice/"];
 
 const results = [];

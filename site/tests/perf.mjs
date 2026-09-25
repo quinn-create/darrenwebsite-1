@@ -1,8 +1,9 @@
 // Lab proxy for mobile performance on the homepage (not field data).
 // Run with the site on :3000. Usage: node tests/perf.mjs
 import { chromium } from "playwright-core";
+import { chromiumPath } from "./browser.mjs";
 
-const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" });
+const browser = await chromium.launch({ executablePath: chromiumPath() });
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
 const page = await ctx.newPage();
 const cdp = await ctx.newCDPSession(page);

@@ -1,7 +1,8 @@
 // Screenshots of each state of the site form (test data only). Needs :3000 (demo) and :3001 (local-test).
 import { chromium } from "playwright-core";
+import { chromiumPath } from "./browser.mjs";
 
-const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" });
+const browser = await chromium.launch({ executablePath: chromiumPath() });
 for (const width of [390, 1440]) {
   const ctx = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: "reduce" });
   const page = await ctx.newPage();

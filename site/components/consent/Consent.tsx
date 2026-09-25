@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CONSENT_CHANGE, CONSENT_OPEN, gpcOn, readConsent, takePendingOpen, writeConsent, type Consent as Choice } from "@/lib/consent";
+import { queuedEvents, type TrackedEvent } from "@/lib/analytics";
 import type { Trackers } from "@/lib/tracking";
 
 // Cookie banner, cookie settings dialog, and the tags they allow (plans/cookie-consent-plan.md).
@@ -173,10 +174,15 @@ export default function Consent({ trackers }: { trackers: Trackers }) {
 
   // Conversions: a sent form (lib/analytics.ts events) and taps on any phone link.
   useEffect(() => {
-    const onForm = (e: Event) => {
+    // Each sent form counts once, including one sent before this code finished loading.
+    const handle = (entry: TrackedEvent | undefined) => {
       const c = choiceRef.current;
-      if (c && (e as CustomEvent<{ event: string }>).detail?.event === "contact_submit_success") conversion(trackers, c, "lead");
+      if (!c || !entry || entry.handled || entry.event !== "contact_submit_success") return;
+      entry.handled = true;
+      conversion(trackers, c, "lead");
     };
+    const onForm = (e: Event) => handle((e as CustomEvent<TrackedEvent>).detail);
+    queuedEvents().forEach(handle);
     const onClick = (e: MouseEvent) => {
       const c = choiceRef.current;
       const a = (e.target as Element | null)?.closest?.('a[href^="tel:"]');

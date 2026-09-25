@@ -1,9 +1,10 @@
 // Captures review screenshots at 390, 768 and 1440 px. Run with the site on :3000.
 // Usage: node tests/screenshots.mjs [baseUrl]
 import { chromium } from "playwright-core";
+import { chromiumPath } from "./browser.mjs";
 
 const base = process.argv[2] ?? "http://localhost:3000";
-const executablePath = process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium";
+const executablePath = chromiumPath();
 const pages = [
   ["home", "/"],
   ["practice", "/practice-areas/dui-dwi/"],

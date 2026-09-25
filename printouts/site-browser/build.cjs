@@ -24,7 +24,8 @@ const PAGES = [
 ];
 
 (async () => {
-  const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+  const { chromiumPath } = await import(path.join(__dirname, "..", "..", "site", "tests", "browser.mjs"));
+  const browser = await chromium.launch({ executablePath: chromiumPath() });
   const ctx = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1280, height: 900 } });
   const page = await ctx.newPage();
   const assets = []; // { url, mime, data(base64) }

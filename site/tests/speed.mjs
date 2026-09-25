@@ -9,6 +9,7 @@
 import { spawn } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { chromium } from "playwright-core";
+import { chromiumPath } from "./browser.mjs";
 
 const PORT = 3006;
 const BASE = `http://localhost:${PORT}`;
@@ -16,7 +17,7 @@ const RUNS = 5;
 const PAGES = ["/", "/practice-areas/", "/practice-areas/dui-dwi/", "/about/", "/contact/"];
 const OUT = process.argv.find((a) => a.startsWith("--out="))?.slice(6) ?? "";
 const REPORT = new URL(`../../printouts/speed-report${OUT ? `-${OUT}` : ""}`, import.meta.url).pathname;
-const executablePath = process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium";
+const executablePath = chromiumPath();
 
 const PROFILES = {
   phone: {

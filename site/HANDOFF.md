@@ -436,3 +436,13 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
   - An A/B run of the previous commit on the same machine gave the same figures (home 225 ms before, 216–223 ms after), and page weights were unchanged (159 KB JS; Contact 173 KB). So the slower host explains the difference, not the code.
   - The budget was left as it is. Compare before/after on the same machine when judging a change.
   - `printouts/speed-report.md` keeps the last passing run from the original machine.
+
+## Update, 25 September 2026: Phase 0 of docs/PROMPT-PLAN.md (safety net)
+- **Project rules and records:**
+  - `CLAUDE.md` (guardrails and known conflicts);
+  - `docs/DECISIONS.md` (D1–D17, other answers, conflicts C1–C6);
+  - `docs/phase-0-report.md` (status report, results, GitHub settings to switch on, what's waiting on Darren).
+- **Checks:** `.github/workflows/ci.yml` runs lint, typecheck, build, e2e, the claims, cyan-button and link checks, Lighthouse budgets (`lighthouserc.json`), delivery and consent on every change. `.github/dependabot.yml` adds weekly updates.
+- **New scripts:** `check-claims.mjs` (with `claims-allowlist.json`), `check-buttons.mjs`, `check-links.mjs`, `site-pages.mjs` and `archive-site.mjs`. The placeholder guard gained `--self-test` and `--report`.
+- **Tests:** `npm test` now works (it builds, starts the servers and runs the e2e suite). `tests/browser.mjs` finds Chromium without a hard-coded path. `axe-core` is declared.
+- **Fix:** sent-form events are queued (`lib/analytics.ts`), so a lead sent before the consent code loads still counts once.

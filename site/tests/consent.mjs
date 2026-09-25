@@ -6,6 +6,7 @@ import { execSync, spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { chromium } from "playwright-core";
+import { chromiumPath } from "./browser.mjs";
 
 const require = createRequire(import.meta.url);
 const axeSource = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
@@ -45,7 +46,7 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
-const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" });
+const browser = await chromium.launch({ executablePath: chromiumPath() });
 
 // A fresh visitor. Tracker requests are recorded and answered with stand-in scripts.
 async function visitor({ gpc = false, width = 1440, theme } = {}) {
@@ -253,9 +254,11 @@ await check("Consent 9: a sent form reports only 'lead' — no names, numbers or
   await page.locator("#cf-message").fill("Secret detail xyzzy");
   await page.getByRole("button", { name: "Send message" }).click();
   await page.locator('[role="status"]').first().waitFor();
+  // The conversion is sent as soon as the consent code has loaded (it may still be arriving).
+  await page.waitForFunction(() => (window.dataLayer ?? []).some((a) => a[0] === "event" && a[1] === "generate_lead"), null, { timeout: 10000 });
   const dl = await dataLayer(page);
   const fq = await fbQueue(page);
-  assert(dl.some((a) => a[0] === "event" && a[1] === "generate_lead"), "no GA generate_lead");
+  assert(dl.filter((a) => a[0] === "event" && a[1] === "generate_lead").length === 1, "the lead must be reported exactly once");
   assert(dl.some((a) => a[0] === "event" && a[1] === "conversion" && a[2].send_to === "AW-1234567890/leadLabel01"), "no Ads lead conversion");
   assert(fq.some((a) => a[0] === "track" && a[1] === "Lead" && a.length === 2), "no Meta Lead (or it carried data)");
   const all = JSON.stringify([dl, fq]);

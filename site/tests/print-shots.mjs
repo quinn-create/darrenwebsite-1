@@ -2,10 +2,11 @@
 // Needs :3000 (demo) and :3001 (INTAKE_DESTINATION=local-test). Usage: node tests/print-shots.mjs <outDir>
 import { mkdirSync } from "node:fs";
 import { chromium } from "playwright-core";
+import { chromiumPath } from "./browser.mjs";
 
 const out = process.argv[2] ?? "print-shots";
 mkdirSync(out, { recursive: true });
-const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium" });
+const browser = await chromium.launch({ executablePath: chromiumPath() });
 const opts = { reducedMotion: "reduce", deviceScaleFactor: 2 };
 
 const desk = await (await browser.newContext({ ...opts, viewport: { width: 1440, height: 900 } })).newPage();

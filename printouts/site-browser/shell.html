@@ -61,8 +61,12 @@
       <button id="desk" aria-pressed="true">Laptop</button>
       <button id="phone" aria-pressed="false">Phone</button>
     </div>
+    <div class="seg" role="group" aria-label="Site colours">
+      <button id="siteDark" aria-pressed="true">Dark</button>
+      <button id="siteLight" aria-pressed="false">Light</button>
+    </div>
   </div>
-  <div class="note">Private preview of the new site, captured 24 September 2026. Not live. Links and menu tabs work at both sizes; scroll the practice-area carousel sideways (its arrow buttons work on the real site). Sending the form and calling are turned off in this copy.</div>
+  <div class="note">Private preview of the new site, captured 25 September 2026. Not live. Links and menu tabs work at both sizes, and Dark/Light (or the sun button in the site's header) switches the colours; scroll the practice-area carousel sideways (its arrow buttons work on the real site). Sending the form and calling are turned off in this copy.</div>
   <div class="stage" id="stage"><div class="frame" id="frame"><iframe id="view" title="Website preview"></iframe></div></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -71,13 +75,13 @@ const DATA = /*__DATA__*/null;
 const assetUrls = DATA.assets.map((a) => "data:" + a.mime + ";base64," + a.data);
 const fill = (s) => s.replace(/asset:\/\/(\d+)/g, (_, i) => assetUrls[+i]);
 // Without the site's scripts, the form's option buttons need plain CSS to show when they're picked.
-const PREVIEW_CSS = "label:has(> input:checked){border-color:#67e8f9 !important;background:rgb(103 232 249 / .15) !important}" +
-  "label:has(> input:checked) > span[aria-hidden]{background:#67e8f9;border-color:#67e8f9}";
+const PREVIEW_CSS = "label:has(> input:checked){border-color:var(--color-action) !important;background:color-mix(in srgb, var(--color-action) 15%, transparent) !important}" +
+  "label:has(> input:checked) > span[aria-hidden]{background:var(--color-action);border-color:var(--color-action)}";
 const css = "<style>" + fill(DATA.css) + PREVIEW_CSS + "</style>";
 
 const $ = (id) => document.getElementById(id);
 const view = $("view"), frame = $("frame"), stage = $("stage");
-let hist = [], pos = -1, device = "desk", pendingHash = "";
+let hist = [], pos = -1, device = "desk", pendingHash = "", siteTheme = "dark";
 
 for (const route of DATA.order) {
   const o = document.createElement("option");
@@ -124,8 +128,11 @@ function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add
 view.addEventListener("load", () => {
   const doc = view.contentDocument;
   if (!doc) return;
+  applyTheme();
   if (pendingHash) scrollToHash(pendingHash);
   doc.addEventListener("click", (e) => {
+    // The site's own light/dark button in its header works here too.
+    if (e.target.closest && e.target.closest(".theme-toggle")) { setTheme(siteTheme === "light" ? "dark" : "light"); return; }
     const a = e.target.closest && e.target.closest("a[href]");
     if (a) {
       const href = a.getAttribute("href");
@@ -155,6 +162,18 @@ function layout() {
   frame.classList.toggle("phone", device === "phone");
 }
 function setDevice(d) { device = d; $("desk").setAttribute("aria-pressed", d === "desk"); $("phone").setAttribute("aria-pressed", d === "phone"); layout(); }
+function applyTheme() {
+  const doc = view.contentDocument;
+  if (!doc) return;
+  const root = doc.documentElement;
+  if (siteTheme === "light") root.setAttribute("data-theme", "light"); else root.removeAttribute("data-theme");
+  root.classList.add("js");
+  doc.querySelectorAll(".theme-toggle").forEach((b) => b.setAttribute("aria-pressed", siteTheme === "light"));
+  frame.style.background = view.style.background = siteTheme === "light" ? "#f5f7fb" : "#090f1c";
+}
+function setTheme(t) { siteTheme = t; $("siteDark").setAttribute("aria-pressed", t === "dark"); $("siteLight").setAttribute("aria-pressed", t === "light"); applyTheme(); }
+$("siteDark").onclick = () => setTheme("dark");
+$("siteLight").onclick = () => setTheme("light");
 $("desk").onclick = () => setDevice("desk");
 $("phone").onclick = () => setDevice("phone");
 addEventListener("resize", layout);

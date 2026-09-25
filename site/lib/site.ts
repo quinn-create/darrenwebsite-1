@@ -52,6 +52,12 @@ export const OPEN_GRAPH_BASE = {
 // Gentle scroll reveals (plans/scroll-reveals-plan.md). false turns them off everywhere.
 export const SCROLL_REVEALS = true;
 
+// Light theme option (plans/light-theme-plan.md). false removes the header button and the
+// theme script, and the site is dark only. THEME_DEFAULT "system" would start visitors who
+// haven't chosen on their device's light/dark setting; "dark" keeps the Signal design first.
+export const LIGHT_THEME = true;
+export const THEME_DEFAULT: "dark" | "system" = "dark";
+
 export const CTA_LABEL = "Contact us";
 export const CTA_HREF = "/contact/";
 

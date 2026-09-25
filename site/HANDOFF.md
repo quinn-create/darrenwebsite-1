@@ -303,3 +303,46 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
 - **Still hidden:** preview builds keep `noindex` and `Disallow: /`. A test-only production build (`SITE_ENV=production npx next build`, never deployed) showed `index, follow`, `Allow: /`, `Disallow: /api/` and the sitemap line, and identical canonicals and JSON-LD. The normal build was restored afterwards.
 - **Tests:** e2e 62/62, including the 10 new "SEO" checks: canonicals; firm values; data matching the Contact page; no unconfirmed fields; Darren's node; breadcrumbs; title and description lengths; sitemap; still hidden; script-safety, type allow-list and `@id` references. Delivery 4/4. The placeholder count is unchanged at 3.
 - **Report:** `printouts/seo-report.md`. The launch-day search tasks are in `plans/for-darren/go-live-setup.md`.
+
+## Update, 25 September 2026: light theme option (plans/light-theme-plan.md)
+- **What visitors see:** a round sun button in the header (moon when light is on), between the phone number and "Contact us" on desktop, and beside "Call" on phones. It switches the whole site to light colours. The choice is saved in the browser and applied before the page is drawn, so there's no flash. The site always **opens dark** unless the visitor has chosen light, even on devices set to light mode.
+- **How:**
+  - the light palette is in `app/globals.css` under `html[data-theme="light"]`, using the same token names, so every component follows;
+  - `lib/theme.ts` holds the tiny `<head>` script (about 270 bytes) and the phone toolbar colours;
+  - `components/ThemeToggle.tsx` is the button.
+- **Light palette** (measured contrast on the page background):
+
+  | Token | Light value | Contrast |
+  |---|---|---|
+  | bg / surface | `#f5f7fb` / `#ffffff` | |
+  | text | `#0b1424` | 17.2:1 |
+  | muted | `#3d4a5e` | 8.4:1 |
+  | action | `#0e7490` | 5.0:1 (white on action: 5.4:1) |
+  | border | `#7a889d` | 3.4:1 |
+  | error | `#b42318` | 6.1:1 |
+  | success | `#166534` | 6.7:1 |
+- **Adding a colour:** always make it a token with a dark value in `:root` and a light value under `html[data-theme="light"]`, never a fixed hex or rgb in a component. The fixed rgb values that used to be in `globals.css` are now tokens (`--card-border`, `--card-sheen`, `--card-hover-border`, `--card-shadow`, `--tint-action`, `--line-soft`, `--line-strong`, `--glow-violet`, `--glow-cyan`, `--hover-filter`) with exactly their old values in dark.
+- **Switches** (in `lib/site.ts`):
+  - `LIGHT_THEME = false` removes the button and the script, and the site is dark only;
+  - `THEME_DEFAULT = "system"` would start visitors who haven't chosen on their device's setting. It's left on `"dark"` so the Signal design comes first.
+- **Brand note:** the Signal spec is a dark design. The light theme is an opt-in extension Quinn requested on 25 Sep 2026 for visitors who find dark pages hard to read. Turn it off with the switch if Darren prefers dark only.
+- **Not themed:** the link-preview cards (byte-identical to before), the tab icon, and the inquiry PDF and email.
+- **Theme-color tag:** with the light theme on, the `<meta name="theme-color">` tag is rendered in `app/layout.tsx`'s `<head>`, not through Next's `viewport.themeColor`, because Next re-renders that tag after hydration and would undo the switch.
+- **Checks:**
+  - e2e 74/74, including 12 new "Theme" checks:
+    - dark by default;
+    - switching and remembering;
+    - no flash;
+    - axe in both themes on all 12 pages, phones, form errors and form success;
+    - measured contrast;
+    - keyboard and focus;
+    - storage blocked;
+    - no JavaScript;
+    - no layout shift and a one-row header at 320 px;
+    - theme-color;
+    - the dark palette unchanged;
+    - the switches.
+  - Delivery 4/4. Placeholders unchanged at 3. JavaScript +879 bytes gzipped (668 in bundles plus the 211-byte head script).
+  - A one-off pixel comparison showed the dark pages identical to before everywhere outside the header's button area.
+- **Found in passing (not caused by the theme):** a first-ever visit, with nothing cached, has a tiny layout shift of about 0.004 when the Manrope web font replaces the fallback. It's the same in both themes and far under Google's 0.1 "good" limit. Fixing it would mean a size-matched fallback font or preloading the font file. The theme test measures after the font is cached so it isolates the theme.
+- **Screenshots:** `printouts/site-preview/light-{home,dui-dwi,contact-errors}-{1440,390}.png` and the side-by-side `light-vs-dark.png`. The clickable preview has Light/Dark buttons in its toolbar, and the site's own header button works there too.

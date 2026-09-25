@@ -3,7 +3,8 @@ import "@fontsource-variable/manrope/wght.css";
 import "./globals.css";
 import { IS_PRODUCTION, SITE_URL } from "@/lib/env";
 import { businessGraph, jsonLd } from "@/lib/structured-data";
-import { OPEN_GRAPH_BASE, SHARE_TITLE, SITE_DESCRIPTION } from "@/lib/site";
+import { LIGHT_THEME, OPEN_GRAPH_BASE, SHARE_TITLE, SITE_DESCRIPTION } from "@/lib/site";
+import { THEME_COLOR, themeScript } from "@/lib/theme";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { ScrollReveal } from "@/components/ScrollReveal";
@@ -25,13 +26,22 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#090F1C",
-  colorScheme: "dark",
+  // With the light theme, the theme-color tag is rendered in <head> below so scripts can change it.
+  ...(LIGHT_THEME ? {} : { themeColor: THEME_COLOR.dark }),
+  // The light theme (plans/light-theme-plan.md) switches color-scheme in globals.css.
+  colorScheme: LIGHT_THEME ? "dark light" : "dark",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    // The theme script edits <html> before React loads, hence suppressHydrationWarning.
+    <html lang="en" suppressHydrationWarning>
+      {LIGHT_THEME && (
+        <head>
+          <meta name="theme-color" content={THEME_COLOR.dark} />
+          <script dangerouslySetInnerHTML={{ __html: themeScript() }} />
+        </head>
+      )}
       <body className="antialiased">
         {/* Business details for search engines (plans/seo-fixes-plan.md). */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(businessGraph()) }} />

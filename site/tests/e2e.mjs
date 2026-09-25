@@ -948,6 +948,292 @@ await check("SEO 10: JSON-LD is script-safe; types allow-listed; every @id refer
   assert(src.includes('JSON.stringify(data).replace(/</g, "\\\\u003c")'), "jsonLd no longer escapes <");
 });
 
+// ---- Light theme (plans/light-theme-plan.md, 6.1) ----
+const DARK_BG = "rgb(9, 15, 28)";
+const LIGHT_BG = "rgb(245, 247, 251)";
+const bodyBg = (p) => p.evaluate(() => getComputedStyle(document.body).backgroundColor);
+const toggle = (p) => p.getByRole("button", { name: "Light mode" });
+async function themed(theme, opts = {}) {
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, ...opts });
+  if (theme) await ctx.addInitScript((t) => { try { if (!sessionStorage.getItem("seeded")) { localStorage.setItem("theme", t); sessionStorage.setItem("seeded", "1"); } } catch {} }, theme);
+  return ctx;
+}
+async function axeRun(p) {
+  await p.addScriptTag({ content: axeSource });
+  const res = await p.evaluate(async () => axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] }));
+  return res.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target).join(" ")}`);
+}
+
+await check("Theme 1: dark by default, even when the device prefers light", async () => {
+  const ctx = await themed(null, { colorScheme: "light" });
+  const p = await ctx.newPage();
+  await p.goto(DEMO + "/");
+  assert((await p.evaluate(() => document.documentElement.dataset.theme)) === undefined, "data-theme set without a choice");
+  assert((await bodyBg(p)) === DARK_BG, `background ${await bodyBg(p)}`);
+  assert((await toggle(p).getAttribute("aria-pressed")) === "false", "aria-pressed should be false");
+  await ctx.close();
+});
+
+await check("Theme 2: the button switches, is remembered across reloads and pages, and switches back", async () => {
+  const ctx = await themed(null);
+  const p = await ctx.newPage();
+  await p.goto(DEMO + "/");
+  await toggle(p).click();
+  assert((await bodyBg(p)) === LIGHT_BG, `after click ${await bodyBg(p)}`);
+  assert((await toggle(p).getAttribute("aria-pressed")) === "true", "aria-pressed not true");
+  await p.reload();
+  assert((await bodyBg(p)) === LIGHT_BG, "not remembered after reload");
+  await p.goto(DEMO + "/practice-areas/dui-dwi/");
+  assert((await bodyBg(p)) === LIGHT_BG, "not remembered on another page");
+  assert((await toggle(p).getAttribute("aria-pressed")) === "true", "aria-pressed not true on another page");
+  await toggle(p).click();
+  assert((await bodyBg(p)) === DARK_BG, "did not switch back to dark");
+  await p.reload();
+  assert((await bodyBg(p)) === DARK_BG, "dark not remembered");
+  await ctx.close();
+});
+
+await check("Theme 3: no flash — the saved theme is in place when <body> first appears", async () => {
+  for (const [theme, want] of [["light", LIGHT_BG], ["dark", DARK_BG]]) {
+    const ctx = await themed(theme);
+    await ctx.addInitScript(() => {
+      new MutationObserver((_, obs) => {
+        if (document.body) {
+          window.__firstBg = getComputedStyle(document.documentElement).getPropertyValue("--color-bg").trim();
+          window.__firstTheme = document.documentElement.dataset.theme ?? "dark";
+          obs.disconnect();
+        }
+      }).observe(document, { childList: true, subtree: true });
+    });
+    const p = await ctx.newPage();
+    await p.goto(DEMO + "/about/");
+    const first = await p.evaluate(() => [window.__firstBg, window.__firstTheme]);
+    const hex = theme === "light" ? "#f5f7fb" : "#090f1c";
+    assert(first[0] === hex && first[1] === theme, `${theme}: first paint had ${first.join(" ")}`);
+    assert((await bodyBg(p)) === want, `${theme}: final ${await bodyBg(p)}`);
+    await ctx.close();
+  }
+});
+
+await check("Theme 4: axe finds 0 violations in both themes (12 pages at 1440, 3 at 390, form errors and success)", async () => {
+  const pages = [...PAGES, "/practice-areas/dui-dwi/", "/practice-areas/expungement/"];
+  const problems = [];
+  for (const theme of ["light", "dark"]) {
+    const ctx = await themed(theme, { reducedMotion: "reduce" });
+    const p = await ctx.newPage();
+    for (const path of pages) {
+      await p.goto(DEMO + path);
+      for (const v of await axeRun(p)) problems.push(`${theme} ${path} ${v}`);
+    }
+    await p.goto(DEMO + "/contact/");
+    await p.getByRole("button", { name: "Send message" }).click();
+    await p.locator(SUMMARY).waitFor();
+    for (const v of await axeRun(p)) problems.push(`${theme} errors ${v}`);
+    // Success state, with the server's acceptance mocked so no inquiry is stored.
+    await p.goto(LIVE + "/contact/");
+    await p.route("**/api/contact/", (route) => route.fulfill({ status: 200, contentType: "application/json", body: '{"status":"accepted"}' }));
+    await fillValid(p);
+    await p.getByRole("button", { name: "Send message" }).click();
+    await p.locator('[role="status"]').first().waitFor();
+    for (const v of await axeRun(p)) problems.push(`${theme} success ${v}`);
+    await p.unroute("**/api/contact/");
+    await ctx.close();
+    const phone = await themed(theme, { viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+    const q = await phone.newPage();
+    for (const path of ["/", "/practice-areas/dui-dwi/", "/contact/"]) {
+      await q.goto(DEMO + path);
+      for (const v of await axeRun(q)) problems.push(`${theme} 390 ${path} ${v}`);
+    }
+    await phone.close();
+  }
+  assert(problems.length === 0, problems.join("; "));
+});
+
+await check("Theme 5: measured light contrast — text ≥ 4.5:1, borders and focus ≥ 3:1", async () => {
+  const ctx = await themed("light");
+  const p = await ctx.newPage();
+  await p.goto(DEMO + "/");
+  const out = await p.evaluate(() => {
+    const probe = document.createElement("div");
+    document.body.append(probe);
+    const rgb = (name) => {
+      probe.style.color = `var(${name})`;
+      return getComputedStyle(probe).color.match(/\d+/g).slice(0, 3).map(Number);
+    };
+    const lum = ([r, g, b]) => [r, g, b].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }).reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
+    const ratio = (a, b) => { const [x, y] = [lum(rgb(a)), lum(rgb(b))].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+    const fails = [];
+    for (const bg of ["--color-bg", "--color-surface"]) {
+      for (const fg of ["--color-text", "--color-muted", "--color-action", "--color-error", "--color-success"]) if (ratio(fg, bg) < 4.5) fails.push(`${fg} on ${bg} ${ratio(fg, bg).toFixed(2)}`);
+      for (const fg of ["--color-border", "--color-focus", "--line-strong"]) if (ratio(fg, bg) < 3) fails.push(`${fg} on ${bg} ${ratio(fg, bg).toFixed(2)}`);
+    }
+    if (ratio("--color-on-action", "--color-action") < 4.5) fails.push("on-action on action");
+    probe.remove();
+    return fails;
+  });
+  assert(out.length === 0, out.join(", "));
+  await ctx.close();
+});
+
+await check("Theme 6: keyboard — Tab reaches the button, Enter and Space toggle, visible focus ring", async () => {
+  for (const start of [null, "light"]) {
+    const ctx = await themed(start);
+    const p = await ctx.newPage();
+    await p.goto(DEMO + "/");
+    let found = false;
+    for (let i = 0; i < 12 && !found; i++) {
+      await p.keyboard.press("Tab");
+      found = await p.evaluate(() => document.activeElement?.getAttribute("aria-label") === "Light mode");
+    }
+    assert(found, "Tab never reached the button");
+    const ring = await p.evaluate(() => {
+      const s = getComputedStyle(document.activeElement);
+      return { w: parseFloat(s.outlineWidth), style: s.outlineStyle, color: s.outlineColor };
+    });
+    assert(ring.w >= 2 && ring.style !== "none", `focus ring ${JSON.stringify(ring)}`);
+    const focus = await p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--color-focus").trim());
+    assert(focus === (start ? "#0e7490" : "#67e8f9"), `focus colour ${focus}`);
+    const before = await bodyBg(p);
+    await p.keyboard.press("Enter");
+    const mid = await bodyBg(p);
+    await p.keyboard.press("Space");
+    assert(mid !== before && (await bodyBg(p)) === before, `Enter/Space: ${before} → ${mid} → ${await bodyBg(p)}`);
+    await ctx.close();
+  }
+});
+
+await check("Theme 7: storage blocked — the button still switches, with no console errors", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await ctx.addInitScript(() => {
+    Object.defineProperty(window, "localStorage", { get() { throw new Error("blocked"); } });
+  });
+  const p = await ctx.newPage();
+  const errors = [];
+  p.on("pageerror", (e) => errors.push(e.message));
+  p.on("console", (m) => m.type() === "error" && errors.push(m.text()));
+  await p.goto(DEMO + "/");
+  assert((await bodyBg(p)) === DARK_BG, "should start dark");
+  await toggle(p).click();
+  assert((await bodyBg(p)) === LIGHT_BG, "did not switch with storage blocked");
+  assert(errors.length === 0, errors.join("; "));
+  await ctx.close();
+});
+
+await check("Theme 8: without JavaScript — dark, button hidden but its space kept", async () => {
+  const sizes = [];
+  for (const js of [true, false]) {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, javaScriptEnabled: js });
+    const p = await ctx.newPage();
+    await p.goto(DEMO + "/");
+    const b = p.locator(".theme-toggle").first();
+    const info = await b.evaluate((e) => ({ vis: getComputedStyle(e).visibility, w: e.offsetWidth, h: e.offsetHeight, x: e.getBoundingClientRect().x }));
+    sizes.push(info);
+    if (!js) {
+      assert((await bodyBg(p)) === DARK_BG, "not dark without JS");
+      assert(info.vis === "hidden", `button visibility ${info.vis}`);
+    } else assert(info.vis === "visible", "button hidden with JS");
+    await ctx.close();
+  }
+  assert(sizes[0].w === sizes[1].w && sizes[0].h === sizes[1].h && sizes[0].x === sizes[1].x, `box differs ${JSON.stringify(sizes)}`);
+});
+
+await check("Theme 9: no layout shift on load in either theme; 320 px fits with the header on one row", async () => {
+  for (const theme of ["light", "dark"]) {
+    const ctx = await themed(theme);
+    const p = await ctx.newPage();
+    // Warm the font cache first: a first-ever visit has a tiny web-font swap shift in both
+    // themes (not theme-related; see HANDOFF.md). This isolates anything the theme adds.
+    await p.goto(DEMO + "/");
+    await p.evaluate(() => document.fonts.ready);
+    await p.reload();
+    const cls = await p.evaluate(() => new Promise((res) => {
+      let total = 0;
+      new PerformanceObserver((l) => { for (const e of l.getEntries()) total += e.value; }).observe({ type: "layout-shift", buffered: true });
+      setTimeout(() => res(total), 500);
+    }));
+    assert(cls === 0, `${theme}: CLS ${cls}`);
+    await ctx.close();
+    const small = await themed(theme, { viewport: { width: 320, height: 700 } });
+    const q = await small.newPage();
+    for (const path of ["/", "/contact/"]) {
+      await q.goto(DEMO + path);
+      const r = await q.evaluate(() => {
+        const row = document.querySelector("header > div").getBoundingClientRect();
+        const logo = document.querySelector('header a[href="/"]').getBoundingClientRect();
+        const btn = [...document.querySelectorAll(".theme-toggle")].find((e) => e.offsetParent !== null).getBoundingClientRect();
+        const call = document.querySelector('header a[aria-label^="Call"]').getBoundingClientRect();
+        return { over: document.documentElement.scrollWidth - innerWidth, rowTop: row.top, rowBottom: row.bottom, logoRight: logo.right, btn: [btn.left, btn.top, btn.bottom], call: [call.left, call.top, call.right, call.bottom], w: innerWidth };
+      });
+      assert(r.over <= 0, `${theme} ${path}: ${r.over}px horizontal scroll at 320`);
+      const oneRow = r.btn[0] > r.logoRight && r.call[0] > r.btn[0] && r.call[2] <= r.w && Math.abs(r.btn[1] - r.call[1]) <= 1 && r.btn[1] >= r.rowTop && r.call[3] <= r.rowBottom;
+      assert(oneRow, `${theme} ${path}: header buttons not on one row (${JSON.stringify(r)})`);
+    }
+    await small.close();
+  }
+});
+
+await check("Theme 10: theme-color and color-scheme follow the theme", async () => {
+  const ctx = await themed(null);
+  const p = await ctx.newPage();
+  await p.goto(DEMO + "/");
+  const read = () => p.evaluate(() => [document.querySelector('meta[name="theme-color"]').content, getComputedStyle(document.documentElement).colorScheme]);
+  let [tc, cs] = await read();
+  assert(tc === "#090F1C" && cs === "dark", `dark: ${tc} ${cs}`);
+  await toggle(p).click();
+  [tc, cs] = await read();
+  assert(tc === "#F5F7FB" && cs === "light", `light: ${tc} ${cs}`);
+  await p.reload();
+  [tc, cs] = await read();
+  assert(tc === "#F5F7FB" && cs === "light", `light after reload: ${tc} ${cs}`);
+  await ctx.close();
+});
+
+await check("Theme 11: dark palette unchanged (every token equals the Signal values)", async () => {
+  const ctx = await themed(null);
+  const p = await ctx.newPage();
+  await p.goto(DEMO + "/");
+  const want = {
+    "--color-bg": "#090f1c", "--color-surface": "#131f31", "--color-text": "#f4f7fc", "--color-muted": "#cad4e2",
+    "--color-action": "#67e8f9", "--color-on-action": "#07111f", "--color-border": "#718199", "--color-focus": "#67e8f9",
+    "--color-decoration": "#8b5cf6", "--color-error": "#ff9a9a", "--color-success": "#86efac",
+    "--card-border": "rgb(113 129 153 / 0.45)", "--card-sheen": "rgb(255 255 255 / 0.025)", "--card-hover-border": "rgb(103 232 249 / 0.55)",
+    "--card-shadow": "none", "--tint-action": "rgb(103 232 249 / 0.08)", "--line-soft": "rgb(113 129 153 / 0.5)",
+    "--line-strong": "rgb(113 129 153 / 0.8)", "--glow-violet": "rgb(139 92 246 / 0.62)", "--glow-cyan": "rgb(103 232 249 / 0.5)",
+    "--hover-filter": "brightness(1.08)",
+  };
+  // Resolve both sides through the browser, so rgb(… / a) and #rrggbbaa compare equal.
+  const diff = await p.evaluate((want) => {
+    const probe = document.createElement("div");
+    document.body.append(probe);
+    const norm = (v) => {
+      if (!/^(#|rgb)/.test(v)) return v;
+      probe.style.color = "";
+      probe.style.color = v;
+      return getComputedStyle(probe).color;
+    };
+    const root = getComputedStyle(document.documentElement);
+    const out = Object.entries(want).filter(([k, v]) => norm(root.getPropertyValue(k).trim()) !== norm(v)).map(([k]) => `${k}: ${root.getPropertyValue(k).trim()}`);
+    probe.remove();
+    return out;
+  }, want);
+  assert(diff.length === 0, diff.join(", "));
+  await ctx.close();
+});
+
+await check("Theme 12: switches — LIGHT_THEME gates the button and head script; THEME_DEFAULT stays dark", async () => {
+  const site = await readFile("lib/site.ts", "utf8");
+  assert(/export const LIGHT_THEME = true;/.test(site), "LIGHT_THEME not true");
+  assert(/export const THEME_DEFAULT: "dark" \| "system" = "dark";/.test(site), "THEME_DEFAULT not dark");
+  const toggleSrc = await readFile("components/ThemeToggle.tsx", "utf8");
+  assert(toggleSrc.includes("return LIGHT_THEME ? <Toggle /> : null;"), "ThemeToggle not gated by LIGHT_THEME");
+  const layout = await readFile("app/layout.tsx", "utf8");
+  assert(/\{LIGHT_THEME && \(\s*<head>/.test(layout), "head script not gated by LIGHT_THEME");
+  const html = await (await fetch(DEMO + "/")).text();
+  const script = html.match(/<script>(\(function\(\)\{var d=document\.documentElement;[^<]*)<\/script>/)?.[1];
+  assert(script && script.includes('localStorage.getItem("theme")') && !script.includes("matchMedia"), "served head script unexpected");
+  assert(html.indexOf(script) < html.indexOf("<body"), "theme script not in <head>");
+});
+
 await browser.close();
 await rm(".data/intake-test.jsonl", { force: true });
 

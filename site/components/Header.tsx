@@ -3,6 +3,7 @@ import { Phone } from "lucide-react";
 import { CTA_HREF, CTA_LABEL, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
 import { PhoneLink } from "./PhoneLink";
 import { NavTabs } from "./NavTabs";
+import { ThemeToggle } from "./ThemeToggle";
 import { Wordmark } from "./Wordmark";
 
 // Navigation is a tab bar (components/NavTabs.tsx) at every size: in the header row on
@@ -30,19 +31,23 @@ export function Header() {
 
         <div className="hidden items-center gap-6 lg:flex">
           <PhoneLink variant="inline" className="text-[16px]" />
+          <ThemeToggle />
           <Link href={CTA_HREF} className="btn-primary btn-compact">
             {CTA_LABEL}
           </Link>
         </div>
 
-        <a
-          href={PHONE_HREF}
-          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border/60 px-4 text-[15px] font-semibold text-text lg:hidden"
-          aria-label={`Call ${PHONE_DISPLAY}`}
-        >
-          <Phone aria-hidden="true" size={18} strokeWidth={1.75} />
-          Call
-        </a>
+        <div className="flex items-center gap-3 lg:hidden">
+          <ThemeToggle />
+          <a
+            href={PHONE_HREF}
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border/60 px-4 text-[15px] font-semibold text-text"
+            aria-label={`Call ${PHONE_DISPLAY}`}
+          >
+            <Phone aria-hidden="true" size={18} strokeWidth={1.75} />
+            Call
+          </a>
+        </div>
       </div>
       <div className="mx-auto w-full max-w-site px-5 pb-3 sm:px-6 lg:hidden">
         <NavTabs compact />

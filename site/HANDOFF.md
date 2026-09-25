@@ -344,5 +344,50 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
     - the switches.
   - Delivery 4/4. Placeholders unchanged at 3. JavaScript +879 bytes gzipped (668 in bundles plus the 211-byte head script).
   - A one-off pixel comparison showed the dark pages identical to before everywhere outside the header's button area.
-- **Found in passing (not caused by the theme):** a first-ever visit, with nothing cached, has a tiny layout shift of about 0.004 when the Manrope web font replaces the fallback. It's the same in both themes and far under Google's 0.1 "good" limit. Fixing it would mean a size-matched fallback font or preloading the font file. The theme test measures after the font is cached so it isolates the theme.
+- **Found in passing (not caused by the theme):** a first-ever visit had a small layout shift when the Manrope web font replaced the fallback. **Fixed 25 Sep 2026** by the speed plan (preloaded font plus a size-matched fallback); first-visit CLS is now 0.
 - **Screenshots:** `printouts/site-preview/light-{home,dui-dwi,contact-errors}-{1440,390}.png` and the side-by-side `light-vs-dark.png`. The clickable preview has Light/Dark buttons in its toolbar, and the site's own header button works there too.
+
+## Update, 25 September 2026: speed check and fixes (plans/speed-check-plan.md)
+- **Run it:** `npm run build`, stop other servers, then `npm run speed`.
+  - It starts its own server on :3006 and loads 5 pages (home, Practice Areas, DUI/DWI, About, Contact) 5 times each, in fresh contexts.
+  - It runs a phone profile (4× slower CPU, slow 4G, 412 px) and a desktop profile.
+  - It writes `printouts/speed-report.md` and `.json`, and fails if a budget breaks.
+  - `--out=before` saves a baseline instead. The run before these fixes is kept in `printouts/speed-report-before.md`.
+- **Budgets (phone median):**
+  - LCP ≤ 1.8 s; first-visit CLS ≤ 0.01;
+  - TBT ≤ 250 ms, and ≤ 152 ms on the home page (see below);
+  - each tap response ≤ 200 ms;
+  - JavaScript ≤ 175 KB, total ≤ 300 KB, one font file ≤ 30 KB.
+  - Desktop: LCP ≤ 1.0 s, CLS ≤ 0.01, TBT ≤ 50 ms.
+  - Caching checks too.
+- **Font:**
+  - Manrope loads through `next/font/local` from `app/fonts/manrope-latin-wght.woff2` (Latin subset, same file and unicode-range as before; licence in `app/fonts/OFL.txt`);
+  - it's preloaded, with a size-matched Arial stand-in, so text no longer re-wraps when the font arrives;
+  - `@fontsource-variable/manrope` is no longer imported by the site (the share cards use `@fontsource/manrope`).
+  - Any character outside the Latin range must be added to `OUTSIDE_FONT` in the e2e test, with a reason. Today that's only "→".
+- **Rule for browser code:** client components (`"use client"`) import shared values from `lib/site-basics.ts`, never `lib/site.ts`. Otherwise all the practice and FAQ wording gets bundled into every page's JavaScript. `lib/site.ts` re-exports `site-basics`, so server code is unchanged.
+  - The carousel list renders on the server; only `CarouselArrows` runs in the browser.
+  - The phone bar gets `{ slug, title }` pairs from the layout.
+- **Menu classes:** `components/nav-tab-classes.ts` works out the tab classes on the server, and `NavTabs` receives them as strings. That keeps Radix Tabs, class-variance-authority and tailwind-merge (about 20 KB gzipped) off every page. The tab styles live in `components/ui/tabs-variants.ts`.
+- **Contact caching:** `/contact/` is rendered per request. Next marks it `no-store`, which blocks the browser's instant back/forward cache, so `next.config.ts` sets `private, no-cache, max-age=0, must-revalidate` instead. Nothing on the page is personal. Re-check the header on Vercel after deploying, because the host may handle it differently.
+- **Results (phone median, before → after):**
+
+  | Page | CLS | TBT | JavaScript |
+  |---|---|---|---|
+  | Home | 0.008 → 0 | 172 → about 138 ms | 181 → 159 KB |
+  | DUI/DWI | 0.048 → 0 | 133 → about 140 ms | 181 → 159 KB |
+  | About | 0.080 → 0 | 136 → about 135 ms | 181 → 159 KB |
+  | Contact | 0.098 → 0 | 148 → about 145 ms | 187 → 173 KB |
+
+  LCP stays around 0.6–0.8 s. All screenshots are pixel-identical in both themes.
+- **Not reached:** the plan asked for home TBT at least 25% below the baseline (≤ 129 ms). Three runs after the fixes gave 131, 138 and 150 ms, about −20%. What remains is one ~180 ms task about 1.4 s in, present on every page including the simplest. That's React/Next starting up, not this site's code. Per the plan's rule, the home budget is set to the middle run + 10% (152 ms). All pages are under Lighthouse's 200 ms "good" line.
+- **Tests:** e2e 81/81, including 7 new "Speed" checks:
+  - one preloaded font and one font request;
+  - the size-matched fallback;
+  - character coverage;
+  - first-visit CLS ≤ 0.01 on throttled phones;
+  - no practice or FAQ wording in client JS;
+  - the carousel;
+  - the phone bar.
+
+  Delivery 4/4; placeholders unchanged at 3.

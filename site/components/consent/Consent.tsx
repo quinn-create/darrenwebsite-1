@@ -201,7 +201,9 @@ export default function Consent({ trackers }: { trackers: Trackers }) {
     setAnalytics(c?.analytics ?? false);
     setMarketing(c?.marketing ?? false);
     dialog.current?.showModal();
-    if (section === "marketing") requestAnimationFrame(() => marketingBox.current?.focus());
+    // Straight to the advertising choice (the "Do Not Sell or Share" link); a disabled box
+    // (Global Privacy Control) can't take focus, so the dialog keeps its default focus then.
+    if (section === "marketing") marketingBox.current?.focus();
   }, []);
 
   useEffect(() => {

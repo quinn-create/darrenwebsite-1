@@ -197,8 +197,10 @@ await check("Consent 6: footer links reopen settings; turning advertising off de
   assert(upd[2].ad_storage === "denied" && upd[2].analytics_storage === "granted", `update ${JSON.stringify(upd)}`);
   await page.getByRole("button", { name: "Do Not Sell or Share My Personal Information" }).click();
   await dialog.waitFor();
-  const focused = await page.evaluate(() => document.activeElement?.closest("label")?.textContent ?? "");
-  assert(/Advertising/.test(focused), "Do Not Sell link should focus the advertising choice");
+  const moved = await page
+    .waitForFunction(() => /Advertising/.test(document.activeElement?.closest("label")?.textContent ?? ""), null, { timeout: 3000 })
+    .then(() => true, () => false);
+  assert(moved, "Do Not Sell link should focus the advertising choice");
   await ctx.close();
 });
 

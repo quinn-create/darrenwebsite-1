@@ -1375,6 +1375,24 @@ await check("Speed 7: phone bar still names each practice area and is hidden on 
   await ctx.close();
 });
 
+// ---- Cookie consent, no tracker IDs set (plans/cookie-consent-plan.md; tests/consent.mjs covers IDs set) ----
+await check("Cookies off: with no tracker IDs there's no banner, no footer cookie links and no tracker requests", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const p = await ctx.newPage();
+  const hits = [];
+  p.on("request", (r) => /googletagmanager|google-analytics|googleadservices|doubleclick|facebook\.(net|com)/.test(r.url()) && hits.push(r.url()));
+  for (const path of ["/", "/practice-areas/dui-dwi/", "/contact/", "/privacy/"]) {
+    await p.goto(DEMO + path);
+    await p.waitForTimeout(400);
+    assert((await p.locator('section[aria-labelledby="cookie-banner-title"]').count()) === 0, `${path}: banner shown`);
+    assert((await p.getByRole("button", { name: "Cookie settings" }).count()) === 0, `${path}: footer cookie link shown`);
+  }
+  assert(await p.getByText("This website doesn't use advertising or tracking cookies.").isVisible(), "privacy notice should say no tracking cookies");
+  assert(hits.length === 0, `tracker requests: ${hits}`);
+  assert(!(await ctx.cookies()).some((c) => /^(dd_consent|_ga|_gcl|_fbp|_fbc)/.test(c.name)), "unexpected cookies");
+  await ctx.close();
+});
+
 await browser.close();
 await rm(".data/intake-test.jsonl", { force: true });
 

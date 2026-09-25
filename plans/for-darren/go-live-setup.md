@@ -83,3 +83,20 @@ If an app still shows an old preview, it has cached the old site. Facebook and L
 1. **PageSpeed Insights** (pagespeed.web.dev): test the home page, `/practice-areas/dui-dwi/` and `/contact/` on the live address. Send Claude the mobile scores to add to `printouts/speed-report.md`.
 2. **Search Console → Core Web Vitals:** after about 28 days of real visitors, check that phone and desktop both show "Good URLs" and no "Poor" ones. Before that, Google doesn't have enough data.
 3. After any larger change (a new page, photo or feature), ask Claude to re-run `npm run speed`. It fails loudly if the site got slower.
+
+## Ads and statistics (when Darren wants them)
+The site has a cookie banner built in. It stays hidden, and nothing is tracked, until these IDs are entered in **Vercel → Settings → Environment Variables**. Redeploy after adding them. Details are in `plans/cookie-consent-plan.md`.
+
+1. **Google Analytics 4:** in analytics.google.com, create a property for ddrakelaw.com and copy its measurement ID (`G-…`) into `NEXT_PUBLIC_GA_ID`.
+   - Leave **Google signals off**.
+   - Set **data retention** to 2 months, the shortest option.
+2. **Google Ads:** in Goals → Conversions, create two website conversions, "Form sent" and "Phone tapped", with **manual setup**.
+   - Copy the account tag (`AW-…`) into `NEXT_PUBLIC_GOOGLE_ADS_ID`, and each conversion label into `NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL` and `NEXT_PUBLIC_GOOGLE_ADS_CALL_LABEL`.
+   - Leave **enhanced conversions off**.
+   - Don't create remarketing audiences. Google doesn't allow them for criminal-defense ads.
+3. **Meta Pixel:** in Events Manager, create a dataset (pixel) and copy its ID into `NEXT_PUBLIC_META_PIXEL_ID`.
+   - In its settings, turn **off** "Automatic advanced matching".
+   - Don't set up the Conversions API.
+   - Don't build "website visitor" custom audiences.
+4. **Before switching them on,** Darren approves the privacy notice's new "Cookies and advertising measurement" section. It appears automatically once an ID is set.
+5. **After the redeploy,** open the site in a private window. The banner should appear, and nothing from Google or Facebook should load until **Accept all** is pressed. Google's Tag Assistant can confirm this. Then ask Claude to run `npm run test:consent`.

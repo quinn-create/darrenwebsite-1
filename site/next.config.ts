@@ -51,6 +51,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // tests/consent.mjs builds a second copy with test tracker IDs into its own folder.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   // The old site's addresses end in "/", so the new ones do too (one-hop redirects, same canonical style).
   trailingSlash: true,
   images: { formats: ["image/avif", "image/webp"] },

@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/",
     "speed": "node tests/speed.mjs",
+    "test:consent": "node tests/consent.mjs",
     "check:placeholders": "node scripts/check-placeholders.mjs",
     "build:production": "node scripts/check-placeholders.mjs && SITE_ENV=production next build"
   },

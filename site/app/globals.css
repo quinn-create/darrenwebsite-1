@@ -482,6 +482,66 @@ textarea.field-input {
   transform: rotate(45deg);
 }
 
+/* Cookie banner and settings (components/consent/Consent.tsx). Opaque, fixed, and above the
+   phone call bar, so it never covers it and never shifts the page. */
+.cookie-banner {
+  position: fixed;
+  inset-inline: 0;
+  bottom: var(--sticky-cta-height);
+  z-index: 50;
+  border-top: 1px solid var(--line-strong);
+  background: var(--color-surface);
+  box-shadow: 0 -8px 24px rgb(0 0 0 / 0.18);
+}
+.cookie-dialog {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 24px;
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.cookie-dialog::backdrop {
+  background: rgb(0 0 0 / 0.55);
+}
+.cookie-option {
+  padding: 14px 16px;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+}
+.cookie-toggle {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+.cookie-toggle input {
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--color-action);
+}
+.cookie-toggle:has(input:disabled) {
+  cursor: default;
+  opacity: 0.75;
+}
+.cookie-close {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
 /* Light/dark button in the header (components/ThemeToggle.tsx). */
 .theme-toggle {
   display: inline-flex;

@@ -1,58 +1,58 @@
 {
-  "at": "2026-09-25T03:49:49.032Z",
+  "at": "2026-09-25T04:27:43.389Z",
   "runs": 5,
   "results": {
     "phone": {
       "/": {
-        "fcp": 760,
-        "lcp": 760,
+        "fcp": 748,
+        "lcp": 748,
         "cls": 0,
         "clsMax": 0,
-        "tbt": 131,
-        "jsKB": 158.8232421875,
-        "totalKB": 281.3798828125,
+        "tbt": 128,
+        "jsKB": 159.087890625,
+        "totalKB": 281.9541015625,
         "fonts": 1,
         "fontKB": 24.7744140625,
         "taps": {
-          "faq": 56,
+          "faq": 48,
           "carousel": 32,
-          "theme": 120
+          "theme": 128
         },
         "topTasks": [
           {
-            "at": 1471,
-            "ms": 181,
+            "at": 1479,
+            "ms": 178,
             "src": "unknown"
           },
           {
-            "at": 653,
-            "ms": 74,
+            "at": 570,
+            "ms": 69,
             "src": "unknown"
           },
           {
-            "at": 568,
-            "ms": 71,
+            "at": 651,
+            "ms": 69,
             "src": "unknown"
           }
         ]
       },
       "/practice-areas/": {
-        "fcp": 600,
-        "lcp": 600,
+        "fcp": 604,
+        "lcp": 604,
         "cls": 0,
         "clsMax": 0,
-        "tbt": 135,
-        "jsKB": 158.8232421875,
-        "totalKB": 243.9921875,
+        "tbt": 131,
+        "jsKB": 159.087890625,
+        "totalKB": 244.5732421875,
         "fonts": 1,
         "fontKB": 24.7744140625,
         "taps": {
-          "theme": 104
+          "theme": 88
         },
         "topTasks": [
           {
-            "at": 1356,
-            "ms": 185,
+            "at": 1372,
+            "ms": 181,
             "src": "unknown"
           }
         ]
@@ -62,71 +62,76 @@
         "lcp": 620,
         "cls": 0,
         "clsMax": 0,
-        "tbt": 137,
-        "jsKB": 158.8232421875,
-        "totalKB": 237.279296875,
+        "tbt": 139,
+        "jsKB": 159.087890625,
+        "totalKB": 237.8583984375,
         "fonts": 1,
         "fontKB": 24.7744140625,
         "taps": {
           "faq": 48,
-          "theme": 96
+          "theme": 88
         },
         "topTasks": [
           {
-            "at": 1367,
-            "ms": 187,
-            "src": "unknown"
-          },
-          {
-            "at": 497,
-            "ms": 53,
+            "at": 1372,
+            "ms": 189,
             "src": "unknown"
           }
         ]
       },
       "/about/": {
-        "fcp": 604,
-        "lcp": 604,
+        "fcp": 596,
+        "lcp": 596,
         "cls": 0,
         "clsMax": 0,
-        "tbt": 136,
-        "jsKB": 158.8232421875,
-        "totalKB": 255.791015625,
+        "tbt": 132,
+        "jsKB": 159.087890625,
+        "totalKB": 256.3740234375,
         "fonts": 1,
         "fontKB": 24.7744140625,
         "taps": {
-          "theme": 88
+          "theme": 80
         },
         "topTasks": [
           {
-            "at": 1510,
-            "ms": 186,
+            "at": 1499,
+            "ms": 182,
+            "src": "unknown"
+          },
+          {
+            "at": 550,
+            "ms": 58,
             "src": "unknown"
           }
         ]
       },
       "/contact/": {
-        "fcp": 720,
-        "lcp": 720,
+        "fcp": 712,
+        "lcp": 712,
         "cls": 0,
         "clsMax": 0,
-        "tbt": 135,
-        "jsKB": 172.9716796875,
-        "totalKB": 248.15234375,
+        "tbt": 132,
+        "jsKB": 173.236328125,
+        "totalKB": 248.73046875,
         "fonts": 1,
         "fontKB": 24.7744140625,
         "taps": {
-          "theme": 104
+          "theme": 96
         },
         "topTasks": [
           {
-            "at": 1437,
-            "ms": 185,
+            "at": 1453,
+            "ms": 182,
             "src": "unknown"
           },
           {
-            "at": 498,
-            "ms": 153,
+            "at": 514,
+            "ms": 137,
+            "src": "unknown"
+          },
+          {
+            "at": 663,
+            "ms": 56,
             "src": "unknown"
           }
         ]
@@ -134,30 +139,30 @@
     },
     "desktop": {
       "/": {
-        "fcp": 140,
-        "lcp": 140,
+        "fcp": 136,
+        "lcp": 136,
         "cls": 0,
         "clsMax": 0,
         "tbt": 0,
-        "jsKB": 158.8232421875,
-        "totalKB": 279.4990234375,
+        "jsKB": 159.087890625,
+        "totalKB": 280.0732421875,
         "fonts": 1,
         "fontKB": 24.7744140625,
         "taps": {
           "faq": 32,
-          "carousel": 40,
+          "carousel": 32,
           "theme": 64
         },
         "topTasks": []
       },
       "/practice-areas/": {
-        "fcp": 100,
-        "lcp": 100,
+        "fcp": 104,
+        "lcp": 104,
         "cls": 0,
         "clsMax": 0,
         "tbt": 0,
-        "jsKB": 158.8232421875,
-        "totalKB": 260.1796875,
+        "jsKB": 159.087890625,
+        "totalKB": 260.7626953125,
         "fonts": 1,
         "fontKB": 24.7744140625,
         "taps": {
@@ -166,50 +171,44 @@
         "topTasks": []
       },
       "/practice-areas/dui-dwi/": {
-        "fcp": 104,
-        "lcp": 104,
+        "fcp": 96,
+        "lcp": 96,
         "cls": 0,
         "clsMax": 0,
         "tbt": 0,
-        "jsKB": 158.8232421875,
-        "totalKB": 259.3486328125,
+        "jsKB": 159.087890625,
+        "totalKB": 259.9326171875,
         "fonts": 1,
         "fontKB": 24.7744140625,
         "taps": {
-          "faq": 32,
+          "faq": 24,
           "theme": 40
         },
         "topTasks": []
       },
       "/about/": {
-        "fcp": 120,
-        "lcp": 176,
+        "fcp": 136,
+        "lcp": 200,
         "cls": 0,
         "clsMax": 0,
         "tbt": 0,
-        "jsKB": 158.8232421875,
-        "totalKB": 250.013671875,
+        "jsKB": 159.087890625,
+        "totalKB": 250.5947265625,
         "fonts": 1,
         "fontKB": 24.7744140625,
         "taps": {
           "theme": 40
         },
-        "topTasks": [
-          {
-            "at": 76,
-            "ms": 50,
-            "src": "unknown"
-          }
-        ]
+        "topTasks": []
       },
       "/contact/": {
-        "fcp": 124,
-        "lcp": 124,
+        "fcp": 116,
+        "lcp": 116,
         "cls": 0,
         "clsMax": 0,
         "tbt": 0,
-        "jsKB": 172.9716796875,
-        "totalKB": 248.15234375,
+        "jsKB": 173.236328125,
+        "totalKB": 248.73046875,
         "fonts": 1,
         "fontKB": 24.7744140625,
         "taps": {

@@ -9,6 +9,8 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { StickyCta } from "@/components/StickyCta";
+import { ConsentLoader } from "@/components/consent/ConsentLoader";
+import { TRACKERS, TRACKING_ON } from "@/lib/tracking";
 
 // Manrope, Latin subset only (the site is English). next/font preloads the file and adds a
 // size-matched Arial stand-in, so text doesn't re-wrap when the font arrives
@@ -71,6 +73,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
         <ScrollReveal />
         <Footer />
+        {/* Cookie banner and ad/statistics tags, only when an ID is set (plans/cookie-consent-plan.md). */}
+        {TRACKING_ON && <ConsentLoader trackers={TRACKERS} />}
         <StickyCta practices={PRACTICES.map(({ slug, title }) => ({ slug, title }))} />
       </body>
     </html>

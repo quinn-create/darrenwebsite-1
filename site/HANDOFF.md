@@ -391,3 +391,31 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
   - the phone bar.
 
   Delivery 4/4; placeholders unchanged at 3.
+
+## Update, 25 September 2026: cookie consent and ad measurement (plans/cookie-consent-plan.md)
+- **What it is:** a cookie banner plus Google Analytics 4, Google Ads conversions and the Meta Pixel, each loading only after consent. It's switched off until the `NEXT_PUBLIC_*` IDs in `.env.example` are set. Today there's no banner and no tracking code.
+- **Safeguards:**
+  - nothing from the form is ever sent;
+  - `?topic=` is stripped before tags can read the address;
+  - Google ad personalisation is always denied;
+  - Meta autoConfig and advanced matching are off;
+  - GPC is honoured;
+  - turning a category off deletes its cookies.
+- **Code:**
+  - `lib/tracking.ts` (IDs) and `lib/consent.ts` (choice cookie `dd_consent`, GPC, clean-up);
+  - `components/consent/` (banner and dialog, the loader chunk, the footer links);
+  - the privacy notice's cookie section, which lists only the configured tags.
+- **Tests:**
+  - `npm run test:consent`: 13 checks against a separate build with dummy IDs in `.next-consent/` (set through `NEXT_DIST_DIR` in `next.config.ts`), with Google and Meta intercepted. They cover:
+    - nothing before a choice;
+    - safe settings after accepting;
+    - reject; persistence; GPC; revoking;
+    - keyboard; no inquiry details;
+    - lead and call events;
+    - axe in both themes;
+    - no overlap with the call bar, and no layout shift;
+    - the privacy table.
+  - e2e 82/82, including a check that, with no IDs, there's no banner, no links and no tracker requests.
+- **Next adds** `.next-consent/types` to `tsconfig.json`'s include list; the folder is also excluded, so that's harmless.
+- **Rule:** never add a tag, pixel or embed except through `components/consent/Consent.tsx`. See the rules in the plan.
+- **Once IDs are set,** re-run `npm run speed`: the Google and Meta scripts are large, and the budgets may need a documented adjustment for visitors who accept.

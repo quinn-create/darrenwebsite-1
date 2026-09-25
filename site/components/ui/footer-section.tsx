@@ -3,6 +3,8 @@ import Link from "next/link"
 import { Wordmark } from "@/components/Wordmark"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { CookieLinks } from "@/components/consent/CookieLinks"
+import { TRACKING_ON } from "@/lib/tracking"
 import { CTA_HREF, CTA_LABEL, FIRM, NAV, PHONE_DISPLAY, PHONE_HREF, PRACTICES } from "@/lib/site"
 
 // Adapted from the 21st.dev "footer-section" component (license check pending, see
@@ -83,6 +85,7 @@ function FooterSection({ className }: { className?: string }) {
                 {l.label}
               </Link>
             ))}
+            {TRACKING_ON && <CookieLinks className={cn(linkClass, "cursor-pointer text-left")} />}
           </nav>
         </div>
       </div>

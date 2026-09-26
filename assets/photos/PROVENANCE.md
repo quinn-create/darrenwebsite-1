@@ -2,7 +2,7 @@
 
 Required by the build plan, Appendix C (`plans/signal-website-plan.md`). One row per asset: its origin, size, use and approval. Update this file whenever an image is added, changed or approved.
 
-**Approval record.** Darren approved the edited portrait for all uses (website, Google Business Profile and link previews) on 24 Sep 2026. He gave his answers in person; Quinn relayed them in the Claude Code session, and they're written up in `plans/for-darren/answers-2026-09-24.md` (decision D2 in `docs/DECISIONS.md`). **No signed photo note is filed yet.** The plan recommends one (the draft note is in the plan, Section 5). When it's signed, add where it's kept here.
+**Approval record.** Darren approved the edited portrait for all uses (website, Google Business Profile and link previews) on 24 Sep 2026. He gave his answers in person; Quinn relayed them in the Claude Code session, and they're written up in `plans/for-darren/answers-2026-09-24.md` (decision D2 in `docs/DECISIONS.md`). On 26 Sep 2026 Quinn confirmed the photo paperwork is approved and needs no further action (`plans/for-darren/answers-2026-09-26.md`); no signed note or photographer/editor names are filed.
 
 ## Masters (never edited, never served)
 

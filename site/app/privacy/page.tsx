@@ -19,12 +19,7 @@ export default function Privacy() {
     <>
       <PageIntro
         title="Privacy notice"
-        lead={
-          <>
-            This notice explains what happens to the information you send through this website.{" "}
-            <Pending kind="privacy-approval">Darren to approve this draft notice.</Pending>
-          </>
-        }
+        lead="This notice explains what happens to the information you send through this website."
         crumbs={[{ href: "/", label: "Home" }, { href: "/privacy/", label: "Privacy" }]}
       />
       <section className="pb-14 lg:pb-24">

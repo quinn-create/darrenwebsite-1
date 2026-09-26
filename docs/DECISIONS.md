@@ -9,7 +9,7 @@ The record of Darren's answers. Claude acts only on decisions recorded here as *
 | # | Decision | Recommended default (plan) | Status | Darren's answer | Date | Where the written OK is filed |
 |---|---|---|---|---|---|---|
 | D1 | Leave WordPress for the new platform | (a) Keep the Next.js site, hosted on Vercel | **Answered** | Yes, leave WordPress. The old server stays untouched for 90 days, then is retired. | 24 Sep 2026 | `plans/for-darren/answers-2026-09-24.md` |
-| D2 | Approve the edited photo, and where it's used | Approve for the site, link previews, Google profile and directories | **Answered** | Approved for all uses: website, Google Business Profile and link previews. | 24 Sep 2026 | `answers-2026-09-24.md` (no signed photo note filed yet) |
+| D2 | Approve the edited photo, and where it's used | Approve for the site, link previews, Google profile and directories | **Answered** | Approved for all uses: website, Google Business Profile and link previews. | 24 Sep 2026 | `answers-2026-09-24.md` (photo paperwork closed by Quinn, 26 Sep 2026; `answers-2026-09-26.md`) |
 | D3 | About-page photo shape | (a) The same upright crop, from the genuine part of the photo | **Answered** | (a), the upright crop, as shown in the Phase 1 design check | 26 Sep 2026 | `plans/for-darren/answers-2026-09-26.md` |
 | D4 | Who writes the practice pages | Claude drafts general wording; Darren writes or approves every statement about Tennessee law | **Answered** | Claude drafted; Darren approved all five practice pages and the home FAQs as written. | 24 Sep 2026 | `answers-2026-09-24.md` ("Practice-page wording") |
 | D5 | Juvenile defense | (b) Point the old page to Criminal Defense until Darren answers | **Answered** | Juvenile cases are not taken. The old page redirects to Criminal Defense. | 24 Sep 2026 | `answers-2026-09-24.md` |
@@ -37,11 +37,12 @@ The record of Darren's answers. Claude acts only on decisions recorded here as *
 | Service area | Murfreesboro, Rutherford County and Smyrna; Rutherford County cases only | 24 Sep 2026 | same |
 | Callback line | "We generally return calls within a day." (see conflict C3) | 24 Sep 2026 | same |
 | "Responsible attorney" line on the legal notice | Leave it off; show the firm's name, address and phone instead | 24 Sep 2026 | same |
+| Privacy notice | Approved as drafted, including the cookie section | 26 Sep 2026 | `answers-2026-09-26.md` |
+| Photo paperwork | Quinn: approved, no further action (no signed note or names filed) | 26 Sep 2026 | `answers-2026-09-26.md` |
 | Phase 1 design | Approved: the look of the five page types, the headline and supporting line, and the link-preview image (`printouts/Phase-1-Design-Lock.pdf`) | 26 Sep 2026 | `answers-2026-09-26.md` |
 | About-page facts | Navy, education, admissions, community and memberships as listed | 24 Sep 2026 | same |
 
 ## Still open (not a numbered decision)
-- **Privacy notice:** approval of the draft, including the cookie section. This is one of the 2 placeholders blocking a production build.
 - **Inquiry retention:** how long inquiries are kept, and how someone asks for theirs to be deleted (part of D8, and the other placeholder).
 - **MyCase:** whether the firm's plan can receive website leads directly.
 - **Live Google rating (D6):** needs the firm's Google Business Profile, a Google Maps key and Darren's ethics review.

@@ -55,7 +55,9 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   // The old site's addresses end in "/", so the new ones do too (one-hop redirects, same canonical style).
   trailingSlash: true,
-  images: { formats: ["image/avif", "image/webp"] },
+  // Plan Appendix A: modern formats, two quality levels, and no giant sizes (the largest photo
+  // is 900 px wide, so 3840 px versions are never needed).
+  images: { formats: ["image/avif", "image/webp"], qualities: [75, 80], deviceSizes: [640, 828, 1080, 1200, 1920] },
   async redirects() {
     return [
       // Match both "/old" and "/old/" so every old address reaches its new page in a single hop.

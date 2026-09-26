@@ -14,7 +14,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-border/40 bg-bg/85 backdrop-blur-xl backdrop-saturate-150">
       <a
         href="#main"
-        className="sr-only-focusable absolute left-4 top-3 z-50 rounded-md bg-action px-4 py-2 font-semibold text-on-action"
+        className="sr-only-focusable absolute left-4 top-3 z-50 inline-flex min-h-11 items-center rounded-md bg-action px-4 font-semibold text-on-action"
       >
         Skip to content
       </a>

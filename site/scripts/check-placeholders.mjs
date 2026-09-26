@@ -1,6 +1,7 @@
 // Refuses a production release while any unconfirmed placeholder text remains.
 // Placeholders are bracketed notes such as "[CONFIRM WITH FIRM]", "[FIRM TO SUPPLY]",
-// "[Office address — to confirm]" or "[TO BE SUPPLIED …]".
+// "[Office address — to confirm]" or "[TO BE SUPPLIED …]", and every use of the <Pending>
+// component (components/Pending.tsx), which also refuses to render in a production build.
 // Usage: node scripts/check-placeholders.mjs   (exit code 1 if any are found)
 //        node scripts/check-placeholders.mjs --only-production   (skips unless SITE_ENV=production;
 //        used by `npm run build`, so a production deploy on Vercel can't go out with placeholders)
@@ -16,10 +17,11 @@ if (process.argv.includes("--only-production") && process.env.SITE_ENV !== "prod
 
 const ROOTS = ["app", "components", "lib"];
 // Plan Appendix A requires [CONFIRM, [FIRM TO, to confirm], [TO BE SUPPLIED and [Office.
-const PATTERN = /\[[^\]\n]*\b(confirm|to confirm|firm to|to be supplied|proposed copy|firm to review|draft|to approve)\b[^\]\n]*\]|\[Office\b[^\]\n]*\]/gi;
+const PATTERN = /\[[^\]\n]*\b(confirm|to confirm|firm to|to be supplied|proposed copy|firm to review|draft|to approve)\b[^\]\n]*\]|\[Office\b[^\]\n]*\]|<Pending\b[^>]*>/gi;
+const SKIP = new Set([path.join("components", "Pending.tsx")]); // the component itself
 
 if (process.argv.includes("--self-test")) {
-  const samples = ["[CONFIRM WITH FIRM]", "[FIRM TO SUPPLY]", "[Office address — to confirm]", "[TO BE SUPPLIED — licensed image]", "[Office hours]", "[DRAFT — DARREN TO APPROVE]"];
+  const samples = ["[CONFIRM WITH FIRM]", "[FIRM TO SUPPLY]", "[Office address — to confirm]", "[TO BE SUPPLIED — licensed image]", "[Office hours]", "[DRAFT — DARREN TO APPROVE]", '<Pending kind="retention">'];
   const missed = samples.filter((t) => !new RegExp(PATTERN.source, "i").test(t));
   const falsePositive = ["[aria-current]", "[data-state=active]"].filter((t) => new RegExp(PATTERN.source, "i").test(t));
   if (missed.length || falsePositive.length) {
@@ -35,7 +37,7 @@ function walk(dir) {
   for (const name of readdirSync(dir)) {
     const full = path.join(dir, name);
     if (statSync(full).isDirectory()) walk(full);
-    else if (/\.(tsx?|mdx?)$/.test(name)) {
+    else if (/\.(tsx?|mdx?)$/.test(name) && !SKIP.has(full)) {
       readFileSync(full, "utf8")
         .split("\n")
         .forEach((line, i) => {

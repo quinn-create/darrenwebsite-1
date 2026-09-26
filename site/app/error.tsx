@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { PHONE_DISPLAY, PHONE_HREF } from "@/lib/site-basics";
 
 // Shown if a page fails to load. Keeps the phone number reachable.
-export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function ErrorPage({ error, retry }: { error: Error & { digest?: string }; retry: () => void }) {
   useEffect(() => {
     // Log only the error id, never form content or visitor details.
     console.error("Page error", error.digest ?? "");
@@ -22,7 +22,7 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
           .
         </p>
         <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
-          <button type="button" className="btn-primary" onClick={() => reset()}>
+          <button type="button" className="btn-primary" onClick={() => retry()}>
             Try again
           </button>
           <a href={PHONE_HREF} className="link-secondary inline-flex min-h-11 items-center text-[18px]">

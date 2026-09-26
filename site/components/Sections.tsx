@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type React from "react";
 import Link from "next/link";
 import { ArrowRight, ClipboardCheck, MessagesSquare, PhoneCall, Send } from "lucide-react";
@@ -114,7 +115,10 @@ function FaqList({ items }: { items: FaqItem[] }) {
 
 // With enough questions (FAQ_JUMP_MIN, over 2+ topics) the list is grouped by topic and gets
 // "Jump to" buttons; otherwise it renders exactly as a single list.
-export function Faq({ items, id = "faq" }: { items: FaqItem[]; id?: string }) {
+// `note` goes under the list (the "Reviewed by" line). Items marked `pending` (an answer the
+// firm hasn't approved yet) never render.
+export function Faq({ items: all, id = "faq", note }: { items: FaqItem[]; id?: string; note?: ReactNode }) {
+  const items = all.filter((item) => !item.pending);
   const topics = FAQ_TOPICS.filter((t) => items.some((item) => item.topic === t.id));
   const grouped = items.length >= FAQ_JUMP_MIN && topics.length >= 2;
   const groupId = (topic: string) => `faq-${id}-${topic}`;
@@ -141,6 +145,7 @@ export function Faq({ items, id = "faq" }: { items: FaqItem[]; id?: string }) {
             <FaqList items={items} />
           </div>
         )}
+        {note && <p className="mt-6 text-[15px] text-muted">{note}</p>}
       </Container>
     </section>
   );
@@ -178,7 +183,7 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
           <li key={item.label} className="flex items-center gap-2">
             {i > 0 && <span aria-hidden="true">/</span>}
             {i < items.length - 1 ? (
-              <Link href={item.href} className="link-secondary inline-flex min-h-11 items-center">
+              <Link href={item.href} className="link-secondary inline-flex min-h-11 min-w-11 items-center">
                 {item.label}
               </Link>
             ) : (
@@ -204,7 +209,7 @@ export function PageIntro({
   crumbs,
 }: {
   title: string;
-  lead?: string;
+  lead?: ReactNode;
   crumbs?: Crumb[];
 }) {
   return (

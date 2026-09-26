@@ -1,28 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Anchor, Clock, GraduationCap, MapPin, Scale, Users } from "lucide-react";
+import { Anchor, MapPin, Scale } from "lucide-react";
+import { AtAGlance } from "@/components/AtAGlance";
 import { Container } from "@/components/Container";
 import { Portrait } from "@/components/Portrait";
 import { PhoneLink } from "@/components/PhoneLink";
 import { PracticeCarousel } from "@/components/PracticeCarousel";
 import { ContactSteps, Faq, IntakeBand, PracticeCards } from "@/components/Sections";
-import { CTA_HREF, CTA_LABEL, FIRM, HOME_FAQ, OPEN_GRAPH_BASE } from "@/lib/site";
+import { CTA_HREF, CTA_LABEL, HOME_FAQ, LEGAL_REVIEW, OPEN_GRAPH_BASE } from "@/lib/site";
 
 // The home page's own address for link previews (og:url); everything else comes from the layout.
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
   openGraph: { ...OPEN_GRAPH_BASE, url: "/" },
 };
-
-// "At a glance" card in Meet Darren. Every line is already on the About or Contact page (confirmed 24 Sep 2026).
-const FACTS = [
-  { icon: Anchor, label: "U.S. Navy, 1996–2002", value: "Electronics Technician" },
-  { icon: GraduationCap, label: "Law degree", value: "Southern Illinois University School of Law" },
-  { icon: Scale, label: "Rutherford County DUI Court", value: "Board member" },
-  { icon: Users, label: "Memberships", value: "Tennessee Association of Criminal Defense Lawyers; Rutherford & Cannon County Bar Association" },
-  { icon: MapPin, label: "Office", value: FIRM.address },
-  { icon: Clock, label: "Hours", value: FIRM.hours },
-];
 
 // Confirmed facts only (plans/for-darren/answers-2026-09-24.md), shown as a quiet strip under the hero.
 const CREDENTIALS = [
@@ -67,7 +58,7 @@ export default function Home() {
           </div>
           <div className="lg:col-span-5">
             <Portrait
-              priority
+              preload
               glow
               sizes="(min-width: 1024px) 392px, 256px"
               className="mx-auto w-[256px] lg:w-full lg:max-w-[392px]"
@@ -114,26 +105,13 @@ export default function Home() {
           </div>
           <div className="lg:col-span-5">
             {/* Plan D11: a card of confirmed facts at launch; a licensed local photo can replace it later. */}
-            <div className="panel p-6 lg:p-8">
-              <h3 className="text-[14px] font-bold uppercase tracking-[0.1em] text-muted">At a glance</h3>
-              <dl className="mt-5 grid gap-5">
-                {FACTS.map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="relative pl-10">
-                    <dt className="font-semibold text-text">
-                      <Icon aria-hidden="true" size={22} strokeWidth={1.75} className="absolute left-0 top-0.5 text-action" />
-                      {label}
-                    </dt>
-                    <dd className="text-[16px] text-muted">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
+            <AtAGlance />
           </div>
         </Container>
       </section>
 
       <ContactSteps />
-      <Faq items={HOME_FAQ} />
+      <Faq items={HOME_FAQ} note={LEGAL_REVIEW} />
       <IntakeBand />
     </>
   );

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/Container";
 import { Portrait } from "@/components/Portrait";
+import { AtAGlance } from "@/components/AtAGlance";
 import { Breadcrumbs, IntakeBand } from "@/components/Sections";
+import { DARREN } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "About Darren",
@@ -23,32 +25,31 @@ export default function About() {
                 focuses on criminal defense (including first-time offenses and domestic assault), DUI/DWI and expungement.
               </p>
               <h2 className="h3 mt-4 text-text">Navy service</h2>
-              <p>
-                Darren served in the U.S. Navy from 1996 to 2002 as an Electronics Technician. He served aboard the USS
-                Kitty Hawk and the USS Constellation, and completed a tour on Diego Garcia.
-              </p>
+              <p>{DARREN.navy.detail}</p>
               <h2 className="h3 mt-4 text-text">Community</h2>
               <ul className="flex list-disc flex-col gap-2 pl-5">
-                <li>Board member, Rutherford County DUI Court</li>
-                <li>Former Assistant Chief, Lascassas Volunteer Fire Department</li>
-                <li>Helped found the Veterans Legal Assistance Program at Southern Illinois University School of Law</li>
+                {DARREN.community.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
               </ul>
               <h2 className="h3 mt-4 text-text">Education and admissions</h2>
               <ul className="flex list-disc flex-col gap-2 pl-5">
-                <li>Law degree, Southern Illinois University School of Law</li>
-                <li>B.S. in Electronics Systems, Southern Illinois University Carbondale (2005)</li>
-                <li>Admitted in Tennessee and the U.S. District Court for the Middle District of Tennessee</li>
+                {DARREN.education.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
               </ul>
               <h2 className="h3 mt-4 text-text">Memberships</h2>
               <ul className="flex list-disc flex-col gap-2 pl-5">
-                <li>Tennessee Association of Criminal Defense Lawyers</li>
-                <li>Rutherford &amp; Cannon County Bar Association</li>
+                {DARREN.memberships.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
               </ul>
             </div>
           </div>
           <div className="lg:col-span-5">
             {/* Plan Section 5: up to 320 px tall on phones, about 420 px wide on desktop; still glow. */}
             <Portrait glow="still" sizes="(min-width: 1024px) 420px, 256px" className="mx-auto w-[256px] lg:w-full lg:max-w-[420px]" />
+            <AtAGlance heading="h2" className="mx-auto mt-12 lg:max-w-[420px]" />
           </div>
         </Container>
       </section>

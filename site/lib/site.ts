@@ -24,6 +24,34 @@ export const FIRM = {
   serviceArea: "Murfreesboro, Rutherford County & Smyrna",
 } as const;
 
+// Darren's background, confirmed 24 Sep 2026 (plans/for-darren/answers-2026-09-24.md). Used by
+// About, the home page's "At a glance" card and the search-engine data, so they always agree.
+export const DARREN = {
+  navy: {
+    short: "U.S. Navy, 1996–2002",
+    role: "Electronics Technician",
+    detail:
+      "Darren served in the U.S. Navy from 1996 to 2002 as an Electronics Technician. He served aboard the USS Kitty Hawk and the USS Constellation, and completed a tour on Diego Garcia.",
+  },
+  community: [
+    "Board member, Rutherford County DUI Court",
+    "Former Assistant Chief, Lascassas Volunteer Fire Department",
+    "Helped found the Veterans Legal Assistance Program at Southern Illinois University School of Law",
+  ],
+  lawSchool: "Southern Illinois University School of Law",
+  college: "Southern Illinois University Carbondale",
+  education: [
+    "Law degree, Southern Illinois University School of Law",
+    "B.S. in Electronics Systems, Southern Illinois University Carbondale (2005)",
+    "Admitted in Tennessee and the U.S. District Court for the Middle District of Tennessee",
+  ],
+  memberships: ["Tennessee Association of Criminal Defense Lawyers", "Rutherford & Cannon County Bar Association"],
+} as const;
+
+// "Reviewed by" line for legal wording Darren approved (CLAUDE.md). He approved the practice
+// pages and the home FAQs as written on 24 Sep 2026 (decision D4).
+export const LEGAL_REVIEW = "Reviewed by Darren Drake, Attorney at Law, on 24 September 2026.";
+
 // Link-preview (Open Graph / X) wording. plans/link-previews-plan.md, section 4; Phase 1 layout.
 // The plan's alt text says "Murfreesboro and Middle Tennessee"; Darren confirmed Rutherford County
 // cases only (24 Sep 2026), so the confirmed service area is used (docs/DECISIONS.md, C7).
@@ -57,7 +85,8 @@ export const FAQ_TOPICS = [
   { id: "working-with-us", label: "Working with the office" },
 ] as const;
 export type FaqTopicId = (typeof FAQ_TOPICS)[number]["id"];
-export type FaqItem = { q: string; a: string; topic: FaqTopicId };
+// `pending: true` keeps an answer off the site until Darren approves it.
+export type FaqItem = { q: string; a: string; topic: FaqTopicId; pending?: true };
 // Jump buttons appear only with at least this many FAQs, spread over at least 2 topics.
 export const FAQ_JUMP_MIN = 4;
 

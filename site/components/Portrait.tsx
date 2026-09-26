@@ -7,12 +7,12 @@ import { PORTRAIT_1X1 as square, PORTRAIT_4X5 as portrait } from "@/lib/portrait
 export const PORTRAIT_ALT = "Darren Drake, attorney at law";
 
 export function Portrait({
-  priority = false,
+  preload = false,
   glow = false,
   sizes,
   className = "",
 }: {
-  priority?: boolean;
+  preload?: boolean;
   // true: the home hero's glow (fades in once on desktop); "still": the same glow, never animated (About).
   glow?: boolean | "still";
   sizes: string;
@@ -26,7 +26,7 @@ export function Portrait({
           src={portrait}
           alt={PORTRAIT_ALT}
           fill
-          priority={priority}
+          preload={preload}
           sizes={sizes}
           className="object-cover object-top"
           placeholder="blur"

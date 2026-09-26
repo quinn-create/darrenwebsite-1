@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
 /* Signal design tokens. Components use these through the Tailwind theme below, never raw hex. */
 :root {
@@ -584,4 +583,42 @@ html:not(.js) .theme-toggle {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* Unconfirmed content (components/Pending.tsx). Previews only: a production build refuses it. */
+.pending {
+  background: rgb(250 204 21 / 0.16);
+  color: var(--color-text);
+  outline: 1px dashed rgb(250 204 21 / 0.8);
+  outline-offset: 2px;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+.pending-label {
+  font-weight: 700;
+}
+@media (forced-colors: active) {
+  .pending {
+    outline-color: Mark;
+  }
+}
+
+/* Windows high-contrast (forced colours): backgrounds and shadows disappear there, so buttons,
+   cards and panels get real borders, and the decorative glow is removed. */
+@media (forced-colors: active) {
+  .btn-primary,
+  .btn-secondary {
+    border: 2px solid ButtonText;
+  }
+  .card,
+  .panel,
+  .chip {
+    border: 1px solid CanvasText;
+  }
+  .portrait-glow {
+    display: none;
+  }
+  :focus-visible {
+    outline: 2px solid Highlight;
+  }
 }

@@ -43,4 +43,4 @@ Quinn relayed Darren's answer: "He is fine with it all." Recorded in `plans/for-
 
 ## Still waiting on Darren
 1. **Photo records:** sign the photo note; name the photographer and whoever edited the photo; ask the editor for the full-quality master.
-2. **Still open from Phase 0:** accounts and owners (D13), the privacy notice and retention (D8), conflicts C1–C6, and the footer component's license check.
+2. **Still open from Phase 0:** accounts and owners (D13), the privacy notice and retention (D8), and conflicts C1–C6. (The footer license was settled in Phase 2 by rewriting the footer.)

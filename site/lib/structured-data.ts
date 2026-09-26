@@ -3,7 +3,7 @@
 // coordinates, founding date or awards. plans/seo-fixes-plan.md, section 4.2.
 import { SITE_URL } from "./env";
 import { PORTRAIT_4X5 } from "./portrait";
-import { FIRM, PHONE_HREF, PRACTICES } from "./site";
+import { DARREN, FIRM, PHONE_HREF, PRACTICES } from "./site";
 
 const FIRM_ID = `${SITE_URL}/#firm`;
 const DARREN_ID = `${SITE_URL}/#darren`;
@@ -60,13 +60,10 @@ export function businessGraph() {
         jobTitle: FIRM.descriptor,
         worksFor: { "@id": FIRM_ID },
         alumniOf: [
-          { "@type": "EducationalOrganization", name: "Southern Illinois University School of Law" },
-          { "@type": "EducationalOrganization", name: "Southern Illinois University Carbondale" },
+          { "@type": "EducationalOrganization", name: DARREN.lawSchool },
+          { "@type": "EducationalOrganization", name: DARREN.college },
         ],
-        memberOf: [
-          { "@type": "Organization", name: "Tennessee Association of Criminal Defense Lawyers" },
-          { "@type": "Organization", name: "Rutherford & Cannon County Bar Association" },
-        ],
+        memberOf: DARREN.memberships.map((name) => ({ "@type": "Organization", name })),
         image: PORTRAIT,
         url: `${SITE_URL}/about/`,
       },

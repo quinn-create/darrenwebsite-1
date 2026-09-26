@@ -4,6 +4,7 @@ import { PageIntro } from "@/components/Sections";
 import { CookieSettingsButton } from "@/components/consent/CookieLinks";
 import { FIRM, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
 import { HAS_ANALYTICS, HAS_MARKETING, TRACKERS, TRACKING_ON } from "@/lib/tracking";
+import { Pending } from "@/components/Pending";
 
 export const metadata: Metadata = {
   title: "Privacy",
@@ -12,13 +13,18 @@ export const metadata: Metadata = {
 };
 
 // Draft written from how the site actually works (24 Sep 2026). Darren to approve or edit;
-// the bracketed markers keep the production build blocked until he does.
+// the Pending markers keep the production build blocked until he does.
 export default function Privacy() {
   return (
     <>
       <PageIntro
         title="Privacy notice"
-        lead="This notice explains what happens to the information you send through this website. [DRAFT — DARREN TO APPROVE]"
+        lead={
+          <>
+            This notice explains what happens to the information you send through this website.{" "}
+            <Pending kind="privacy-approval">Darren to approve this draft notice.</Pending>
+          </>
+        }
         crumbs={[{ href: "/", label: "Home" }, { href: "/privacy/", label: "Privacy" }]}
       />
       <section className="pb-14 lg:pb-24">
@@ -42,7 +48,9 @@ export default function Privacy() {
               only to provide those services.
             </p>
             <h2 className="h3 mt-4 text-text">How long we keep it</h2>
-            <p>[DARREN TO CONFIRM: how long inquiries are kept, and how to ask for one to be deleted.]</p>
+            <p>
+              <Pending kind="retention">how long inquiries are kept, and how to ask for one to be deleted (D8).</Pending>
+            </p>
             {TRACKING_ON ? (
               <CookiesSection />
             ) : (

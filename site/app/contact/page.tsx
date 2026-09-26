@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Contact Darren Drake, attorney at law. Send a message online or call (615) 546-5551.",
+  description: `Contact Darren Drake, attorney at law. Send a message online or call ${PHONE_DISPLAY}.`,
   alternates: { canonical: "/contact/" },
 };
 

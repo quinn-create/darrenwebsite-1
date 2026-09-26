@@ -40,6 +40,6 @@ All are cut from inside the genuine strip only; the script refuses any box outsi
 |---|---|---|
 | A5 | A licensed local architecture photo (optional) | None supplied. The home page uses the "At a glance" facts card (D11 default). If one's added, record the photographer, license, location and caption here. |
 | A6 | A generated abstract texture (optional) | Not used. If ever used, log the image job's ID and never present it as a real place. |
-| C1 | `site/components/ui/footer-section.tsx`, a third-party component adapted from 21st.dev (shadcn "footer-section") | **The license still needs to be checked and recorded** before launch. |
+| C1 | `site/components/ui/footer-section.tsx`, a third-party component adapted from 21st.dev (shadcn "footer-section") | **Removed in Phase 2 (26 Sep 2026).** 21st.dev leaves licensing to each author and the original author's license couldn't be confirmed, so the footer was rewritten as the site's own `site/components/Footer.tsx`. No third-party UI code remains in the footer. |
 | R1–R9 | `brand-concepts/*.png`, including `01-signal.png` (Higgsfield job `f3f33b0f-cd9c-49c3-98f5-bafb3626dacc`) | Generated design references, never published. The job IDs are in `brand-concepts/README.md`. |
 | Old | Media from the old ddrakelaw.com (old header images with the old name, number and address; the group, family and courthouse photos; the badges) | Not reused. The family photo is private, and the badges and old names conflict with the rules. |

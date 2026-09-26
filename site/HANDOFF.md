@@ -104,7 +104,9 @@ End-to-end checks:
 
 ## Footer (shadcn/ui footer-section)
 
-The footer is `components/ui/footer-section.tsx`, adapted from the supplied 21st.dev component. It uses the shadcn Button and Tooltip, mapped onto this site's tokens in `app/globals.css`. The Input, Label, Switch and Textarea primitives are also in `components/ui/`, but the footer doesn't use them yet.
+*Replaced in Phase 2 (26 Sep 2026): the footer is now the site's own `components/Footer.tsx`; see the Phase 2 update at the end. Kept for history:*
+
+The footer was `components/ui/footer-section.tsx`, adapted from the supplied 21st.dev component. It uses the shadcn Button and Tooltip, mapped onto this site's tokens in `app/globals.css`. The Input, Label, Switch and Textarea primitives are also in `components/ui/`, but the footer doesn't use them yet.
 
 Changes from the demo component, per the brand guidelines:
 - **Newsletter sign-up:** replaced with the intake call to action. No marketing consent workflow exists.
@@ -457,3 +459,12 @@ Full report: `docs/phase-1-report.md`.
 - **Tests:** 4 new e2e checks (first desktop screen, glow, phone order, icons); the share-card checks now expect JPEGs under 300 KB. e2e 91/91.
 - **`sharp`** is now a declared dependency (it was only there through Next.js).
 - **Approved, 26 Sep 2026:** Darren approved the Phase 1 look, headline, link-preview image (with the confirmed service area, C7) and D3 option (a). Record: `plans/for-darren/answers-2026-09-26.md`.
+
+## Update, 26 September 2026: Phase 2 of docs/PROMPT-PLAN.md (full site build and polish)
+Full report: `docs/phase-2-report.md`.
+- **New:** `components/Pending.tsx` (unconfirmed items: marked on previews, refused in production; the placeholder guard also catches it); `components/PracticeAside.tsx` ("On this page" and "Your attorney"); `components/AtAGlance.tsx` (Home and About); `app/global-error.tsx`; `scripts/screenshot-pages.mjs` (every page at 390/768/1440 plus a PDF).
+- **Facts:** Darren's background is `DARREN` in `lib/site.ts`; the legal-review line is `LEGAL_REVIEW`.
+- **Footer:** rewritten as the site's own `components/Footer.tsx`; the 21st.dev file is gone (its license couldn't be confirmed).
+- **Removed:** unused shadcn primitives (`button`, `input`, `label`, `switch`, `textarea`, `tooltip`, `badge`, `tabs`) and their packages, `@fontsource-variable/manrope` and `tw-animate-css`.
+- **Polish:** 44 px tap targets everywhere (tested), forced-colours borders, `retry()` on the error page, `preload` on the hero photo, image `qualities` and `deviceSizes` trimmed.
+- **Tests:** e2e 96/96 (5 new).

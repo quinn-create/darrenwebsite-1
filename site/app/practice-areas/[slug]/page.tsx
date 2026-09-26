@@ -4,8 +4,9 @@ import { ArrowRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/Container";
 import { PracticeIcon } from "@/components/PracticeIcon";
+import { AttorneyCard, OnThisPage } from "@/components/PracticeAside";
 import { ContactSteps, Faq, IntakeBand, PageIntro } from "@/components/Sections";
-import { OPEN_GRAPH_BASE, PRACTICES } from "@/lib/site";
+import { LEGAL_REVIEW, OPEN_GRAPH_BASE, PHONE_DISPLAY, PRACTICES } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -21,13 +22,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!practice) return {};
   return {
     title: practice.title,
-    description: `${practice.summary} Contact Darren Drake or call (615) 546-5551.`,
+    description: `${practice.summary} Contact Darren Drake or call ${PHONE_DISPLAY}.`,
     alternates: { canonical: `/practice-areas/${practice.slug}/` },
     // A page-level openGraph replaces the layout's, so repeat the shared fields here.
     openGraph: {
       ...OPEN_GRAPH_BASE,
       title: `${practice.title} · Darren Drake`,
-      description: `${practice.summary} Contact Darren Drake or call (615) 546-5551.`,
+      description: `${practice.summary} Contact Darren Drake or call ${PHONE_DISPLAY}.`,
       url: `/practice-areas/${practice.slug}/`,
     },
     twitter: { card: "summary_large_image", title: `${practice.title} · Darren Drake` },
@@ -51,8 +52,19 @@ export default async function PracticePage({ params }: Props) {
         ]}
       />
       <section aria-labelledby="overview-title" className="pb-6">
-        <Container reveal className="grid gap-10 lg:grid-cols-12 lg:gap-8">
-          <div className="lg:col-span-8">
+        {/* Phones: "On this page", Overview, then the attorney card. Desktop: Overview on the left,
+            the two cards stacked on the right. */}
+        <Container reveal className="grid gap-10 lg:grid-cols-12 lg:gap-x-8 lg:gap-y-6">
+          <OnThisPage
+            className="lg:col-span-4 lg:col-start-9 lg:row-start-1"
+            items={[
+              { href: "#overview-title", label: "Overview" },
+              { href: "#how-contact-works", label: "What happens next" },
+              { href: "#faq", label: "Frequently asked questions" },
+              { href: "#other-practices-title", label: "Other practice areas" },
+            ]}
+          />
+          <div className="lg:col-span-8 lg:col-start-1 lg:row-span-2 lg:row-start-1">
             <h2 id="overview-title" className="h2">
               Overview
             </h2>
@@ -62,15 +74,11 @@ export default async function PracticePage({ params }: Props) {
               ))}
             </div>
           </div>
-          <div className="hidden lg:col-span-4 lg:flex lg:justify-end">
-            <div className="flex size-40 items-center justify-center rounded-card border border-border bg-surface">
-              <PracticeIcon name={practice.icon} size={64} />
-            </div>
-          </div>
+          <AttorneyCard className="lg:col-span-4 lg:col-start-9 lg:row-start-2 lg:self-start" />
         </Container>
       </section>
       <ContactSteps />
-      <Faq items={practice.faq} />
+      <Faq items={practice.faq} note={LEGAL_REVIEW} />
       <OtherPractices current={practice.slug} />
       <IntakeBand />
     </>

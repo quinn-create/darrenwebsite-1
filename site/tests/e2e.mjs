@@ -14,6 +14,7 @@ const axeSource = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
 const DEMO = "http://localhost:3000";
 const LIVE = "http://localhost:3001";
 const executablePath = chromiumPath();
+const PRACTICE_SLUGS = ["first-time-offenders", "dui-dwi", "domestic-assault", "criminal-defense", "expungement"];
 const PAGES = ["/", "/practice-areas/", "/practice-areas/first-time-offenders/", "/practice-areas/domestic-assault/", "/practice-areas/criminal-defense/", "/about/", "/contact/", "/privacy/", "/accessibility/", "/legal-notice/"];
 
 const results = [];
@@ -263,6 +264,98 @@ await check("Reduced motion: no hero animation", async () => {
   const glow = await p.locator(".portrait-glow").evaluate((el) => getComputedStyle(el).animationName);
   await ctx.close();
   assert(anim === "none" && glow === "none", `animations still running: ${anim}, ${glow}`);
+});
+
+// Phase 2 acceptance (docs/PROMPT-PLAN.md, plan Phase 2).
+await check("Phase 2: every standalone tap target is at least 44 × 44 px (every page at 320, 390 and 1440)", async () => {
+  const bad = [];
+  for (const width of [320, 390, 1440]) {
+    const ctx = await browser.newContext({ viewport: { width, height: 900 } });
+    const p = await ctx.newPage();
+    for (const path of [...PAGES, "/practice-areas/dui-dwi/", "/no-such-page/"]) {
+      await p.goto(DEMO + path);
+      const found = await p.evaluate(() => {
+        const out = [];
+        for (const el of document.querySelectorAll("a[href], button, summary, select, textarea, input:not([type=checkbox]):not([type=radio]), label:has(input)")) {
+          if (el.closest("[aria-hidden=true], [inert]") || el.tabIndex < 0 || el.classList.contains("sr-only-focusable")) continue;
+          const cs = getComputedStyle(el);
+          if (cs.visibility === "hidden" || cs.display === "none") continue;
+          const r = el.getBoundingClientRect();
+          if (!r.width || !r.height) continue;
+          // Links inside a sentence are exempt (WCAG 2.5.8 inline exception).
+          const para = el.closest("p");
+          if (el.tagName === "A" && para && para.textContent.trim() !== el.textContent.trim()) continue;
+          if (r.height < 43.5 || r.width < 43.5) out.push(`${el.tagName} "${(el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 24)}" ${Math.round(r.width)}×${Math.round(r.height)}`);
+        }
+        return [...new Set(out)];
+      });
+      for (const f of found) bad.push(`${width} ${path}: ${f}`);
+    }
+    // The skip link only appears on focus; then it must be big enough too.
+    await p.goto(DEMO + "/");
+    await p.keyboard.press("Tab");
+    const skip = await p.locator(".sr-only-focusable").boundingBox();
+    if (!skip || skip.height < 43.5) bad.push(`${width}: skip link ${skip?.height} px tall when focused`);
+    await ctx.close();
+  }
+  assert(bad.length === 0, bad.slice(0, 12).join("; "));
+});
+
+await check("Phase 2: unconfirmed items show as marked text on previews, and the production guard refuses them", async () => {
+  const { spawnSync } = await import("node:child_process");
+  await page.goto(DEMO + "/privacy/");
+  const marks = await page.locator("mark.pending[data-pending]").count();
+  assert(marks > 0, "no marked Pending items on /privacy/");
+  const run = spawnSync(process.execPath, ["scripts/check-placeholders.mjs", "--only-production"], { env: { ...process.env, SITE_ENV: "production" }, encoding: "utf8" });
+  assert(run.status === 1 && /Release blocked/.test(run.stderr), `the production guard let ${marks} placeholder(s) through: ${run.stdout}${run.stderr}`);
+  const self = spawnSync(process.execPath, ["scripts/check-placeholders.mjs", "--self-test"], { encoding: "utf8" });
+  assert(self.status === 0, self.stderr);
+  return `${marks} marked on /privacy/`;
+});
+
+await check("Phase 2: practice pages have working 'On this page' links, a 'Your attorney' card and the 'Reviewed by' line", async () => {
+  const bad = [];
+  for (const slug of PRACTICE_SLUGS) {
+    await page.goto(DEMO + `/practice-areas/${slug}/`);
+    const r = await page.evaluate(() => {
+      const nav = document.querySelector('nav[aria-labelledby="on-this-page"]');
+      const links = nav ? [...nav.querySelectorAll("a")].map((a) => a.getAttribute("href")) : [];
+      const card = document.querySelector('[aria-labelledby="your-attorney"]');
+      const img = card?.querySelector("img");
+      return {
+        links: links.length,
+        missing: links.filter((h) => !document.getElementById(h.slice(1))),
+        card: !!card && card.textContent.includes("Darren Drake") && card.textContent.includes("Attorney at Law"),
+        alt: img ? img.getAttribute("alt") : null,
+        reviewed: document.body.innerText.includes("Reviewed by Darren Drake, Attorney at Law, on 24 September 2026."),
+      };
+    });
+    if (r.links < 4 || r.missing.length) bad.push(`${slug}: links ${r.links}, missing ${r.missing}`);
+    if (!r.card || r.alt !== "") bad.push(`${slug}: attorney card ${r.card}, photo alt ${JSON.stringify(r.alt)}`);
+    if (!r.reviewed) bad.push(`${slug}: no Reviewed-by line`);
+  }
+  await page.goto(DEMO + "/");
+  if (!(await page.evaluate(() => document.body.innerText.includes("Reviewed by Darren Drake")))) bad.push("home FAQ: no Reviewed-by line");
+  assert(bad.length === 0, bad.join("; "));
+});
+
+await check("Phase 2: About has 'At a glance'; the not-found page has a title and noindex", async () => {
+  await page.goto(DEMO + "/about/");
+  const glance = await page.getByRole("heading", { level: 2, name: /at a glance/i }).count();
+  assert(glance === 1, "About has no 'At a glance' heading");
+  const res = await fetch(DEMO + "/no-such-page/");
+  const html = await res.text();
+  assert(res.status === 404, `status ${res.status}`);
+  assert(/<title>Page not found/.test(html), "no 'Page not found' title");
+  assert(/<meta name="robots" content="[^"]*noindex/.test(html), "404 page is not noindex");
+});
+
+await check("Phase 2: footer is the site's own code; its links are underlined", async () => {
+  const { existsSync } = await import("node:fs");
+  assert(!existsSync("components/ui/footer-section.tsx"), "the third-party footer file is back");
+  await page.goto(DEMO + "/");
+  const plain = await page.locator("footer a:not(.btn-primary)").evaluateAll((as) => as.filter((a) => !getComputedStyle(a).textDecorationLine.includes("underline")).map((a) => a.textContent.trim()));
+  assert(plain.length === 0, `not underlined: ${plain.join(", ")}`);
 });
 
 // Phase 1 acceptance (docs/PROMPT-PLAN.md, plan Phase 1).
@@ -524,7 +617,6 @@ await check("Phone bar on a practice page: \"Ask about\" that area, opens the fo
 
 // ---- FAQ "Jump to" buttons (plans/faq-jump-links-plan.md, section 6.1) ----
 const JUMP_NAV = 'nav[aria-label="Jump to a FAQ topic"]';
-const PRACTICE_SLUGS = ["first-time-offenders", "dui-dwi", "domestic-assault", "criminal-defense", "expungement"];
 
 await check("FAQ jump 1: home page shows two jump buttons in topic order", async () => {
   await page.goto(DEMO + "/");

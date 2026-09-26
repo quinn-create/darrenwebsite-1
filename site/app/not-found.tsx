@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/Container";
 import { PhoneLink } from "@/components/PhoneLink";
 import { CTA_HREF, CTA_LABEL, PRACTICES } from "@/lib/site";
+
+export const metadata: Metadata = { title: "Page not found", robots: { index: false, follow: true } };
 
 // Old addresses from the previous website that aren't redirected land here, so offer the
 // likely destinations instead of a dead end.

@@ -1,6 +1,6 @@
-// The tab styles from components/ui/tabs.tsx, in a plain (non-client) module so server code
-// can use them: components/NavTabs.tsx's classes are worked out on the server, which keeps
-// Radix Tabs, class-variance-authority and tailwind-merge out of every page's JavaScript
+// The site's navigation tab styles (first taken from the shadcn Tabs component, since removed),
+// kept in a plain (non-client) module so components/NavTabs.tsx's classes are worked out on the
+// server. That keeps class-variance-authority and tailwind-merge out of every page's JavaScript
 // (plans/speed-check-plan.md).
 import { cva } from 'class-variance-authority';
 

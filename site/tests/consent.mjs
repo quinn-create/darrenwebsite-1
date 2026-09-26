@@ -227,25 +227,41 @@ await check("Consent 7: keyboard — Tab reaches the banner; Escape closes setti
   await ctx.close();
 });
 
-await check("Consent 8: no inquiry details reach the tags (?topic stripped, page_location clean)", async () => {
+await check("Consent 8: the form page never loads a tag, even after Accept all (C5); ?topic is kept out", async () => {
   const { ctx, page, hits } = await visitor();
   await page.goto(BASE + "/");
   await banner(page).getByRole("button", { name: "Accept all" }).click();
-  await page.waitForFunction(() => window.__gtagLoaded);
+  await page.waitForFunction(() => window.__gtagLoaded && window.__fbLoaded);
+  // In-site link to the form page: must arrive by a full page load with no tag code.
+  const before = hits.length;
+  await page.evaluate(() => {
+    window.__sameDocument = true;
+  });
+  await page.locator('main a[href="/contact/"]').first().click();
+  await page.waitForURL("**/contact/");
+  await page.locator("#cf-yourName").waitFor();
+  const state = await page.evaluate(() => ({ same: window.__sameDocument === true, gtag: typeof window.gtag, fbq: typeof window.fbq, dl: (window.dataLayer ?? []).length }));
+  assert(!state.same, "the form page was reached without a full page load");
+  assert(state.gtag === "undefined" && state.fbq === "undefined" && state.dl === 0, `tag code on the form page: ${JSON.stringify(state)}`);
+  // Direct visit with a topic: still nothing, and the topic chip still works.
   await page.goto(BASE + "/contact/?topic=dui-dwi");
-  await page.waitForFunction(() => location.search === "");
   assert(await page.getByText("Asking about:").isVisible(), "topic chip should still show");
-  const dl = JSON.stringify(await dataLayer(page));
-  assert(!/topic=|\?/.test(dl.replace(/gtag\/js\?id=/g, "")), `query string reached dataLayer: ${dl.match(/.{40}topic.{20}/)}`);
+  await page.waitForTimeout(1500);
+  assert(await page.evaluate(() => typeof window.gtag === "undefined" && typeof window.fbq === "undefined"), "tags loaded on /contact/?topic");
+  assert(hits.length === before, `tracker requests from the form page: ${hits.slice(before).join(", ")}`);
   assert(!hits.some((h) => /topic=/.test(h)), `topic in a tracker request: ${hits}`);
+  // Leaving the form page turns the tags back on.
+  await page.goto(BASE + "/about/");
+  await page.waitForFunction(() => window.__gtagLoaded);
   await ctx.close();
 });
 
-await check("Consent 9: a sent form reports only 'lead' — no names, numbers or message", async () => {
-  const { ctx, page } = await visitor();
+await check("Consent 9: a sent form reports nothing to any tag (the form page has none)", async () => {
+  const { ctx, page, hits } = await visitor();
   await page.goto(BASE + "/");
   await banner(page).getByRole("button", { name: "Accept all" }).click();
   await page.waitForFunction(() => window.__gtagLoaded && window.__fbLoaded);
+  const before = hits.length;
   await page.goto(BASE + "/contact/");
   await page.route("**/api/contact/", (r) => r.fulfill({ status: 200, contentType: "application/json", body: '{"status":"accepted"}' }));
   await page.locator("#cf-yourName").fill("Zed Testperson");
@@ -256,15 +272,11 @@ await check("Consent 9: a sent form reports only 'lead' — no names, numbers or
   await page.locator("#cf-message").fill("Secret detail xyzzy");
   await page.getByRole("button", { name: "Send message" }).click();
   await page.locator('[role="status"]').first().waitFor();
-  // The conversion is sent as soon as the consent code has loaded (it may still be arriving).
-  await page.waitForFunction(() => (window.dataLayer ?? []).some((a) => a[0] === "event" && a[1] === "generate_lead"), null, { timeout: 10000 });
+  await page.waitForTimeout(1500);
   const dl = await dataLayer(page);
   const fq = await fbQueue(page);
-  assert(dl.filter((a) => a[0] === "event" && a[1] === "generate_lead").length === 1, "the lead must be reported exactly once");
-  assert(dl.some((a) => a[0] === "event" && a[1] === "conversion" && a[2].send_to === "AW-1234567890/leadLabel01"), "no Ads lead conversion");
-  assert(fq.some((a) => a[0] === "track" && a[1] === "Lead" && a.length === 2), "no Meta Lead (or it carried data)");
-  const all = JSON.stringify([dl, fq]);
-  for (const secret of ["Zed", "Testperson", "555-0199", "5550199", "xyzzy", "rutherford"]) assert(!all.toLowerCase().includes(secret.toLowerCase()), `"${secret}" reached a tag`);
+  assert(dl.length === 0 && fq.length === 0, `something was reported: ${JSON.stringify([dl, fq]).slice(0, 200)}`);
+  assert(hits.length === before, `tracker requests: ${hits.slice(before).join(", ")}`);
   await ctx.close();
 });
 

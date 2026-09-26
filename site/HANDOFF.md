@@ -468,3 +468,10 @@ Full report: `docs/phase-2-report.md`.
 - **Removed:** unused shadcn primitives (`button`, `input`, `label`, `switch`, `textarea`, `tooltip`, `badge`, `tabs`) and their packages, `@fontsource-variable/manrope` and `tw-animate-css`.
 - **Polish:** 44 px tap targets everywhere (tested), forced-colours borders, `retry()` on the error page, `preload` on the hero photo, image `qualities` and `deviceSizes` trimmed.
 - **Tests:** e2e 96/96 (5 new).
+
+## Update, 26 September 2026: Quinn's answers (retention, C1–C5, hosting)
+- **Privacy notice:** approved; inquiries are kept **10 years** (text on /privacy/). No placeholders remain, so a production build is no longer blocked by content.
+- **C3:** the callback line is now "The office will contact you about next steps." (`lib/contact-rules.ts`); the claims allowlist is empty.
+- **C5:** tags never load on /contact/ or /intake/ (`NO_TAG_PAGES` in `lib/tracking.ts`); links to the form page from a page where tags ran force a full page load. Sent forms and phone taps on the form page aren't reported. Tested in `tests/consent.mjs` (8 and 9).
+- **C4:** draft review policy for Darren: `plans/for-darren/review-policy-draft.md`. Nothing built yet.
+- **Hosting:** Cloudflare, free plan (C8), instead of Vercel. Conversion not done yet.

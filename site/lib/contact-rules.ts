@@ -18,8 +18,9 @@ export const CALLBACK_OPTIONS = [
   { value: "week", label: "Sometime this week" },
 ] as const;
 
-// Shown when "As soon as possible" is chosen. Approved by Darren on 24 September 2026.
-export const ASAP_NOTE = "We generally return calls within a day.";
+// Shown when "As soon as possible" is chosen. Softened on 26 Sep 2026 (conflict C3): no
+// response-time promise. The earlier "We generally return calls within a day." is retired.
+export const ASAP_NOTE = "The office will contact you about next steps.";
 
 export const CONTACT_MESSAGE_MAX = 1000;
 

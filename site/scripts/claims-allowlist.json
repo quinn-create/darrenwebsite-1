@@ -1,12 +1,10 @@
 {
   "_about": "Sentences that match the risky-claims list but were approved by Darren. Each needs who approved it, when, and where that is recorded. scripts/check-claims.mjs skips exactly these sentences.",
-  "allowed": [
+  "allowed": [],
+  "_retired": [
     {
       "text": "We generally return calls within a day.",
-      "matches": "response-time promise",
-      "approved": "Darren Drake, 24 September 2026",
-      "record": "plans/for-darren/answers-2026-09-24.md (Callback note)",
-      "note": "Conflicts with the prompt plan's guardrail against response-time promises; flagged for Quinn in docs/DECISIONS.md."
+      "retired": "26 September 2026: softened to \"The office will contact you about next steps.\" (conflict C3, docs/DECISIONS.md)"
     }
   ]
 }

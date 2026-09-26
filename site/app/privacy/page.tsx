@@ -4,7 +4,6 @@ import { PageIntro } from "@/components/Sections";
 import { CookieSettingsButton } from "@/components/consent/CookieLinks";
 import { FIRM, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site";
 import { HAS_ANALYTICS, HAS_MARKETING, TRACKERS, TRACKING_ON } from "@/lib/tracking";
-import { Pending } from "@/components/Pending";
 
 export const metadata: Metadata = {
   title: "Privacy",
@@ -12,8 +11,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy/" },
 };
 
-// Draft written from how the site actually works (24 Sep 2026). Darren to approve or edit;
-// the Pending markers keep the production build blocked until he does.
+// Written from how the site actually works (24 Sep 2026); approved by Darren 26 Sep 2026, with
+// the 10-year retention period (plans/for-darren/answers-2026-09-26.md).
 export default function Privacy() {
   return (
     <>
@@ -44,7 +43,12 @@ export default function Privacy() {
             </p>
             <h2 className="h3 mt-4 text-text">How long we keep it</h2>
             <p>
-              <Pending kind="retention">how long inquiries are kept, and how to ask for one to be deleted (D8).</Pending>
+              We keep inquiries for 10 years from the date they&apos;re sent, then delete them. To ask about the
+              information you sent, or to ask for it to be deleted sooner, call the office at{" "}
+              <a href={PHONE_HREF} className="link-action font-semibold">
+                {PHONE_DISPLAY}
+              </a>
+              .
             </p>
             {TRACKING_ON ? (
               <CookiesSection />
@@ -130,10 +134,11 @@ function CookiesSection() {
         &ldquo;Cookie settings&rdquo; at the bottom of every page.
       </p>
       <p>
-        <strong className="text-text">What is never shared.</strong> What you type in the contact form (your name, phone
-        number, email, what your inquiry is about and your message) is never sent to Google or Meta. When you send the form
-        or tap the phone number, they&apos;re told only that it happened. They do see which pages you view (for example, the
-        DUI/DWI page), but page addresses are sent without any details of your inquiry
+        <strong className="text-text">What is never shared.</strong> None of these tags run on the Contact page, where the
+        form is. So what you type there (your name, phone number, email, what your inquiry is about and your message) is
+        never sent to Google or Meta, and they aren&apos;t told when you send it. On other pages, tapping the phone number
+        tells them only that it happened. They do see which other pages you view (for example, the DUI/DWI page), but page
+        addresses are sent without any details of your inquiry
         {TRACKERS.ads ? ", and Google is told not to use your visit to personalise ads" : ""}.
       </p>
       {HAS_MARKETING && (

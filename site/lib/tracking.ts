@@ -21,6 +21,14 @@ export const TRACKERS = {
 
 export type Trackers = typeof TRACKERS;
 
+// Pages that never load a tag, whatever the visitor chose (conflict C5, decided 26 Sep 2026;
+// CLAUDE.md: no advertising pixels on the intake page). The form lives on /contact/, and
+// /intake/ redirects there. Arriving from a page where tags ran forces a full page load, so no
+// tag code is left running on these pages. Sent forms and phone taps here aren't reported.
+export const NO_TAG_PAGES = ["/contact/", "/intake/"];
+export const isNoTagPage = (pathname: string) =>
+  NO_TAG_PAGES.some((p) => pathname === p || pathname === p.slice(0, -1));
+
 export const HAS_ANALYTICS = Boolean(TRACKERS.ga);
 export const HAS_MARKETING = Boolean(TRACKERS.ads || TRACKERS.meta);
 export const TRACKING_ON = HAS_ANALYTICS || HAS_MARKETING;

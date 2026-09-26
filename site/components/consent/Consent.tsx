@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CONSENT_CHANGE, CONSENT_OPEN, gpcOn, readConsent, takePendingOpen, writeConsent, type Consent as Choice } from "@/lib/consent";
 import { queuedEvents, type TrackedEvent } from "@/lib/analytics";
-import type { Trackers } from "@/lib/tracking";
+import { isNoTagPage, type Trackers } from "@/lib/tracking";
 
 // Cookie banner, cookie settings dialog, and the tags they allow (plans/cookie-consent-plan.md).
 // Loaded only when at least one tracker ID is set (components/consent/ConsentLoader.tsx).
@@ -142,6 +142,7 @@ export default function Consent({ trackers }: { trackers: Trackers }) {
   const apply = useCallback(
     (c: Choice) => {
       stripQuery(c);
+      if (isNoTagPage(location.pathname)) return; // never on the form page (C5)
       if ((trackers.ga || trackers.ads) && (c.analytics || c.marketing || (window as W).gtag)) setUpGoogle(trackers, c);
       setUpMeta(trackers, c);
     },
@@ -152,6 +153,7 @@ export default function Consent({ trackers }: { trackers: Trackers }) {
     const onChange = (e: Event) => {
       const c = (e as CustomEvent<Choice>).detail;
       setChoice(c);
+      if (isNoTagPage(location.pathname)) return; // saved; tags start on the next other page
       apply(c);
       applied.current = true;
       pageView(trackers, c);
@@ -165,6 +167,12 @@ export default function Consent({ trackers }: { trackers: Trackers }) {
   useEffect(() => {
     const c = choiceRef.current;
     if (!c) return;
+    if (isNoTagPage(pathname)) {
+      // Reached the form page by an in-site route change after tags ran here: reload, so the
+      // form page starts with no tag code at all.
+      if (applied.current) location.reload();
+      return;
+    }
     if (!applied.current) {
       apply(c);
       applied.current = true;
@@ -178,6 +186,7 @@ export default function Consent({ trackers }: { trackers: Trackers }) {
     const handle = (entry: TrackedEvent | undefined) => {
       const c = choiceRef.current;
       if (!c || !entry || entry.handled || entry.event !== "contact_submit_success") return;
+      if (isNoTagPage(location.pathname)) return;
       entry.handled = true;
       conversion(trackers, c, "lead");
     };
@@ -185,7 +194,20 @@ export default function Consent({ trackers }: { trackers: Trackers }) {
     queuedEvents().forEach(handle);
     const onClick = (e: MouseEvent) => {
       const c = choiceRef.current;
-      const a = (e.target as Element | null)?.closest?.('a[href^="tel:"]');
+      const target = e.target as Element | null;
+      // A link to the form page while tags are running: go there with a full page load (C5).
+      const link = target?.closest?.("a[href]") as HTMLAnchorElement | null;
+      if (applied.current && link && !e.defaultPrevented && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !link.target) {
+        const url = new URL(link.href, location.href);
+        if (url.origin === location.origin && isNoTagPage(url.pathname)) {
+          e.preventDefault();
+          e.stopPropagation();
+          location.assign(url.href);
+          return;
+        }
+      }
+      if (isNoTagPage(location.pathname)) return;
+      const a = target?.closest?.('a[href^="tel:"]');
       if (c && a) conversion(trackers, c, "call");
     };
     window.addEventListener("dd:analytics", onForm);

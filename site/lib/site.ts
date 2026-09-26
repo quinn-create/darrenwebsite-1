@@ -237,7 +237,7 @@ export const STEPS = [
   {
     icon: "reply",
     title: "You hear back",
-    detail: "By call, text or email, the way you chose. We generally return calls within a day.",
+    detail: "By call, text or email, the way you chose.",
   },
   {
     icon: "next",

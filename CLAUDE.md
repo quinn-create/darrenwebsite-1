@@ -53,25 +53,22 @@ and do the work yourself instead of handing him scripts to run.
   `check:lighthouse`, `check:placeholders`, `test:consent`, `speed` (all from site/);
   GitHub Actions runs them on every change (.github/workflows/ci.yml).
 
-## Known conflicts (recorded 25 Sep 2026; don't "fix" these without Quinn)
+## Known conflicts (recorded 25-26 Sep 2026; don't "fix" these without Quinn)
 Later decisions by Darren or Quinn differ from the plan or from docs/PROMPT-PLAN.md. Each is
 listed with its source in docs/DECISIONS.md under "Conflicts to resolve". In short:
-- The main button reads "Contact us" and the form lives on /contact/ (/intake/ redirects),
-  not "Start your intake" on /intake/ (Quinn's request, 24 Sep 2026).
-- Five practice areas are live (First-Time Offenders, Criminal Defense, DUI/DWI, Domestic
+- C1: the main button reads "Contact us" and the form lives on /contact/ (/intake/ redirects),
+  not "Start your intake" on /intake/. Kept (26 Sep 2026).
+- C2: five practice areas are live (First-Time Offenders, Criminal Defense, DUI/DWI, Domestic
   Assault, Expungement), all wording approved by Darren on 24 Sep 2026.
-- "We generally return calls within a day." was approved by Darren (24 Sep 2026) although
-  the Never list bars response-time promises; it is the only allowed exception
-  (site/scripts/claims-allowlist.json).
-- D6 (reviews): Darren chose a live Google star rating (not built yet), while the prompt
-  plan says no reviews until a written policy exists.
-- D9 (statistics): the plan's default is Plausible, but Quinn asked (25 Sep 2026) for a
-  cookie banner with GA4, Google Ads and the Meta Pixel. It is built and switched off (no
-  IDs set). Darren's written OK is not recorded, and today the tags could load on /contact/
-  (the form page) after consent, which the Never list forbids for the intake page.
-- C7: the link-preview image says "Murfreesboro, Rutherford County & Smyrna", not the plan's
-  "Murfreesboro & Middle Tennessee", because Darren confirmed Rutherford County cases only
-  (24 Sep 2026). Darren approved it as built on 26 Sep 2026 (resolved).
-- Work happens on the session branch claude/sleepy-clarke-wjlh48 with one draft PR, not
+- C3: the old callback line was softened to "The office will contact you about next steps."
+  (26 Sep 2026). There is no response-time promise and no claims-allowlist exception now.
+- C4 (reviews): Darren wants a live Google star rating; it is built only after he approves the
+  written policy (plans/for-darren/review-policy-draft.md).
+- C5 (statistics/ads): the cookie banner with GA4, Google Ads and the Meta Pixel stays off (no IDs
+  set). Tags never load on /contact/ or /intake/ (lib/tracking.ts NO_TAG_PAGES). Darren's written
+  OK naming each tag is still needed before any ID is entered.
+- C7: the link-preview image says "Murfreesboro, Rutherford County & Smyrna", not "Middle
+  Tennessee" (approved 26 Sep 2026).
+- C8 (hosting): Cloudflare, free plan, instead of Vercel (Quinn, 26 Sep 2026).
+- C6: work happens on the session branch claude/sleepy-clarke-wjlh48 with one draft PR, not
   one branch per phase; this session may only push to that branch.
-

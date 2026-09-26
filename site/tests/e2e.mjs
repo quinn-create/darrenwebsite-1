@@ -78,7 +78,7 @@ await check("Call/text needs a phone, email needs an email; bad values rejected;
   await page.locator("#cf-email").fill("not-an-email");
   await page.locator("#cf-phone").fill("12");
   await page.locator("form").getByText("As soon as possible").click();
-  assert(await page.getByText("We generally return calls within a day").isVisible(), "ASAP note missing");
+  assert(await page.getByText("The office will contact you about next steps.").isVisible(), "ASAP note missing");
   await page.getByRole("button", { name: "Send message" }).click();
   const text = await page.locator(SUMMARY).innerText();
   assert(/Email: Enter an email address like/.test(text), "email format error missing");
@@ -88,7 +88,7 @@ await check("Call/text needs a phone, email needs an email; bad values rejected;
   await page.waitForTimeout(100);
   assert((await page.locator(SUMMARY).count()) === 0, "errors should clear once fixed");
   await page.locator("form").getByText("Sometime this week").click();
-  assert(!(await page.getByText("We generally return calls within a day").isVisible()), "ASAP note should hide");
+  assert(!(await page.getByText("The office will contact you about next steps.").isVisible()), "ASAP note should hide");
 });
 
 await check("Demo mode: 'not connected' note shown, nothing claimed as sent, values kept", async () => {
@@ -303,14 +303,26 @@ await check("Phase 2: every standalone tap target is at least 44 × 44 px (every
 
 await check("Phase 2: unconfirmed items show as marked text on previews, and the production guard refuses them", async () => {
   const { spawnSync } = await import("node:child_process");
-  await page.goto(DEMO + "/privacy/");
-  const marks = await page.locator("mark.pending[data-pending]").count();
-  assert(marks > 0, "no marked Pending items on /privacy/");
-  const run = spawnSync(process.execPath, ["scripts/check-placeholders.mjs", "--only-production"], { env: { ...process.env, SITE_ENV: "production" }, encoding: "utf8" });
-  assert(run.status === 1 && /Release blocked/.test(run.stderr), `the production guard let ${marks} placeholder(s) through: ${run.stdout}${run.stderr}`);
-  const self = spawnSync(process.execPath, ["scripts/check-placeholders.mjs", "--self-test"], { encoding: "utf8" });
-  assert(self.status === 0, self.stderr);
-  return `${marks} marked on /privacy/`;
+  const { mkdtempSync, mkdirSync, writeFileSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const path = await import("node:path");
+  const guard = path.resolve("scripts/check-placeholders.mjs");
+  const run = (cwd) => spawnSync(process.execPath, [guard, "--only-production"], { cwd, env: { ...process.env, SITE_ENV: "production" }, encoding: "utf8" });
+  // A throwaway project with one <Pending> item must be refused...
+  const tmp = mkdtempSync(path.join(tmpdir(), "pending-"));
+  for (const d of ["app", "components", "lib"]) mkdirSync(path.join(tmp, d));
+  writeFileSync(path.join(tmp, "app", "page.tsx"), 'export default () => <Pending kind="test">x</Pending>;\n');
+  const refused = run(tmp);
+  assert(refused.status === 1 && /Release blocked/.test(refused.stderr), `a <Pending> item was let through: ${refused.stdout}${refused.stderr}`);
+  // ...and the real site is refused exactly when it still has marked items on its pages.
+  let marks = 0;
+  for (const p of PAGES) {
+    await page.goto(DEMO + p);
+    marks += await page.locator("mark.pending[data-pending]").count();
+  }
+  const real = run(process.cwd());
+  assert(marks > 0 ? real.status === 1 : real.status === 0, `guard exit ${real.status} with ${marks} marked item(s) on the pages`);
+  return marks ? `${marks} marked; production build blocked` : "no unconfirmed items left; production build allowed";
 });
 
 await check("Phase 2: practice pages have working 'On this page' links, a 'Your attorney' card and the 'Reviewed by' line", async () => {

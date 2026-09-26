@@ -69,6 +69,9 @@ listed with its source in docs/DECISIONS.md under "Conflicts to resolve". In sho
   cookie banner with GA4, Google Ads and the Meta Pixel. It is built and switched off (no
   IDs set). Darren's written OK is not recorded, and today the tags could load on /contact/
   (the form page) after consent, which the Never list forbids for the intake page.
+- C7: the link-preview image says "Murfreesboro, Rutherford County & Smyrna", not the plan's
+  "Murfreesboro & Middle Tennessee", because Darren confirmed Rutherford County cases only
+  (24 Sep 2026). Recorded in Phase 1.
 - Work happens on the session branch claude/sleepy-clarke-wjlh48 with one draft PR, not
   one branch per phase; this session may only push to that branch.
 

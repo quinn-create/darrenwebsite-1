@@ -35,7 +35,7 @@ export default function Home() {
   return (
     <>
       {/* Hero: 7/5 split. On phones the headline and CTA come before the portrait. */}
-      <section aria-labelledby="hero-title" className="overflow-hidden pb-14 pt-10 lg:pb-10 lg:pt-12">
+      <section aria-labelledby="hero-title" className="overflow-hidden pb-14 pt-10 lg:pb-6 lg:pt-10">
         <Container className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-7">
             <div className="hero-rise">
@@ -56,7 +56,7 @@ export default function Home() {
               </Link>
               <PhoneLink className="text-[17px]" />
             </div>
-            <ul className="mt-10 flex flex-col gap-3 border-t border-border/40 pt-6 text-[16px] text-muted sm:flex-row sm:flex-wrap sm:gap-x-8">
+            <ul className="mt-8 flex flex-col gap-3 border-t border-border/40 pt-5 text-[16px] text-muted sm:flex-row sm:flex-wrap sm:gap-x-8">
               {CREDENTIALS.map(({ icon: Icon, text }) => (
                 <li key={text} className="flex items-center gap-2.5 leading-snug">
                   <Icon aria-hidden="true" size={18} strokeWidth={1.75} className="shrink-0 text-action" />

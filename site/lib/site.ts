@@ -24,9 +24,11 @@ export const FIRM = {
   serviceArea: "Murfreesboro, Rutherford County & Smyrna",
 } as const;
 
-// Link-preview (Open Graph / X) wording. plans/link-previews-plan.md, section 4.
+// Link-preview (Open Graph / X) wording. plans/link-previews-plan.md, section 4; Phase 1 layout.
+// The plan's alt text says "Murfreesboro and Middle Tennessee"; Darren confirmed Rutherford County
+// cases only (24 Sep 2026), so the confirmed service area is used (docs/DECISIONS.md, C7).
 export const SHARE_TITLE = "Darren Drake · Attorney at Law · Murfreesboro, TN";
-export const SHARE_ALT = `Darren Drake, Attorney at Law, Murfreesboro, Tennessee. Call ${PHONE_DISPLAY}.`;
+export const SHARE_ALT = "Darren Drake, attorney at law, Murfreesboro and Rutherford County, Tennessee";
 export const SHARE_SITE_NAME = "Darren Drake Law PLLC";
 export const SITE_DESCRIPTION =
   `Criminal defense attorney in Murfreesboro, TN, serving Rutherford County and Smyrna. First-time offenses, DUI/DWI and domestic assault. Call ${PHONE_DISPLAY}.`;

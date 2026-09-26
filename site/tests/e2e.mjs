@@ -265,6 +265,71 @@ await check("Reduced motion: no hero animation", async () => {
   assert(anim === "none" && glow === "none", `animations still running: ${anim}, ${glow}`);
 });
 
+// Phase 1 acceptance (docs/PROMPT-PLAN.md, plan Phase 1).
+await check("Phase 1: at 1440x900 the whole hero and \"How Darren can help\" are on the first screen", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
+  const p = await ctx.newPage();
+  await p.goto(DEMO + "/");
+  const hero = p.locator('section[aria-labelledby="hero-title"]');
+  const parts = {
+    header: p.locator("header").first(),
+    eyebrow: hero.locator(".chip"),
+    headline: p.locator("#hero-title"),
+    "supporting line": hero.locator("p.measure"),
+    button: p.locator("[data-hero-cta]"),
+    "phone link": hero.locator('a[href^="tel:"]'),
+    photo: hero.locator("img"),
+    glow: hero.locator(".portrait-glow"),
+    "How Darren can help": p.locator("#practice-title"),
+  };
+  const off = [];
+  for (const [name, loc] of Object.entries(parts)) {
+    const b = await loc.first().boundingBox();
+    if (!b || b.y < 0 || b.y + b.height > 900 || b.width === 0) off.push(name);
+  }
+  const lines = await p.locator("#hero-title").evaluate((el) => Math.round(el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight)));
+  await ctx.close();
+  assert(off.length === 0, `not fully on the first screen: ${off.join(", ")}`);
+  assert(lines === 3, `headline is ${lines} lines, expected 3`);
+});
+
+await check("Phase 1: the glow uses no blur filter and no text sits on it (Home and About; 320, 390, 768, 1440)", async () => {
+  const bad = [];
+  for (const [path, width] of ["/", "/about/"].flatMap((x) => [320, 390, 768, 1440].map((w) => [x, w]))) {
+    const ctx = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: "reduce" });
+    const p = await ctx.newPage();
+    await p.goto(DEMO + path);
+    const r = await p.evaluate(() => {
+      const glow = document.querySelector(".portrait-glow");
+      const g = glow.getBoundingClientRect();
+      const hits = [];
+      for (const el of document.querySelectorAll("h1, h2, p, li, a, span, dt, dd")) {
+        if (glow.parentElement.contains(el)) continue;
+        for (const t of el.getClientRects()) {
+          if (!el.textContent.trim() || !t.width) continue;
+          if (t.left < g.right && t.right > g.left && t.top < g.bottom && t.bottom > g.top) hits.push(el.textContent.trim().slice(0, 30));
+        }
+      }
+      return { filter: getComputedStyle(glow).filter, hits: [...new Set(hits)] };
+    });
+    await ctx.close();
+    if (r.filter !== "none") bad.push(`${path} ${width}: filter ${r.filter}`);
+    if (r.hits.length) bad.push(`${path} ${width}: text on the glow: ${r.hits.join(" | ")}`);
+  }
+  assert(bad.length === 0, bad.join("; "));
+});
+
+await check("Phase 1: on a phone the headline and button come before the photo", async () => {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const p = await ctx.newPage();
+  await p.goto(DEMO + "/");
+  const h1 = await p.locator("#hero-title").boundingBox();
+  const cta = await p.locator("[data-hero-cta]").boundingBox();
+  const photo = await p.locator('section[aria-labelledby="hero-title"] img').boundingBox();
+  await ctx.close();
+  assert(h1.y + h1.height <= photo.y && cta.y + cta.height <= photo.y, "the photo comes before the headline or button");
+});
+
 await check("Motion allowed: hero entrance runs once (420 ms)", async () => {
   await page.goto(DEMO + "/");
   const info = await page.locator(".hero-rise").first().evaluate((el) => {
@@ -597,17 +662,18 @@ const metaOf = async (path) => {
 const localUrl = (abs) => DEMO + new URL(abs).pathname + new URL(abs).search;
 const CARD_PAGES = ["/", ...PRACTICE_SLUGS.map((s) => `/practice-areas/${s}/`)];
 
-await check("Share card 1: all six cards are 1200 × 630 PNGs under 500 KB", async () => {
+await check("Share card 1: all six cards are 1200 × 630 JPEGs under 300 KB", async () => {
+  const sharp = (await import("sharp")).default;
   const sizes = [];
   for (const path of CARD_PAGES) {
     const img = (await metaOf(path))["og:image"];
     assert(img, `${path}: no og:image`);
     const res = await fetch(localUrl(img));
-    assert(res.status === 200 && res.headers.get("content-type") === "image/png", `${path}: ${res.status} ${res.headers.get("content-type")}`);
+    assert(res.status === 200 && res.headers.get("content-type") === "image/jpeg", `${path}: ${res.status} ${res.headers.get("content-type")}`);
     const buf = Buffer.from(await res.arrayBuffer());
-    const w = buf.readUInt32BE(16), h = buf.readUInt32BE(20);
-    assert(w === 1200 && h === 630, `${path}: ${w}×${h}`);
-    assert(buf.length < 500 * 1024, `${path}: ${Math.round(buf.length / 1024)} KB`);
+    const { width: w, height: h, format } = await sharp(buf).metadata();
+    assert(format === "jpeg" && w === 1200 && h === 630, `${path}: ${format} ${w}×${h}`);
+    assert(buf.length < 300 * 1024, `${path}: ${Math.round(buf.length / 1024)} KB`);
     sizes.push(Math.round(buf.length / 1024));
   }
   return `${sizes.join(", ")} KB`;
@@ -646,10 +712,33 @@ await check("Share card 5: every other page falls back to the home card", async 
   }
 });
 
-await check("Share card 6: the card's alt text carries the phone number from lib/site.ts", async () => {
-  const phone = readFileSync("lib/site-basics.ts", "utf8").match(/PHONE_DISPLAY = "([^"]+)"/)[1];
+await check("Share card 6: the card's alt text is the plan's, with the confirmed service area", async () => {
   const alt = (await metaOf("/"))["og:image:alt"];
-  assert(alt.includes(phone), `alt text: ${alt}`);
+  assert(alt === "Darren Drake, attorney at law, Murfreesboro and Rutherford County, Tennessee", `alt text: ${alt}`);
+});
+
+await check("Icons: vector DD mark, favicon sizes, opaque apple icon and a web manifest", async () => {
+  const sharp = (await import("sharp")).default;
+  const svg = await (await fetch(DEMO + "/icon.svg")).text();
+  assert(svg.includes("<path") && !svg.includes("<text"), "icon.svg must draw the DD as shapes, not text");
+  const ico = Buffer.from(await (await fetch(DEMO + "/favicon.ico")).arrayBuffer());
+  const count = ico.readUInt16LE(4);
+  const sizes = [...Array(count)].map((_, i) => ico.readUInt8(6 + i * 16)).sort((a, b) => a - b);
+  assert(sizes.join() === "16,32,48", `favicon sizes: ${sizes}`);
+  const html = await (await fetch(DEMO + "/")).text();
+  const apple = html.match(/rel="apple-touch-icon" href="([^"]+)"/)?.[1];
+  assert(apple, "no apple-touch-icon link");
+  const a = await sharp(Buffer.from(await (await fetch(DEMO + apple)).arrayBuffer())).metadata();
+  assert(a.width === 180 && a.height === 180 && !a.hasAlpha, `apple icon ${a.width}×${a.height} alpha ${a.hasAlpha}`);
+  const manifest = await (await fetch(DEMO + "/manifest.webmanifest")).json();
+  for (const icon of manifest.icons) {
+    const res = await fetch(DEMO + icon.src);
+    assert(res.status === 200, `${icon.src}: ${res.status}`);
+    const m = await sharp(Buffer.from(await res.arrayBuffer())).metadata();
+    assert(`${m.width}x${m.height}` === icon.sizes, `${icon.src} is ${m.width}x${m.height}`);
+  }
+  assert(manifest.icons.some((i) => i.purpose === "maskable"), "no maskable icon");
+  assert(manifest.theme_color === "#090F1C", `theme_color ${manifest.theme_color}`);
 });
 
 // ---- Gentle scroll reveals (plans/scroll-reveals-plan.md, section 6.1) ----
@@ -1199,7 +1288,7 @@ await check("Theme 11: dark palette unchanged (every token equals the Signal val
     "--color-decoration": "#8b5cf6", "--color-error": "#ff9a9a", "--color-success": "#86efac",
     "--card-border": "rgb(113 129 153 / 0.45)", "--card-sheen": "rgb(255 255 255 / 0.025)", "--card-hover-border": "rgb(103 232 249 / 0.55)",
     "--card-shadow": "none", "--tint-action": "rgb(103 232 249 / 0.08)", "--line-soft": "rgb(113 129 153 / 0.5)",
-    "--line-strong": "rgb(113 129 153 / 0.8)", "--glow-violet": "rgb(139 92 246 / 0.62)", "--glow-cyan": "rgb(103 232 249 / 0.5)",
+    "--line-strong": "rgb(113 129 153 / 0.8)", "--glow-violet": "rgb(139 92 246 / 0.42)", "--glow-cyan": "rgb(103 232 249 / 0.38)",
     "--hover-filter": "brightness(1.08)",
   };
   // Resolve both sides through the browser, so rgb(… / a) and #rrggbbaa compare equal.

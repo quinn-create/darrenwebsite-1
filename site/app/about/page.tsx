@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function About() {
   return (
     <>
-      <section className="pb-14 pt-10 lg:pb-24 lg:pt-16">
+      <section className="overflow-hidden pb-14 pt-10 lg:pb-24 lg:pt-16">
         <Container className="grid gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-7" data-reveal="">
             <Breadcrumbs items={[{ href: "/", label: "Home" }, { href: "/about/", label: "About Darren" }]} />
@@ -47,7 +47,8 @@ export default function About() {
             </div>
           </div>
           <div className="lg:col-span-5">
-            <Portrait sizes="(min-width: 1024px) 440px, 90vw" className="mx-auto w-full max-w-[440px]" />
+            {/* Plan Section 5: up to 320 px tall on phones, about 420 px wide on desktop; still glow. */}
+            <Portrait glow="still" sizes="(min-width: 1024px) 420px, 256px" className="mx-auto w-[256px] lg:w-full lg:max-w-[420px]" />
           </div>
         </Container>
       </section>

@@ -2,12 +2,24 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { ImageResponse } from "next/og";
-import { FIRM, PHONE_DISPLAY } from "./site";
+import sharp from "sharp";
+import { PORTRAIT_4X5_NAME } from "./portrait";
+import { FIRM, PRACTICES } from "./site";
 
-// Link-preview card (Open Graph / X), 1200 × 630, drawn from the site's own data so the
-// name and phone number stay current. Design: plans/link-previews-plan.md, section 4.
-// Text uses only approved facts; the portrait is the approved crop, unaltered (decision D2).
+// Link-preview card (Open Graph / X), 1200 × 630 JPEG under 300 KB, typed by code from the site's
+// own data (plan Phase 1 and Appendix C, A3). The 4:5 portrait sits in the centre square, so apps
+// that crop previews to a square still show Darren's face. "DARREN / DRAKE" and "Attorney at Law"
+// are on the left; the practice areas and the service area on the right. Nothing sits on the glow.
 export const SHARE_CARD_SIZE = { width: 1200, height: 630 };
+export const SHARE_CARD_TYPE = "image/jpeg";
+
+const W = SHARE_CARD_SIZE.width;
+const H = SHARE_CARD_SIZE.height;
+const PHOTO_H = H;
+const PHOTO_W = Math.round((PHOTO_H * 4) / 5); // 504
+const PHOTO_X = (W - PHOTO_W) / 2; // 348
+const SIDE = PHOTO_X - 40; // width of each text column, 40 px clear of the photo
+const NAVY = "#090F1C";
 
 const root = process.cwd();
 const fontFile = (weight: number) =>
@@ -20,7 +32,7 @@ function loadAssets() {
       fontFile(600),
       fontFile(700),
       fontFile(800),
-      readFile(path.join(root, "public/images/darren-drake-signal-4x5.jpg")),
+      readFile(path.join(process.cwd(), "assets", "portrait", PORTRAIT_4X5_NAME)),
     ]);
     return {
       fonts: [
@@ -34,115 +46,100 @@ function loadAssets() {
   return assets;
 }
 
-// The card renderer's PNG encoder is quick but loose (~550 KB with the photo). Re-save the
-// same pixels (full colour, palette off) with maximum PNG compression using sharp, which Next.js already ships.
-// If sharp is ever unavailable, serve the original PNG unchanged.
-async function compact(image: ImageResponse): Promise<Response> {
-  const png = Buffer.from(await image.arrayBuffer());
-  let body: Buffer = png;
-  try {
-    const sharp = (await import("sharp")).default;
-    const smaller = await sharp(png).png({ compressionLevel: 9, adaptiveFiltering: true, palette: false }).toBuffer();
-    if (smaller.length < png.length) body = smaller;
-  } catch {
-    // keep the original
-  }
-  return new Response(new Uint8Array(body), {
-    headers: { "content-type": "image/png", "cache-control": "public, max-age=31536000, immutable" },
-  });
-}
-
-export async function renderShareCard({ label }: { label?: string }): Promise<Response> {
+// `current` highlights one practice area (the practice pages' own cards).
+export async function renderShareCard({ current }: { current?: string }): Promise<Response> {
   const { fonts, portrait } = await loadAssets();
-  const M = 36; // outer margin around the portrait
-  const photoH = SHARE_CARD_SIZE.height - M * 2;
-  const photoW = Math.round((photoH * 4) / 5);
 
   const image = new ImageResponse(
     (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          position: "relative",
-          backgroundColor: "#090F1C",
-          fontFamily: "Manrope",
-        }}
-      >
-        {/* Soft violet and cyan glow behind the portrait, as on the home page. */}
+      <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", backgroundColor: NAVY, fontFamily: "Manrope" }}>
+        {/* The photo's own light, continued just past its edges (violet left, cyan right). It stays
+            between the two text columns, so no text sits on it. */}
         <div
           style={{
             position: "absolute",
-            right: 0,
+            left: PHOTO_X - 34,
             top: 0,
-            width: 760,
-            height: 630,
+            width: PHOTO_W + 68,
+            height: H,
             display: "flex",
             backgroundImage:
-              "radial-gradient(circle at 55% 50%, rgba(139,92,246,0.45), rgba(9,15,28,0) 60%), radial-gradient(circle at 90% 45%, rgba(103,232,249,0.30), rgba(9,15,28,0) 55%)",
+              "radial-gradient(ellipse 12% 45% at 8% 50%, rgba(139,92,246,0.42), rgba(9,15,28,0) 100%), radial-gradient(ellipse 12% 45% at 92% 50%, rgba(103,232,249,0.38), rgba(9,15,28,0) 100%)",
           }}
         />
-        {/* Text: left 60%, at least 60 px from the edges. */}
+        {/* Left: name block. */}
         <div
           style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: SIDE,
+            height: H,
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
-            width: 660,
-            padding: "60px 0 60px 64px",
+            paddingLeft: 48,
           }}
         >
-          {label ? (
-            <div style={{ display: "flex", color: "#67E8F9", fontSize: 34, fontWeight: 800, marginBottom: 18 }}>
-              {label}
-            </div>
-          ) : null}
-          <div
-            style={{
-              display: "flex",
-              color: "#F4F7FC",
-              fontSize: label ? 72 : 88,
-              fontWeight: 800,
-              letterSpacing: "-0.03em",
-              lineHeight: 1.02,
-            }}
-          >
-            {FIRM.name}
+          <div style={{ display: "flex", flexDirection: "column", color: "#F4F7FC", fontSize: 58, fontWeight: 800, lineHeight: 0.98, letterSpacing: "-0.01em" }}>
+            <div style={{ display: "flex" }}>DARREN</div>
+            <div style={{ display: "flex" }}>DRAKE</div>
           </div>
-          <div style={{ display: "flex", color: "#CAD4E2", fontSize: 34, fontWeight: 600, marginTop: 18 }}>
-            {FIRM.descriptor} · Murfreesboro, TN
-          </div>
-          <div style={{ display: "flex", alignItems: "center", marginTop: 44, color: "#F4F7FC" }}>
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#67E8F9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-            </svg>
-            <div style={{ display: "flex", marginLeft: 16, fontSize: 40, fontWeight: 700, letterSpacing: "0.01em" }}>
-              {PHONE_DISPLAY}
-            </div>
-          </div>
+          <div style={{ display: "flex", color: "#CAD4E2", fontSize: 28, fontWeight: 600, marginTop: 14 }}>{FIRM.descriptor}</div>
+          <div style={{ display: "flex", width: 56, height: 4, backgroundColor: "#67E8F9", marginTop: 26, borderRadius: 2 }} />
         </div>
-        {/* Approved portrait, 4:5, rounded, thin border. The card renderer needs a plain <img>. */}
+        {/* Centre: the approved 4:5 portrait, full height. The card renderer needs a plain <img>. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={portrait}
           alt=""
-          width={photoW}
-          height={photoH}
+          width={PHOTO_W}
+          height={PHOTO_H}
+          style={{ position: "absolute", left: PHOTO_X, top: 0, width: PHOTO_W, height: PHOTO_H, objectFit: "cover" }}
+        />
+        {/* Right: practice areas and the confirmed service area. */}
+        <div
           style={{
             position: "absolute",
-            right: M,
-            top: M,
-            width: photoW,
-            height: photoH,
-            objectFit: "cover",
-            borderRadius: 24,
-            border: "2px solid #718199",
+            left: W - SIDE,
+            top: 0,
+            width: SIDE,
+            height: H,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            paddingRight: 40,
           }}
-        />
+        >
+          <div style={{ display: "flex", color: "#67E8F9", fontSize: 17, fontWeight: 800, letterSpacing: "0.14em", marginBottom: 14 }}>
+            PRACTICE AREAS
+          </div>
+          {PRACTICES.map((p) => (
+            <div
+              key={p.slug}
+              style={{
+                display: "flex",
+                fontSize: 25,
+                fontWeight: p.title === current ? 800 : 600,
+                color: p.title === current ? "#67E8F9" : "#F4F7FC",
+                lineHeight: 1.45,
+              }}
+            >
+              {p.title}
+            </div>
+          ))}
+          <div style={{ display: "flex", color: "#CAD4E2", fontSize: 21, fontWeight: 600, marginTop: 22, lineHeight: 1.3 }}>
+            {FIRM.serviceArea}
+          </div>
+        </div>
       </div>
     ),
     { ...SHARE_CARD_SIZE, fonts },
   );
-  return compact(image);
+
+  const png = Buffer.from(await image.arrayBuffer());
+  const jpeg = await sharp(png).flatten({ background: NAVY }).jpeg({ quality: 82, mozjpeg: true, progressive: true }).toBuffer();
+  return new Response(new Uint8Array(jpeg), {
+    headers: { "content-type": SHARE_CARD_TYPE, "cache-control": "public, max-age=31536000, immutable" },
+  });
 }

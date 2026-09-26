@@ -30,3 +30,8 @@ export const THEME_DEFAULT: "dark" | "system" = "dark";
 
 export const INTAKE_SUCCESS =
   "Your inquiry was received. Submitting it does not establish representation.";
+
+// Which portrait the site shows (plan Section 5 and Appendix C). "signal" is the edited portrait
+// Darren approved on 24 Sep 2026 (D2). "original" switches every page, the link previews and the
+// search data back to his untouched 2024 photo. Crops: scripts/make-portrait-crops.mjs.
+export const PORTRAIT_VARIANT: "signal" | "original" = "signal";

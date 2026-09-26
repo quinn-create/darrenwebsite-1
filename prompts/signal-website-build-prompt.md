@@ -10,6 +10,7 @@ Build a complete, working **demonstration website** for Darren Drake, a criminal
 
 - This repository contains no existing site. Create a new project in `site/`.
 - Run the preview **locally only**. Do not deploy or publish anything. Do not touch ddrakelaw.com, its domain or its WordPress install, and do not post anything to Higgsfield or its community feed.
+  - **Recorded exception (D17, 24 Sep 2026):** Darren allowed private online previews behind a login, on the firm's own Vercel account that he sets up and pays for. None exists yet, so nothing is deployed. Publishing to the live domain still needs his written sign-off. Record: `docs/DECISIONS.md`.
 - Build a representative slice first: homepage, mobile navigation, one practice page, FAQ and the full intake page. Screenshot the slice at 390 px and 1440 px and check it against the concept. Then build the remaining pages.
 - Build real HTML text, buttons, links, navigation and form controls. **Never** use a concept image as a page or section background, and never use a picture of a form as the form.
 
@@ -20,6 +21,7 @@ Build a complete, working **demonstration website** for Darren Drake, a criminal
 | `brand-concepts/01-signal.png` | **The approved concept** (Higgsfield job `f3f33b0f-cd9c-49c3-98f5-bafb3626dacc`) | Controls the visual composition of the header, hero and practice cards |
 | `brand-concepts/with-photo/01-signal-with-photo.png` | The same concept with Darren's real portrait placed in the frame | Guide for the photo crop and the glow |
 | `assets/photos/darren-drake-portrait.jpg` | Darren's genuine, approved portrait (1000×1400) | The only attorney photo on the site. Never generate, retouch or substitute his likeness |
+| `assets/photos/darren-drake-portrait-signal.webp` | **Approved exception (D2, 24 Sep 2026):** an edited version of the same portrait (background replaced, colours adjusted; face unchanged), approved by Darren for the website, link previews and Google Business Profile. The site now uses crops of it, cut from the unedited middle strip only; the original above stays as the untouched master and fallback (`PORTRAIT_VARIANT`). | Records and crop boxes: `assets/photos/PROVENANCE.md`. Still no generated, retouched or substituted likeness beyond this approved file; a signed photo note is still to be filed |
 | `Darren_Drake_AI_Brand_Guidelines.md` | Full brand and intake specification | Read the shared foundation, the intake specification and section "01 Signal" before you start |
 
 The concept is a reference, not a pixel spec. Its lettering was drawn by an image model. Where the concept and the written rules disagree, the written rules win, and so does the accessibility guidance in section 9.
@@ -353,4 +355,4 @@ Return:
   - a licensed local architectural image (optional);
   - final approval of all proposed headlines and helper copy.
 
-**Do not deploy or publish.** Stop after the local preview and the handoff.
+**Do not deploy or publish.** Stop after the local preview and the handoff. (Recorded since: Darren's OK for private previews behind a login on the firm's own Vercel account, D17, and his approval of the edited portrait, D2, both 24 Sep 2026; see `docs/DECISIONS.md` and `assets/photos/PROVENANCE.md`. The live domain still needs his written sign-off.)

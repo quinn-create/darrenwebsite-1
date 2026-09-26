@@ -2,12 +2,13 @@
 // the visible pages. Confirmed facts only: no ratings, reviews, prices, social links, map
 // coordinates, founding date or awards. plans/seo-fixes-plan.md, section 4.2.
 import { SITE_URL } from "./env";
+import { PORTRAIT_4X5 } from "./portrait";
 import { FIRM, PHONE_HREF, PRACTICES } from "./site";
 
 const FIRM_ID = `${SITE_URL}/#firm`;
 const DARREN_ID = `${SITE_URL}/#darren`;
 const WEBSITE_ID = `${SITE_URL}/#website`;
-const PORTRAIT = `${SITE_URL}/images/darren-drake-signal-4x5.jpg`;
+const PORTRAIT = `${SITE_URL}${PORTRAIT_4X5.src}`;
 
 // tel:+16155465551 → +1-615-546-5551
 function schemaPhone(href: string) {

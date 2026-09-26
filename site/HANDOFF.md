@@ -120,7 +120,7 @@ Changes from the demo component, per the brand guidelines:
 This round follows `plans/signal-website-plan.md` ("What Claude does first").
 
 **Photo**
-- The Home and About pages use the new Signal portrait (pending Darren's written approval). The crops come from `site/scripts/make-photo-crops.py`, which only cuts from the genuine middle strip of the photo.
+- The Home and About pages use the new Signal portrait (approved by Darren for all uses on 24 Sep 2026, D2). The crops come from `site/scripts/make-portrait-crops.mjs` (it replaced `make-photo-crops.py` in Phase 1), which only cuts from the genuine middle strip of the photo.
 - The glow is softened so it continues the photo's own light.
 - The downloadable full-size original was removed from `public/`. The master stays in `assets/photos/`.
 
@@ -446,3 +446,13 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
 - **New scripts:** `check-claims.mjs` (with `claims-allowlist.json`), `check-buttons.mjs`, `check-links.mjs`, `site-pages.mjs` and `archive-site.mjs`. The placeholder guard gained `--self-test` and `--report`.
 - **Tests:** `npm test` now works (it builds, starts the servers and runs the e2e suite). `tests/browser.mjs` finds Chromium without a hard-coded path. `axe-core` is declared.
 - **Fix:** sent-form events are queued (`lib/analytics.ts`), so a lead sent before the consent code loads still counts once.
+
+## Update, 25 September 2026: Phase 1 of docs/PROMPT-PLAN.md (design lock and assets)
+Full report: `docs/phase-1-report.md`.
+- **Photo crops:** `scripts/make-portrait-crops.mjs` (sharp) cuts A2-a (4:5, 900×1125) and A2-b (1:1, 800×800) from the genuine strip, plus matching crops of the untouched original. They live in `site/assets/portrait/` (imported, never served full size); `public/images/` is gone. `lib/portrait.ts` picks the set from `PORTRAIT_VARIANT` in `lib/site-basics.ts` ("signal" or "original"). Records: `assets/photos/PROVENANCE.md`.
+- **Hero:** the glow is layered radial gradients at 42% / 38% opacity with no blur filter, kept inside the photo column. Slightly tighter spacing. About now has the same glow, still (no fade-in), with the photo 256 px wide on phones (320 px tall).
+- **Icons:** `scripts/make-icons.mjs` draws the DD mark as shapes and writes `app/icon.svg`, `app/favicon.ico` (16/32/48), `app/apple-icon.png` (180, opaque) and `public/icons/` (192, 512, maskable). `app/manifest.ts` serves `/manifest.webmanifest`.
+- **Link previews:** `lib/share-card.tsx` redesigned to the plan's layout; now a JPEG (about 53 KB, was a PNG of about 400 KB). Practice pages highlight their own practice area. It says "Murfreesboro, Rutherford County & Smyrna", not the plan's "Middle Tennessee" (conflict C7).
+- **Design PDF:** `scripts/make-design-lock-pdf.mjs` writes `printouts/Phase-1-Design-Lock.pdf` and `printouts/phase-1/*.jpg` (needs the site on :3000).
+- **Tests:** 4 new e2e checks (first desktop screen, glow, phone order, icons); the share-card checks now expect JPEGs under 300 KB. e2e 91/91.
+- **`sharp`** is now a declared dependency (it was only there through Next.js).

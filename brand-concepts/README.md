@@ -28,3 +28,9 @@ Known correction: `05-precision-b.png` misspells "Tennessee" as "Tennesse" in th
 ## Shortlist (September 24, 2026)
 
 The client shortlisted **Signal A** (`01-signal.png`) and **Precision B** (`05-precision-b.png`). Build prompts: `prompts/signal-website-build-prompt.md` (Signal A) and `prompts/precision-website-build-prompt.md` (Precision B).
+
+## Photo and previews (recorded 25 September 2026)
+
+- **Approved photo exception:** Darren approved the edited portrait (`assets/photos/darren-drake-portrait-signal.webp`) for the website, link previews and Google Business Profile on 24 Sep 2026 (D2). The site uses crops from its unedited middle strip only. Records: `assets/photos/PROVENANCE.md`. The concepts here are still design references only and are never published.
+- **Previews:** Darren allowed private online previews behind a login on the firm's own Vercel account (D17, 24 Sep 2026). None exists yet, so nothing is online.
+- **Phase 1 comparison:** `printouts/Phase-1-Design-Lock.pdf` shows the built pages beside `01-signal.png`.

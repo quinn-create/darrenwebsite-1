@@ -11,7 +11,7 @@ import { chromiumPath } from "./browser.mjs";
 
 const require = createRequire(import.meta.url);
 const axeSource = readFileSync(require.resolve("axe-core/axe.min.js"), "utf8");
-const DEMO = "http://localhost:3000";
+const DEMO = process.env.E2E_DEMO ?? "http://localhost:3000"; // E2E_DEMO=http://127.0.0.1:8787 tests the Cloudflare build
 const LIVE = "http://localhost:3001";
 const executablePath = chromiumPath();
 const PRACTICE_SLUGS = ["first-time-offenders", "dui-dwi", "domestic-assault", "criminal-defense", "expungement"];
@@ -766,20 +766,24 @@ const metaOf = async (path) => {
 const localUrl = (abs) => DEMO + new URL(abs).pathname + new URL(abs).search;
 const CARD_PAGES = ["/", ...PRACTICE_SLUGS.map((s) => `/practice-areas/${s}/`)];
 
-await check("Share card 1: all six cards are 1200 × 630 JPEGs under 300 KB", async () => {
+await check("Share card 1: all six cards are 1200 × 630 JPEGs under 300 KB, one per practice area", async () => {
   const sharp = (await import("sharp")).default;
   const sizes = [];
   for (const path of CARD_PAGES) {
     const img = (await metaOf(path))["og:image"];
     assert(img, `${path}: no og:image`);
     const res = await fetch(localUrl(img));
-    assert(res.status === 200 && res.headers.get("content-type") === "image/jpeg", `${path}: ${res.status} ${res.headers.get("content-type")}`);
+    assert(res.status === 200 && /image\/jpeg/.test(res.headers.get("content-type")), `${path}: ${res.status} ${res.headers.get("content-type")}`);
     const buf = Buffer.from(await res.arrayBuffer());
     const { width: w, height: h, format } = await sharp(buf).metadata();
     assert(format === "jpeg" && w === 1200 && h === 630, `${path}: ${format} ${w}×${h}`);
     assert(buf.length < 300 * 1024, `${path}: ${Math.round(buf.length / 1024)} KB`);
     sizes.push(Math.round(buf.length / 1024));
   }
+  // A card exists for every practice area in lib/site.ts (re-run scripts/make-share-cards.mjs if not).
+  const cards = JSON.parse(readFileSync("lib/share-cards.json", "utf8")).cards;
+  const missing = PRACTICE_SLUGS.filter((s) => !cards[s]);
+  assert(!missing.length && cards.home, `no share card for: ${missing.join(", ") || "home"}`);
   return `${sizes.join(", ")} KB`;
 });
 
@@ -805,7 +809,7 @@ await check("Share card 3: home page has the full set of Open Graph and X tags w
 await check("Share card 4: a practice page has its own title and card", async () => {
   const t = await metaOf("/practice-areas/dui-dwi/");
   assert(t["og:title"] === "DUI/DWI · Darren Drake", `og:title = ${t["og:title"]}`);
-  assert(t["og:image"].includes("/practice-areas/dui-dwi/"), `og:image = ${t["og:image"]}`);
+  assert(t["og:image"].includes("/images/share/darren-drake-dui-dwi-"), `og:image = ${t["og:image"]}`);
 });
 
 await check("Share card 5: every other page falls back to the home card", async () => {

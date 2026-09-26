@@ -1,12 +1,15 @@
-import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { ImageResponse } from "next/og";
 import sharp from "sharp";
-import { PORTRAIT_4X5_NAME } from "./portrait";
-import { FIRM, PRACTICES } from "./site";
+import { PORTRAIT_4X5_NAME } from "@/lib/portrait";
+import { FIRM, PRACTICES } from "@/lib/site";
 
 // Link-preview card (Open Graph / X), 1200 × 630 JPEG under 300 KB, typed by code from the site's
+// own data. Rendered ahead of time by scripts/make-share-cards.mjs into public/images/share/ (so
+// the card renderer isn't part of the Cloudflare worker, which must stay under 3 MB on the free
+// plan).
+// Original description:
 // own data (plan Phase 1 and Appendix C, A3). The 4:5 portrait sits in the centre square, so apps
 // that crop previews to a square still show Darren's face. "DARREN / DRAKE" and "Attorney at Law"
 // are on the left; the practice areas and the service area on the right. Nothing sits on the glow.

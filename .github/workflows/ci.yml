@@ -96,6 +96,22 @@ jobs:
       - name: Cookie consent (separate build with dummy tracker IDs)
         run: node tests/consent.mjs
 
+      # Hosting decision C8: Cloudflare Workers, free plan. Build that version, check it stays
+      # under the free plan's 3 MB limit, start it in Cloudflare's local runtime, and run the
+      # same end-to-end tests against it. (This rebuilds .next, so the form server restarts.)
+      - name: Cloudflare build fits the free plan and starts
+        env:
+          WRANGLER_SEND_METRICS: "false"
+        run: node scripts/check-cloudflare.mjs --serve
+
+      - name: End-to-end tests on the Cloudflare runtime
+        run: |
+          pgrep -f '^next-server' | xargs -r kill
+          rm -rf .data
+          INTAKE_DESTINATION=local-test nohup npx next start -p 3001 > /tmp/live2.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:3001/ && break; sleep 1; done
+          E2E_DEMO=http://127.0.0.1:8787 node tests/e2e.mjs
+
       - name: Keep the Lighthouse reports
         if: always()
         uses: actions/upload-artifact@v4

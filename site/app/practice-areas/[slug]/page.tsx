@@ -6,7 +6,7 @@ import { Container } from "@/components/Container";
 import { PracticeIcon } from "@/components/PracticeIcon";
 import { AttorneyCard, OnThisPage } from "@/components/PracticeAside";
 import { ContactSteps, Faq, IntakeBand, PageIntro } from "@/components/Sections";
-import { LEGAL_REVIEW, OPEN_GRAPH_BASE, PHONE_DISPLAY, PRACTICES } from "@/lib/site";
+import { LEGAL_REVIEW, OPEN_GRAPH_BASE, PHONE_DISPLAY, PRACTICES, shareImage } from "@/lib/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -30,8 +30,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${practice.title} · Darren Drake`,
       description: `${practice.summary} Contact Darren Drake or call ${PHONE_DISPLAY}.`,
       url: `/practice-areas/${practice.slug}/`,
+      images: [shareImage(practice.slug)],
     },
-    twitter: { card: "summary_large_image", title: `${practice.title} · Darren Drake` },
+    twitter: { card: "summary_large_image", title: `${practice.title} · Darren Drake`, images: [shareImage(practice.slug)] },
   };
 }
 

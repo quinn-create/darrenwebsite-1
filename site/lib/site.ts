@@ -4,6 +4,7 @@
 // Server-only in practice: browser (client) components import lib/site-basics.ts instead,
 // so this file's page wording is never sent twice (plans/speed-check-plan.md).
 import { PHONE_DISPLAY } from "./site-basics";
+import shareCards from "./share-cards.json";
 export * from "./site-basics";
 
 // Every firm fact lives here, so each is changed in one place once Darren confirms it.
@@ -60,6 +61,20 @@ export const SHARE_ALT = "Darren Drake, attorney at law, Murfreesboro and Ruther
 export const SHARE_SITE_NAME = "Darren Drake Law PLLC";
 export const SITE_DESCRIPTION =
   `Criminal defense attorney in Murfreesboro, TN, serving Rutherford County and Smyrna. First-time offenses, DUI/DWI and domestic assault. Call ${PHONE_DISPLAY}.`;
+// Link-preview images, made ahead of time by scripts/make-share-cards.mjs (public/images/share/).
+// `key` is "home" or a practice slug; practice cards highlight their own area.
+export function shareImage(key: "home" | PracticeSlug) {
+  // "home" is used while this file is still loading (OPEN_GRAPH_BASE), before PRACTICES exists.
+  const title = key === "home" ? undefined : PRACTICES.find((p) => p.slug === key)?.title;
+  return {
+    url: shareCards.cards[key],
+    width: shareCards.width,
+    height: shareCards.height,
+    type: "image/jpeg",
+    alt: title ? `${title}: ${SHARE_ALT}` : SHARE_ALT,
+  };
+}
+
 // Shared Open Graph fields. A page that sets its own openGraph replaces the layout's
 // entirely, so pages spread this in rather than repeating it.
 export const OPEN_GRAPH_BASE = {
@@ -68,7 +83,8 @@ export const OPEN_GRAPH_BASE = {
   siteName: SHARE_SITE_NAME,
   type: "website",
   locale: "en_US",
-} as const;
+  images: [shareImage("home")],
+};
 
 export type PracticeSlug =
   | "first-time-offenders"

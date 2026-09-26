@@ -475,3 +475,11 @@ Full report: `docs/phase-2-report.md`.
 - **C5:** tags never load on /contact/ or /intake/ (`NO_TAG_PAGES` in `lib/tracking.ts`); links to the form page from a page where tags ran force a full page load. Sent forms and phone taps on the form page aren't reported. Tested in `tests/consent.mjs` (8 and 9).
 - **C4:** draft review policy for Darren: `plans/for-darren/review-policy-draft.md`. Nothing built yet.
 - **Hosting:** Cloudflare, free plan (C8), instead of Vercel. Conversion not done yet.
+
+## Update, 26 September 2026: Cloudflare hosting (C8)
+- **Adapter:** `@opennextjs/cloudflare` with `wrangler.jsonc` and `open-next.config.ts` (prerendered pages served from Workers static assets; no R2/KV). Photo resizing uses the `IMAGES` binding.
+- **Size:** 2.86 MB compressed of the free plan's 3 MB. `npm run check:cloudflare` builds it and checks the size; `npm run cf:preview` also starts it on http://127.0.0.1:8787 in Cloudflare's runtime. CI runs both, then the e2e suite against it (`E2E_DEMO`).
+- **Link-preview images** are now made ahead of time (`npm run share-cards` → `public/images/share/`, `lib/share-cards.json`), because the image engine would push the worker over 3 MB. Re-run after changing the name, practice areas, service area or photo. The card design moved to `scripts/share-card.tsx`.
+- **Redirect fix:** `?page_id=2` now uses `^2$` (the Cloudflare adapter doesn't anchor `has` patterns, so "2" also caught `?page_id=12`).
+- **Proxy (410s):** Next's Node proxy runs under OpenNext's "experimental" support; every 410 and redirect test passes in the Cloudflare runtime.
+- **Setup guide:** `plans/for-darren/cloudflare-setup.md` (replaces the Vercel steps in `go-live-setup.md`).

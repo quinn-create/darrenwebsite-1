@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { IS_PRODUCTION, SITE_URL } from "@/lib/env";
 import { businessGraph, jsonLd } from "@/lib/structured-data";
-import { LIGHT_THEME, OPEN_GRAPH_BASE, PRACTICES, SHARE_TITLE, SITE_DESCRIPTION } from "@/lib/site";
+import { LIGHT_THEME, OPEN_GRAPH_BASE, PRACTICES, SHARE_TITLE, SITE_DESCRIPTION, shareImage } from "@/lib/site";
 import { THEME_COLOR, themeScript } from "@/lib/theme";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -39,10 +39,10 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   metadataBase: new URL(SITE_URL),
-  // Link previews. Images come from app/opengraph-image.tsx and twitter-image.tsx
-  // (practice pages have their own); plans/link-previews-plan.md.
+  // Link previews (plans/link-previews-plan.md). The images are made ahead of time by
+  // scripts/make-share-cards.mjs; practice pages set their own.
   openGraph: OPEN_GRAPH_BASE,
-  twitter: { card: "summary_large_image", title: SHARE_TITLE },
+  twitter: { card: "summary_large_image", title: SHARE_TITLE, images: [shareImage("home")] },
   // Only the live site (SITE_ENV=production) may be indexed; previews stay out of search engines.
   robots: IS_PRODUCTION ? { index: true, follow: true } : { index: false, follow: false },
 };

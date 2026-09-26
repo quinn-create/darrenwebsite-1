@@ -70,7 +70,9 @@ const nextConfig: NextConfig = {
             ],
       ),
       // WordPress query-string addresses on the home page
-      { source: "/", has: [{ type: "query", key: "page_id", value: "2" }], destination: "/contact/", permanent: true },
+      // "^2$" rather than "2": Next.js anchors the pattern itself, but Cloudflare's adapter doesn't,
+      // and "2" would also catch ?page_id=12.
+      { source: "/", has: [{ type: "query", key: "page_id", value: "^2$" }], destination: "/contact/", permanent: true },
     ];
   },
   async headers() {

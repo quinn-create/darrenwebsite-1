@@ -1,5 +1,7 @@
 # Getting a working private website (for Darren)
 
+> **Update, 26 September 2026:** hosting moved to **Cloudflare (free plan)** (decision C8). Follow `cloudflare-setup.md` instead of sections 1 and 2 below; the email and Telegram sections still apply, but the email service may change (options sent to Quinn).
+
 This takes about an hour. When it's done, Darren has a **private link** to the full working website, which only people he invites can open. Inquiries sent from it reach Kelly (email and Telegram) and Darren (email). Nothing changes on ddrakelaw.com, and the firm's email keeps working as it does now.
 
 Keys and tokens go **only** into Vercel's settings (step 2). Never send them by email, text or chat, including to Claude.

@@ -1,7 +1,7 @@
 // Advertising and statistics tags (plans/cookie-consent-plan.md). Each loads only after the
-// visitor agrees in the cookie banner, and only if its ID is set in Vercel. With no IDs set,
+// visitor agrees in the cookie banner, and only if its ID is set in the hosting settings. With no IDs set,
 // there is no banner, no footer cookie links and no tracking code at all.
-// Values are read at build time (NEXT_PUBLIC_*), so change them in Vercel, then redeploy.
+// Values are read at build time (NEXT_PUBLIC_*), so change them in the build settings, then redeploy.
 
 const pick = (value: string | undefined, pattern: RegExp) => {
   const v = value?.trim();

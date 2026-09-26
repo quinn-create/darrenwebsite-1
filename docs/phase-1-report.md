@@ -35,10 +35,12 @@ Run on 25–26 September 2026 from `docs/PROMPT-PLAN.md`, Phase 1. Nothing was d
 | Risky claims, cyan buttons, links | Pass (107 buttons; 12 pages) |
 | Lighthouse (slow phone, 5 pages × 3 runs) | All budgets met: LCP 1.43–1.63 s, CLS 0, JS 159 KB (Contact 174 KB), total 242–263 KB |
 
-## Waiting on Darren
-1. **Approve the look** of the five page types in `printouts/Phase-1-Design-Lock.pdf`, or send changes in one list.
-2. **Approve the headline and supporting line:** "Your next step starts with a conversation." and "Tell Darren Drake about your legal matter and how to reach you."
-3. **Approve the link-preview image**, including the service-area wording (C7).
-4. **D3:** the About-page photo shape. The recommended upright crop is in use.
-5. **Photo records:** sign the photo note, and name the photographer and whoever edited the photo. Ask the editor for the full-quality master.
-6. **Still open from Phase 0:** accounts and owners (D13), the privacy notice and retention (D8), conflicts C1–C5, and the footer component's license check (C1 in the asset register).
+## Approved (26 September 2026)
+Quinn relayed Darren's answer: "He is fine with it all." Recorded in `plans/for-darren/answers-2026-09-26.md` and `docs/DECISIONS.md`.
+- The look of the five page types, the headline and supporting line, and the link-preview image: **approved**.
+- The service-area wording on the link preview (C7): **approved as built**.
+- D3, the About-page photo shape: **(a), the upright crop**.
+
+## Still waiting on Darren
+1. **Photo records:** sign the photo note; name the photographer and whoever edited the photo; ask the editor for the full-quality master.
+2. **Still open from Phase 0:** accounts and owners (D13), the privacy notice and retention (D8), conflicts C1–C6, and the footer component's license check.

@@ -456,3 +456,4 @@ Full report: `docs/phase-1-report.md`.
 - **Design PDF:** `scripts/make-design-lock-pdf.mjs` writes `printouts/Phase-1-Design-Lock.pdf` and `printouts/phase-1/*.jpg` (needs the site on :3000).
 - **Tests:** 4 new e2e checks (first desktop screen, glow, phone order, icons); the share-card checks now expect JPEGs under 300 KB. e2e 91/91.
 - **`sharp`** is now a declared dependency (it was only there through Next.js).
+- **Approved, 26 Sep 2026:** Darren approved the Phase 1 look, headline, link-preview image (with the confirmed service area, C7) and D3 option (a). Record: `plans/for-darren/answers-2026-09-26.md`.

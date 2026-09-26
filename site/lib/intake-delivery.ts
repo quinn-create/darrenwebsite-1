@@ -25,7 +25,8 @@ export type DeliveryResult =
 
 // INTAKE_DESTINATION selects where inquiries go (see .env.example):
 //   unset        -> not configured; nothing is accepted and the UI says so
-//   "email"      -> Postmark email to INTAKE_EMAIL_TO with the inquiry PDF attached
+//   "email"      -> email to INTAKE_EMAIL_TO with the inquiry PDF attached, sent by Resend
+//                   (RESEND_API_KEY, the firm's choice) or Postmark (POSTMARK_SERVER_TOKEN)
 //   "local-test" -> appends to .data/intake-test.jsonl (testing only, never for live inquiries)
 //   https://...  -> POSTs JSON to a webhook; success only on a 2xx reply
 // The form reports success only when this primary delivery succeeds. After that, if
@@ -38,6 +39,13 @@ export function destination(): string | undefined {
 
 const env = (name: string) => process.env[name]?.trim() || undefined;
 
+// Resend is the firm's choice (26 Sep 2026); Postmark still works if its token is set instead.
+function emailProvider(): "resend" | "postmark" | undefined {
+  if (env("RESEND_API_KEY")) return "resend";
+  if (env("POSTMARK_SERVER_TOKEN")) return "postmark";
+  return undefined;
+}
+
 function emailRecipients(): string[] {
   return (env("INTAKE_EMAIL_TO") ?? "")
     .split(",")
@@ -49,7 +57,7 @@ export function isConfigured(): boolean {
   const dest = destination();
   if (!dest) return false;
   if (dest === "email") {
-    return Boolean(env("POSTMARK_SERVER_TOKEN") && env("INTAKE_EMAIL_FROM") && emailRecipients().length > 0);
+    return Boolean(emailProvider() && env("INTAKE_EMAIL_FROM") && emailRecipients().length > 0);
   }
   return true;
 }
@@ -95,7 +103,34 @@ function pdfName(inq: Inquiry): string {
   return `inquiry-${inq.receivedAt.slice(0, 10)}-${inq.id.slice(0, 8)}.pdf`;
 }
 
-async function sendEmail(inq: Inquiry, pdf: Uint8Array): Promise<boolean> {
+function sendEmail(inq: Inquiry, pdf: Uint8Array): Promise<boolean> {
+  return emailProvider() === "resend" ? sendResend(inq, pdf) : sendPostmark(inq, pdf);
+}
+
+async function sendResend(inq: Inquiry, pdf: Uint8Array): Promise<boolean> {
+  const base = env("RESEND_API_URL") ?? "https://api.resend.com";
+  const res = await fetch(`${base}/emails`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${env("RESEND_API_KEY")}` },
+    body: JSON.stringify({
+      from: env("INTAKE_EMAIL_FROM"),
+      to: emailRecipients(),
+      reply_to: inq.email || undefined,
+      subject: subject(inq),
+      text: textBody(inq),
+      attachments: [{ filename: pdfName(inq), content: Buffer.from(pdf).toString("base64"), content_type: "application/pdf" }],
+    }),
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!res.ok) {
+    console.error(`Resend rejected the inquiry email (HTTP ${res.status})`);
+    return false;
+  }
+  const data = (await res.json().catch(() => ({}))) as { id?: string };
+  return Boolean(data.id);
+}
+
+async function sendPostmark(inq: Inquiry, pdf: Uint8Array): Promise<boolean> {
   const base = env("POSTMARK_API_URL") ?? "https://api.postmarkapp.com";
   const res = await fetch(`${base}/email`, {
     method: "POST",

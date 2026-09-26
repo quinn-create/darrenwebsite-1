@@ -14,5 +14,7 @@
   "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "ddrakelaw" }],
   // Resizes the portrait to AVIF/WebP per screen (Cloudflare Images; free allowance applies).
   "images": { "binding": "IMAGES" },
-  "vars": { "SITE_ENV": "preview" }
+  // Settings (SITE_ENV, email addresses) are managed in the Cloudflare dashboard; keep them when
+  // the code is redeployed. Without SITE_ENV the site behaves as a hidden preview.
+  "keep_vars": true
 }

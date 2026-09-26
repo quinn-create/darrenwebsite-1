@@ -1,11 +1,11 @@
-// Delivery check with stand-ins for Postmark, Telegram and Cloudflare Turnstile (no real
+// Delivery check with stand-ins for Resend, Postmark, Telegram and Cloudflare Turnstile (no real
 // accounts, no network).
 // Starts its own server from the current build on :3002, pointed at a mock on :4010.
 // Usage (after `next build`): node tests/delivery.mjs
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";
 
-const received = { email: [], telegram: [] };
+const received = { email: [], postmark: [], telegram: [] };
 let failEmail = false;
 let failTelegram = false;
 let turnstileDown = false;
@@ -16,8 +16,9 @@ const mock = createServer((req, res) => {
   req.on("data", (c) => chunks.push(c));
   req.on("end", () => {
     const body = Buffer.concat(chunks);
-    if (req.url === "/email") {
-      if (req.headers["x-postmark-server-token"] !== "test-token") {
+    if (req.url === "/emails") {
+      // Resend
+      if (req.headers.authorization !== "Bearer re_test_key") {
         res.writeHead(401).end("{}");
         return;
       }
@@ -26,6 +27,14 @@ const mock = createServer((req, res) => {
         return;
       }
       received.email.push(JSON.parse(body.toString()));
+      res.writeHead(200, { "content-type": "application/json" }).end('{"id":"test-email-id"}');
+    } else if (req.url === "/email") {
+      // Postmark (the fallback option)
+      if (req.headers["x-postmark-server-token"] !== "test-token") {
+        res.writeHead(401).end("{}");
+        return;
+      }
+      received.postmark.push(JSON.parse(body.toString()));
       res.writeHead(200, { "content-type": "application/json" }).end('{"ErrorCode":0,"Message":"OK"}');
     } else if (req.url === "/turnstile") {
       const form = new URLSearchParams(body.toString());
@@ -48,8 +57,8 @@ const server = spawn("npx", ["next", "start", "-p", "3002"], {
   env: {
     ...process.env,
     INTAKE_DESTINATION: "email",
-    POSTMARK_API_URL: "http://localhost:4010",
-    POSTMARK_SERVER_TOKEN: "test-token",
+    RESEND_API_URL: "http://localhost:4010",
+    RESEND_API_KEY: "re_test_key",
     INTAKE_EMAIL_FROM: "website@example.com",
     INTAKE_EMAIL_TO: "first@example.com, second@example.com",
     TELEGRAM_API_URL: "http://localhost:4010",
@@ -98,18 +107,19 @@ try {
     await new Promise((r) => setTimeout(r, 500));
   }
 
-  await check("Email goes to both recipients with the PDF attached; success reported", async () => {
+  await check("Email (Resend) goes to both recipients with the PDF attached; success reported", async () => {
     const res = await post(valid("Test inquiry — émoji 🚓 and accents é should not break the PDF."));
     const data = await res.json();
     assert(res.status === 200 && data.status === "accepted", `got ${res.status} ${JSON.stringify(data)}`);
     const mail = received.email.at(-1);
-    assert(mail.To === "first@example.com,second@example.com", `To was ${mail.To}`);
-    assert(mail.ReplyTo === "test@example.com", "reply-to should be the visitor's email");
-    assert(/as soon as possible/.test(mail.Subject), `subject: ${mail.Subject}`);
-    assert(!mail.Subject.includes("Test Person"), "the visitor's name must not be in the subject line");
-    assert(/Client's name: Test Client/.test(mail.TextBody), "body missing client name");
-    const pdf = Buffer.from(mail.Attachments[0].Content, "base64");
-    assert(mail.Attachments[0].ContentType === "application/pdf" && pdf.subarray(0, 5).toString() === "%PDF-", "no PDF");
+    assert(mail.to.join(",") === "first@example.com,second@example.com", `to was ${mail.to}`);
+    assert(mail.from === "website@example.com", `from was ${mail.from}`);
+    assert(mail.reply_to === "test@example.com", "reply-to should be the visitor's email");
+    assert(/as soon as possible/.test(mail.subject), `subject: ${mail.subject}`);
+    assert(!mail.subject.includes("Test Person"), "the visitor's name must not be in the subject line");
+    assert(/Client's name: Test Client/.test(mail.text), "body missing client name");
+    const pdf = Buffer.from(mail.attachments[0].content, "base64");
+    assert(/\.pdf$/.test(mail.attachments[0].filename) && pdf.subarray(0, 5).toString() === "%PDF-", "no PDF");
     return `${pdf.length} byte PDF`;
   });
 
@@ -154,6 +164,27 @@ try {
     turnstileDown = false;
     const data = await res.json();
     assert(res.status === 200 && data.status === "accepted", `got ${res.status} ${JSON.stringify(data)}`);
+  });
+  await check("Postmark still works as the fallback email service", async () => {
+    const pm = spawn("npx", ["next", "start", "-p", "3003"], {
+      env: { ...process.env, INTAKE_DESTINATION: "email", POSTMARK_API_URL: "http://localhost:4010", POSTMARK_SERVER_TOKEN: "test-token", INTAKE_EMAIL_FROM: "website@example.com", INTAKE_EMAIL_TO: "first@example.com" },
+      stdio: "ignore",
+      detached: true,
+    });
+    try {
+      for (let i = 0; i < 60; i++) {
+        try {
+          if ((await fetch("http://localhost:3003/")).ok) break;
+        } catch {}
+        await new Promise((r) => setTimeout(r, 500));
+      }
+      const res = await fetch("http://localhost:3003/api/contact/", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(valid("Postmark fallback test.")) });
+      assert(res.status === 200, `got ${res.status}`);
+      const mail = received.postmark.at(-1);
+      assert(mail && mail.To === "first@example.com" && mail.Attachments?.[0]?.ContentType === "application/pdf", "Postmark email missing or wrong");
+    } finally {
+      process.kill(-pm.pid);
+    }
   });
 } finally {
   process.kill(-server.pid);

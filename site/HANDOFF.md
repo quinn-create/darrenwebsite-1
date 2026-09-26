@@ -485,3 +485,7 @@ Full report: `docs/phase-2-report.md`.
 - **Setup guide:** `plans/for-darren/cloudflare-setup.md` (replaces the Vercel steps in `go-live-setup.md`).
 - **Turnstile (spam check):** `lib/turnstile.ts` (server) and `components/ui/use-turnstile.ts` (form). Off until `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` are set. A missing or failed token gets a 403 and a "please send it again, or call" message. If Cloudflare can't be reached, the inquiry goes through. Tested in `tests/delivery.mjs` (6/6). `clientIp` now prefers Cloudflare's `cf-connecting-ip`.
 - **Web Analytics:** set up in the Cloudflare dashboard (no code), excluding `/contact*` (guide step 7).
+- **Email: Resend** (26 Sep 2026). `lib/intake-delivery.ts` uses Resend when `RESEND_API_KEY` is set and falls back to Postmark. Tested with stand-ins (`tests/delivery.mjs`, 7/7), and end-to-end in the Cloudflare runtime (PDF attached, both recipients).
+- **wrangler.jsonc** has `keep_vars: true`, so dashboard settings (SITE_ENV, addresses) survive redeploys; no vars in the file.
+- **Clarity declined**; statistics are Cloudflare Web Analytics only (D9).
+- **Setup checklist** for Quinn and Darren: `plans/for-darren/launch-steps.md` (Parts 1–9, reporting back to the session after each).

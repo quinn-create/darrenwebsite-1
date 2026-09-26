@@ -483,3 +483,5 @@ Full report: `docs/phase-2-report.md`.
 - **Redirect fix:** `?page_id=2` now uses `^2$` (the Cloudflare adapter doesn't anchor `has` patterns, so "2" also caught `?page_id=12`).
 - **Proxy (410s):** Next's Node proxy runs under OpenNext's "experimental" support; every 410 and redirect test passes in the Cloudflare runtime.
 - **Setup guide:** `plans/for-darren/cloudflare-setup.md` (replaces the Vercel steps in `go-live-setup.md`).
+- **Turnstile (spam check):** `lib/turnstile.ts` (server) and `components/ui/use-turnstile.ts` (form). Off until `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` are set. A missing or failed token gets a 403 and a "please send it again, or call" message. If Cloudflare can't be reached, the inquiry goes through. Tested in `tests/delivery.mjs` (6/6). `clientIp` now prefers Cloudflare's `cf-connecting-ip`.
+- **Web Analytics:** set up in the Cloudflare dashboard (no code), excluding `/contact*` (guide step 7).

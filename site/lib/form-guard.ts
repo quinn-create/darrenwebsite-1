@@ -2,7 +2,8 @@ import "server-only";
 import { createHash } from "node:crypto";
 
 // Protections for the form API route: per-IP rate limit and short-term de-duplication.
-// In-memory limits are per server instance. Replace with a shared store (e.g. Redis) in production.
+// In-memory limits are per server instance (on Cloudflare, per worker copy), so they only slow a
+// single sender down; Turnstile (lib/turnstile.ts) is the main spam check once its keys are set.
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const RATE_MAX = 5;
 const DEDUPE_WINDOW_MS = 2 * 60 * 1000;
@@ -12,7 +13,12 @@ export function json(body: unknown, status: number) {
 }
 
 export function clientIp(request: Request): string {
-  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+  // Cloudflare sets cf-connecting-ip to the visitor's address; elsewhere use x-forwarded-for.
+  return (
+    request.headers.get("cf-connecting-ip")?.trim() ||
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    "local"
+  );
 }
 
 export function createGuard() {

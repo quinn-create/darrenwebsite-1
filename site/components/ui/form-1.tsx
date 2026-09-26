@@ -22,6 +22,7 @@ import {
 } from "@/lib/contact-rules";
 import { INTAKE_SUCCESS, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site-basics";
 import { cn } from "@/lib/utils";
+import { TURNSTILE_ON, useTurnstile } from "@/components/ui/use-turnstile";
 
 type Status =
   | { kind: "idle" }
@@ -72,6 +73,7 @@ export function ContactForm({
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [honeypot, setHoneypot] = useState("");
   const [topic, setTopic] = useState(initialTopic);
+  const [turnstileBox, turnstileToken, resetTurnstile] = useTurnstile();
   const started = useRef(false);
   const inFlight = useRef(false);
   const summaryRef = useRef<HTMLDivElement>(null);
@@ -122,7 +124,7 @@ export function ContactForm({
       const res = await fetch("/api/contact/", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...values, topic: topic?.slug ?? "", website: honeypot }),
+        body: JSON.stringify({ ...values, topic: topic?.slug ?? "", website: honeypot, turnstileToken }),
       });
       const data = (await res.json().catch(() => ({}))) as { status?: string; errors?: ContactErrors };
 
@@ -133,12 +135,18 @@ export function ContactForm({
       }
 
       track("contact_submit_error");
+      resetTurnstile();
       if (data.status === "invalid" && data.errors && Object.keys(data.errors).length > 0) {
         setErrors(data.errors);
         setStatus({ kind: "idle" });
         requestAnimationFrame(() => summaryRef.current?.focus());
       } else if (data.status === "not_configured") {
         setStatus({ kind: "not_configured" });
+      } else if (data.status === "challenge_failed") {
+        setStatus({
+          kind: "failed",
+          message: "We couldn't confirm the message came from a person. Please wait a moment and send it again, or call.",
+        });
       } else if (data.status === "rate_limited") {
         setStatus({ kind: "failed", message: "Too many attempts in a short time. Please wait a few minutes and try again, or call." });
       } else {
@@ -146,6 +154,7 @@ export function ContactForm({
       }
     } catch {
       track("contact_submit_error");
+      resetTurnstile();
       setStatus({ kind: "failed", message: "Your message could not be sent because of a connection problem." });
     } finally {
       inFlight.current = false;
@@ -410,6 +419,9 @@ export function ContactForm({
             </div>
           )}
         </div>
+
+        {/* Cloudflare Turnstile: empty unless its key is set; a box shows only if a visitor must tick it. */}
+        {TURNSTILE_ON && <div ref={turnstileBox} className="mt-6" />}
 
         <button
           type="submit"

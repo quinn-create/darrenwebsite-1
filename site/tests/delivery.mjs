@@ -1,4 +1,5 @@
-// Delivery check with stand-ins for Postmark and Telegram (no real accounts, no network).
+// Delivery check with stand-ins for Postmark, Telegram and Cloudflare Turnstile (no real
+// accounts, no network).
 // Starts its own server from the current build on :3002, pointed at a mock on :4010.
 // Usage (after `next build`): node tests/delivery.mjs
 import { spawn } from "node:child_process";
@@ -7,6 +8,8 @@ import { createServer } from "node:http";
 const received = { email: [], telegram: [] };
 let failEmail = false;
 let failTelegram = false;
+let turnstileDown = false;
+const turnstileSeen = [];
 
 const mock = createServer((req, res) => {
   const chunks = [];
@@ -24,6 +27,15 @@ const mock = createServer((req, res) => {
       }
       received.email.push(JSON.parse(body.toString()));
       res.writeHead(200, { "content-type": "application/json" }).end('{"ErrorCode":0,"Message":"OK"}');
+    } else if (req.url === "/turnstile") {
+      const form = new URLSearchParams(body.toString());
+      turnstileSeen.push(Object.fromEntries(form));
+      if (turnstileDown) {
+        res.writeHead(503).end();
+        return;
+      }
+      const ok = form.get("secret") === "test-turnstile-secret" && form.get("response") === "good-token";
+      res.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify({ success: ok }));
     } else if (req.url === "/bottest-bot/sendDocument") {
       received.telegram.push({ type: req.headers["content-type"], body: body.toString("latin1") });
       res.writeHead(failTelegram ? 500 : 200).end('{"ok":true}');
@@ -43,6 +55,8 @@ const server = spawn("npx", ["next", "start", "-p", "3002"], {
     TELEGRAM_API_URL: "http://localhost:4010",
     TELEGRAM_BOT_TOKEN: "test-bot",
     TELEGRAM_CHAT_ID: "12345",
+    TURNSTILE_SECRET_KEY: "test-turnstile-secret",
+    TURNSTILE_VERIFY_URL: "http://localhost:4010/turnstile",
   },
   stdio: "ignore",
   detached: true,
@@ -59,11 +73,11 @@ const check = async (name, fn) => {
 const assert = (cond, msg) => {
   if (!cond) throw new Error(msg);
 };
-const post = (body) =>
+const post = (body, turnstileToken = "good-token") =>
   fetch("http://localhost:3002/api/contact/", {
     method: "POST",
     headers: { "content-type": "application/json", "x-forwarded-for": `10.0.0.${Math.floor(Math.random() * 250)}` },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ ...body, turnstileToken }),
   });
 const valid = (message) => ({
   yourName: "Test Person",
@@ -121,6 +135,25 @@ try {
     const data = await res.json();
     assert(res.status === 502 && data.status === "delivery_failed", `got ${res.status} ${JSON.stringify(data)}`);
     assert(received.telegram.length === before, "Telegram must not send when the email failed");
+  });
+  await check("Spam check (Turnstile): a missing or failed token is refused and nothing is sent", async () => {
+    const before = received.email.length;
+    for (const token of ["", "bad-token"]) {
+      const res = await post(valid(`Turnstile ${token || "missing"} test.`), token);
+      const data = await res.json();
+      assert(res.status === 403 && data.status === "challenge_failed", `token "${token}": got ${res.status} ${JSON.stringify(data)}`);
+    }
+    assert(received.email.length === before, "an inquiry was delivered without passing the check");
+    const last = turnstileSeen.at(-1);
+    assert(last && !JSON.stringify(last).includes("Test Person"), "form content was sent to Turnstile");
+  });
+
+  await check("Spam check (Turnstile): if Cloudflare can't be reached, the inquiry still gets through", async () => {
+    turnstileDown = true;
+    const res = await post(valid("Turnstile outage test."));
+    turnstileDown = false;
+    const data = await res.json();
+    assert(res.status === 200 && data.status === "accepted", `got ${res.status} ${JSON.stringify(data)}`);
   });
 } finally {
   process.kill(-server.pid);

@@ -54,6 +54,18 @@ Paste keys only into Cloudflare, never into chat or email. Then **Deployments** 
 2. Add the email addresses allowed to see it: Darren, Kelly and Quinn. Visitors must then sign in with an emailed code.
 3. Send Quinn the `workers.dev` address. The session checks every page and the form there.
 
+## 6. Spam protection for the form: Turnstile (free, 5 minutes)
+1. Cloudflare dashboard → **Turnstile** (left menu) → **Add widget**.
+2. **Widget name:** "Contact form". **Hostnames:** `ddrakelaw.com` (and your `workers.dev` preview address). **Widget mode:** **Managed**. Click **Create**.
+3. Copy the two keys it shows:
+   - the **Site key** goes in **Settings → Build → Variables** as `NEXT_PUBLIC_TURNSTILE_SITE_KEY`;
+   - the **Secret key** goes in **Settings → Variables and Secrets** as `TURNSTILE_SECRET_KEY`, type **Secret**.
+4. Redeploy. Most visitors never see anything. Now and then Cloudflare asks someone to tick a box.
+
+## 7. Visitor statistics: Cloudflare Web Analytics (free, 5 minutes, no cookies)
+1. Cloudflare dashboard → **Analytics & Logs** → **Web Analytics** → **Add a site** → choose `ddrakelaw.com` → **Automatic setup**. No code or cookie banner is needed.
+2. On that site's **Manage site** page, under **Rules**, add a rule to **exclude** the paths `/contact*` and `/intake*`. That keeps statistics off the form page, like every other tag.
+
 ## Later: launch day (needs Darren's written sign-off)
 1. Change `SITE_ENV` to `production`, both in **Build variables** and in **Variables and Secrets**, then redeploy. The build refuses to go live if any unconfirmed "Waiting on the firm" item comes back.
 2. Worker → **Settings** → **Domains & Routes** → **Add** → **Custom domain** → `ddrakelaw.com` (and `www.ddrakelaw.com`).

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { EMPTY_CONTACT, validateContact, type ContactValues } from "@/lib/contact-rules";
 import { clientIp, createGuard, json } from "@/lib/form-guard";
 import { deliver, type Inquiry } from "@/lib/intake-delivery";
+import { verifyTurnstile } from "@/lib/turnstile";
 import { practiceBySlug } from "@/lib/site";
 
 export const runtime = "nodejs";
@@ -20,6 +21,7 @@ const Body = z.object({
   message: z.string().max(5000),
   topic: z.string().max(60).optional(), // practice-area slug from "Ask about …"; unknown values are dropped
   website: z.string().max(500).optional(), // honeypot: must stay empty
+  turnstileToken: z.string().max(4096).optional(), // Cloudflare Turnstile (lib/turnstile.ts)
 });
 
 const guard = createGuard();
@@ -27,7 +29,8 @@ const guard = createGuard();
 export async function POST(request: Request) {
   const now = Date.now();
 
-  if (guard.rateLimited(clientIp(request), now)) {
+  const ip = clientIp(request);
+  if (guard.rateLimited(ip, now)) {
     return json({ status: "rate_limited" }, 429);
   }
 
@@ -38,7 +41,7 @@ export async function POST(request: Request) {
     return json({ status: "invalid", errors: {} }, 400);
   }
 
-  const { website, topic, ...rest } = parsed;
+  const { website, topic, turnstileToken, ...rest } = parsed;
   const topicTitle = practiceBySlug(topic)?.title ?? "";
   const values: ContactValues = { ...EMPTY_CONTACT, ...rest };
 
@@ -50,6 +53,11 @@ export async function POST(request: Request) {
   // Honeypot filled: likely a bot. Reject without delivering.
   if (website) {
     return json({ status: "invalid", errors: {} }, 400);
+  }
+
+  // Spam check (only when the firm has set its Turnstile keys).
+  if (!(await verifyTurnstile(turnstileToken, ip)).ok) {
+    return json({ status: "challenge_failed" }, 403);
   }
 
   const fingerprint = guard.fingerprint({ ...values, topicTitle });

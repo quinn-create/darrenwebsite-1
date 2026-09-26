@@ -1,0 +1,20 @@
+// Cloudflare Workers settings for the site (hosting decision C8, 26 Sep 2026: Cloudflare, free plan).
+// Built with @opennextjs/cloudflare. Nothing is deployed from here until D17 previews are set up on
+// the firm's own Cloudflare account; secrets go in the Cloudflare dashboard, never in this file.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ddrakelaw",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "ddrakelaw" }],
+  // Resizes the portrait to AVIF/WebP per screen (Cloudflare Images; free allowance applies).
+  "images": { "binding": "IMAGES" },
+  // Settings (SITE_ENV, email addresses) are managed in the Cloudflare dashboard; keep them when
+  // the code is redeployed. Without SITE_ENV the site behaves as a hidden preview.
+  "keep_vars": true
+}

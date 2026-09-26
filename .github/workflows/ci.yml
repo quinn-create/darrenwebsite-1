@@ -1,0 +1,123 @@
+# Safety net for ddrakelaw.com (docs/PROMPT-PLAN.md Phase 0; plan Appendix A "Testing and CI").
+# Runs on every pull request and every push to a branch. Make "Site checks" a required
+# check before merging (GitHub → Settings → Branches; see docs/phase-0-report.md).
+# Nothing here deploys anything.
+name: Site checks
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [dependabot/**]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Site checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the sitemap reads each page's last git commit date
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Install the test browser
+        run: npx playwright-core install --with-deps chromium
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Placeholder guard (self-test, then list what's waiting on the firm)
+        run: |
+          node scripts/check-placeholders.mjs --self-test
+          node scripts/check-placeholders.mjs --report
+
+      - name: Risky-claims list (self-test)
+        run: node scripts/check-claims.mjs --self-test
+
+      - name: Build
+        run: npm run build
+
+      # After the build: it writes next-env.d.ts (not stored in git), which types image imports.
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Start the test servers
+        run: |
+          rm -rf .data
+          nohup npx next start -p 3000 > /tmp/demo.log 2>&1 &
+          INTAKE_DESTINATION=local-test nohup npx next start -p 3001 > /tmp/live.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf -o /dev/null http://localhost:3000/ && curl -sf -o /dev/null http://localhost:3001/ && exit 0
+            sleep 1
+          done
+          echo "Servers did not start" && cat /tmp/demo.log /tmp/live.log && exit 1
+
+      # Accessibility (axe at 390, 768 and 1440 px, form states, both themes), 320 px reflow,
+      # redirects (every Appendix B row), SEO, consent-off, speed and form behaviour.
+      - name: End-to-end tests
+        run: node tests/e2e.mjs
+
+      - name: Risky-claims check (every page's text, meta, alt text and JSON-LD)
+        run: node scripts/check-claims.mjs
+
+      - name: Cyan buttons (52 px, one per section)
+        run: node scripts/check-buttons.mjs
+
+      - name: Link check
+        run: node scripts/check-links.mjs
+
+      # Real slow-phone throttling ("devtools"): the default simulated method overstates
+      # text LCP when the server runs on the same machine (all scripts finish before the
+      # first paint and get counted). Budgets: LCP ≤ 2.5 s, CLS ≤ 0.1, JS ≤ 200 KB, total ≤ 1 MB.
+      - name: Lighthouse budgets
+        run: npx -y @lhci/cli@0.15.1 autorun
+
+      - name: Inquiry delivery (stand-ins for Postmark and Telegram)
+        run: node tests/delivery.mjs
+
+      - name: Cookie consent (separate build with dummy tracker IDs)
+        run: node tests/consent.mjs
+
+      # Hosting decision C8: Cloudflare Workers, free plan. Build that version, check it stays
+      # under the free plan's 3 MB limit, start it in Cloudflare's local runtime, and run the
+      # same end-to-end tests against it. (This rebuilds .next, so the form server restarts.)
+      - name: Cloudflare build fits the free plan and starts
+        env:
+          WRANGLER_SEND_METRICS: "false"
+        run: node scripts/check-cloudflare.mjs --serve
+
+      - name: End-to-end tests on the Cloudflare runtime
+        run: |
+          pgrep -f '^next-server' | xargs -r kill
+          rm -rf .data
+          INTAKE_DESTINATION=local-test nohup npx next start -p 3001 > /tmp/live2.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:3001/ && break; sleep 1; done
+          E2E_DEMO=http://127.0.0.1:8787 node tests/e2e.mjs
+
+      - name: Keep the Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: site/.lighthouseci/
+          if-no-files-found: ignore
+          include-hidden-files: true # the reports folder is ".lighthouseci"
+          retention-days: 14

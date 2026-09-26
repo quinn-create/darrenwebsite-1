@@ -1,0 +1,104 @@
+# Getting a working private website (for Darren)
+
+> **Update, 26 September 2026:** hosting moved to **Cloudflare (free plan)** (decision C8). Follow `cloudflare-setup.md` instead of sections 1 and 2 below; the email and Telegram sections still apply, but the email service may change (options sent to Quinn).
+
+This takes about an hour. When it's done, Darren has a **private link** to the full working website, which only people he invites can open. Inquiries sent from it reach Kelly (email and Telegram) and Darren (email). Nothing changes on ddrakelaw.com, and the firm's email keeps working as it does now.
+
+Keys and tokens go **only** into Vercel's settings (step 2). Never send them by email, text or chat, including to Claude.
+
+## 1. Hosting: Vercel (about $20/month)
+1. Go to vercel.com, sign up with the firm's email, and choose the **Pro** plan. The free plan doesn't allow business use.
+2. Click **Add New → Project**, connect GitHub, and import the website repository (`darrenwebsite-1`). Quinn can grant access.
+3. Set **Root Directory** to `site`. Leave everything else as it is.
+4. Before deploying, open **Environment Variables** and add the settings from `site/.env.example`. Leave the Postmark and Telegram values blank until steps 3 and 4.
+5. Go to **Settings → Deployment Protection** and make sure **Vercel Authentication** is on. That's what keeps the link private.
+6. **Don't add ddrakelaw.com to the project yet.** That happens on launch day.
+
+## 2. Settings to enter in Vercel
+
+| Name | Value |
+|---|---|
+| `SITE_ENV` | `preview` (keeps it hidden from Google) |
+| `SITE_URL` | `https://ddrakelaw.com` |
+| `INTAKE_DESTINATION` | `email` |
+| `INTAKE_EMAIL_TO` | `kpittman.lawoffice@gmail.com,darrendrakeattorney@gmail.com` |
+| `INTAKE_EMAIL_FROM` | `website@ddrakelaw.com` (after step 3) |
+| `POSTMARK_SERVER_TOKEN` | from step 3 |
+| `TELEGRAM_BOT_TOKEN` | from step 4 |
+| `TELEGRAM_CHAT_ID` | from step 4 |
+
+After changing any setting, open **Deployments** and choose **Redeploy** so the change takes effect.
+
+## 3. Sending inquiry emails: Postmark (about $16.50/month)
+1. Sign up at postmarkapp.com and create a **Server** called "Website".
+2. Under **Sender Signatures → Domains**, add `ddrakelaw.com`. Postmark shows two DNS records (DKIM and Return-Path).
+3. Add those two records in **Cloudflare → DNS**. They're new records; don't change or delete any existing ones, especially the MX records that run the firm's email.
+4. Click **Verify** in Postmark. Once it's green, copy the Server's **API token** into Vercel as `POSTMARK_SERVER_TOKEN`.
+5. Postmark starts new accounts in test mode. Request approval (**Request approval** button) so it can send to any address.
+
+## 4. The Telegram copy for Kelly (free)
+1. In Telegram, message **@BotFather**, send `/newbot`, and name it, for example "Drake Law Inquiries". It replies with a **token**: paste it into Vercel as `TELEGRAM_BOT_TOKEN`.
+2. Kelly opens the new bot in Telegram and presses **Start**.
+3. In a browser, open `https://api.telegram.org/bot<TOKEN>/getUpdates`, with the token in place of `<TOKEN>`. Find `"chat":{"id":` followed by a number. Paste that number into Vercel as `TELEGRAM_CHAT_ID`.
+
+Reminder: the firm chose this route. Each inquiry's details are then stored on Kelly's phone and in Telegram.
+
+## 5. Tell Quinn it's done
+Claude then:
+- checks the private link;
+- sends a clearly labelled **test** inquiry;
+- confirms that Kelly and Darren received the email and PDF, and that Kelly got the Telegram message.
+
+After that, Darren can click through the site and ask for edits.
+
+## Later: launch day (not now)
+- Point ddrakelaw.com at Vercel.
+- Switch `SITE_ENV` to `production`.
+
+The production build refuses to go live while any unapproved text remains. Right now that's the privacy notice approval, how long inquiries are kept, and the local photo. See the plan, Section 11.
+
+**Check the link-preview cards (after the switch):**
+- **Facebook:** paste the home page and one practice page into the Sharing Debugger (developers.facebook.com/tools/debug), press **Scrape Again**, and confirm the navy card with Darren's photo shows.
+- **LinkedIn:** the same in Post Inspector (linkedin.com/post-inspector).
+- **X:** start a post containing the link, without posting it, and confirm the large card appears.
+- **iMessage/WhatsApp:** text the link to yourself and confirm the card appears.
+
+If an app still shows an old preview, it has cached the old site. Facebook and LinkedIn refresh when you press Scrape Again or Inspect; iMessage can take up to a day.
+
+**Search (after the switch):**
+1. **Google Search Console:**
+   - verify ddrakelaw.com by adding the DNS record it gives you in Cloudflare;
+   - submit `https://ddrakelaw.com/sitemap.xml`;
+   - use **URL Inspection → Request indexing** on the home page and the five practice pages.
+2. **Rich Results Test** (search.google.com/test/rich-results): test the home page and one practice page. Confirm "LocalBusiness" (or "LegalService") and "Breadcrumbs" are found, with no errors.
+3. **Google Business Profile:** check that it matches the site exactly:
+   - Darren Drake Law PLLC;
+   - 138 S. Cannon Ave, Murfreesboro, TN 37129;
+   - (615) 546-5551;
+   - Mon–Fri 8am–5pm.
+
+   Set the website field to `https://ddrakelaw.com/`.
+4. **Old addresses:** for 2–4 weeks, watch **Pages → Not found (404)** in Search Console. Tell Claude about any old WordPress address that shows up, and a redirect will be added.
+5. **Bing Webmaster Tools:** import the site from Search Console (one click).
+
+**Speed (after the switch):**
+1. **PageSpeed Insights** (pagespeed.web.dev): test the home page, `/practice-areas/dui-dwi/` and `/contact/` on the live address. Send Claude the mobile scores to add to `printouts/speed-report.md`.
+2. **Search Console → Core Web Vitals:** after about 28 days of real visitors, check that phone and desktop both show "Good URLs" and no "Poor" ones. Before that, Google doesn't have enough data.
+3. After any larger change (a new page, photo or feature), ask Claude to re-run `npm run speed`. It fails loudly if the site got slower.
+
+## Ads and statistics (when Darren wants them)
+The site has a cookie banner built in. It stays hidden, and nothing is tracked, until these IDs are entered in **Vercel → Settings → Environment Variables**. Redeploy after adding them. Details are in `plans/cookie-consent-plan.md`.
+
+1. **Google Analytics 4:** in analytics.google.com, create a property for ddrakelaw.com and copy its measurement ID (`G-…`) into `NEXT_PUBLIC_GA_ID`.
+   - Leave **Google signals off**.
+   - Set **data retention** to 2 months, the shortest option.
+2. **Google Ads:** in Goals → Conversions, create two website conversions, "Form sent" and "Phone tapped", with **manual setup**.
+   - Copy the account tag (`AW-…`) into `NEXT_PUBLIC_GOOGLE_ADS_ID`, and each conversion label into `NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL` and `NEXT_PUBLIC_GOOGLE_ADS_CALL_LABEL`.
+   - Leave **enhanced conversions off**.
+   - Don't create remarketing audiences. Google doesn't allow them for criminal-defense ads.
+3. **Meta Pixel:** in Events Manager, create a dataset (pixel) and copy its ID into `NEXT_PUBLIC_META_PIXEL_ID`.
+   - In its settings, turn **off** "Automatic advanced matching".
+   - Don't set up the Conversions API.
+   - Don't build "website visitor" custom audiences.
+4. **Before switching them on,** Darren approves the privacy notice's new "Cookies and advertising measurement" section. It appears automatically once an ID is set.
+5. **After the redeploy,** open the site in a private window. The banner should appear, and nothing from Google or Facebook should load until **Accept all** is pressed. Google's Tag Assistant can confirm this. Then ask Claude to run `npm run test:consent`.

@@ -1,4 +1,4 @@
-# Safety net for ddrakelaw.com (docs/PROMPT-PLAN.md Phase 0; plan Appendix A "Testing and CI").
+# Safety net for the Darren Drake website (darrendrakelaw.com) (docs/PROMPT-PLAN.md Phase 0; plan Appendix A "Testing and CI").
 # Runs on every pull request and every push to a branch. Make "Site checks" a required
 # check before merging (GitHub → Settings → Branches; see docs/phase-0-report.md).
 # Nothing here deploys anything.

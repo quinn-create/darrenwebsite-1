@@ -1,6 +1,6 @@
 # Signal build: handoff
 
-The build follows `prompts/signal-website-build-prompt.md` and the reference concept `brand-concepts/01-signal.png` (Higgsfield job `f3f33b0f-cd9c-49c3-98f5-bafb3626dacc`). It's a local preview only: nothing is deployed or published, and ddrakelaw.com is unchanged.
+The build follows `prompts/signal-website-build-prompt.md` and the reference concept `brand-concepts/01-signal.png` (Higgsfield job `f3f33b0f-cd9c-49c3-98f5-bafb3626dacc`). It's a local preview only: nothing is deployed or published, and the old ddrakelaw.com site is unchanged. The new site's address is darrendrakelaw.com (C10).
 
 ## What was built
 
@@ -290,7 +290,7 @@ Later the same day, Darren approved the practice-page wording and all FAQs. The 
 - **Recording:** `printouts/site-preview/scroll-reveals-1440.webm`, plus `scroll-reveals-frame-{1,2,3}.png`. The stills slowed the transition to 1.4 s only to catch a mid-rise frame.
 
 ## Update, 25 September 2026: SEO fixes (plans/seo-fixes-plan.md)
-- **Canonicals:** every page sets `alternates.canonical` (its path, with a trailing `/`). `metadataBase` turns it into `https://ddrakelaw.com/...`. Query text such as `?utm_source=` never reaches the canonical. A new page needs its own `alternates.canonical`.
+- **Canonicals:** every page sets `alternates.canonical` (its path, with a trailing `/`). `metadataBase` turns it into `https://darrendrakelaw.com/...` (the new address, C10, 3 Oct 2026). Query text such as `?utm_source=` never reaches the canonical. A new page needs its own `alternates.canonical`.
 - **Business data:** `lib/structured-data.ts` builds one JSON-LD graph, rendered on every page from `app/layout.tsx`:
   - the firm (`LegalService` + `LocalBusiness`): name, address, phone, Mon–Fri 8–5, area served, portrait, the five practice titles;
   - Darren (`Person`): job title, both SIU schools, both memberships;

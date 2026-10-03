@@ -3,7 +3,7 @@
 // the firm's own Cloudflare account; secrets go in the Cloudflare dashboard, never in this file.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "ddrakelaw",
+  "name": "darrendrakelaw",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
@@ -11,7 +11,7 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "ddrakelaw" }],
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "darrendrakelaw" }],
   // Resizes the portrait to AVIF/WebP per screen (Cloudflare Images; free allowance applies).
   "images": { "binding": "IMAGES" },
   // Settings (SITE_ENV, email addresses) are managed in the Cloudflare dashboard; keep them when

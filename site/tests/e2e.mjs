@@ -553,7 +553,7 @@ await check("Old WordPress addresses: one-hop permanent redirects, and 'gone' (4
 
 await check("Sitemap lists every page; previews are hidden from search engines", async () => {
   const sm = await (await fetch(DEMO + "/sitemap.xml")).text();
-  const missing = PAGES.filter((p) => !sm.includes(`https://ddrakelaw.com${p}</loc>`));
+  const missing = PAGES.filter((p) => !sm.includes(`https://darrendrakelaw.com${p}</loc>`));
   assert(missing.length === 0, `missing from sitemap: ${missing.join(", ")}`);
   const robots = await (await fetch(DEMO + "/robots.txt")).text();
   assert(/Disallow: \/\s*$/m.test(robots), "preview robots.txt should disallow everything");
@@ -1066,7 +1066,7 @@ await check("Axe scan of the contact page with errors shown", async () => {
 });
 
 // ---- SEO (plans/seo-fixes-plan.md, 6.1 and 6.4) ----
-const SITE = "https://ddrakelaw.com";
+const SITE = "https://darrendrakelaw.com";
 const ALL_PAGES = [...PAGES, "/practice-areas/dui-dwi/", "/practice-areas/expungement/"];
 const html = async (path) => (await fetch(DEMO + path)).text();
 const ldBlocks = (h) => [...h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);

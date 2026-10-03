@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // Returns 410 ("gone") for old WordPress addresses that have no new equivalent,
 // so search engines drop them instead of retrying. Redirects that do have a new
 // page live in next.config.ts. Source: plans/signal-website-plan.md, Appendix B.
-const GONE_BODY = "This page is no longer available. Visit https://ddrakelaw.com/ for Darren Drake, Attorney at Law.";
+const GONE_BODY = "This page is no longer available. Visit https://darrendrakelaw.com/ for Darren Drake, Attorney at Law.";
 
 // Known old WordPress post/page IDs that map to a new page.
 const KNOWN_IDS: Record<string, string> = { "12": "/" };

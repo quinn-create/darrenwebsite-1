@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
-// Old ddrakelaw.com (WordPress) addresses -> new pages, one permanent (308) hop each.
+// Old ddrakelaw.com (WordPress) addresses -> new pages, one permanent (308) hop each. After launch,
+// ddrakelaw.com forwards every address, path kept, to darrendrakelaw.com (C10), where these apply.
 // Source: plans/signal-website-plan.md, Appendix B. Addresses that should report
 // "gone" (410) are handled in proxy.ts, because redirects() can't send 410.
 const JUVENILE_TARGET = "/practice-areas/criminal-defense/"; // D5: the firm does not take juvenile cases (Darren, 24 Sep 2026)

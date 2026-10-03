@@ -1,6 +1,6 @@
 # Darren Drake: Signal website (local demo)
 
-This is a working demonstration of the **Signal** design direction, built from `../prompts/signal-website-build-prompt.md`. It's for local preview only: it isn't deployed, and ddrakelaw.com is untouched.
+This is a working demonstration of the **Signal** design direction, built from `../prompts/signal-website-build-prompt.md`. It's for local preview only: it isn't deployed, and the old ddrakelaw.com site is untouched. The new site's address will be darrendrakelaw.com.
 
 ## Run it
 

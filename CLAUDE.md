@@ -1,4 +1,4 @@
-# Working rules: ddrakelaw.com (Signal 1A)
+# Working rules: darrendrakelaw.com, Darren Drake's website (Signal 1A)
 Quinn Rodriguez runs these sessions for Darren Drake. Quinn is not a developer:
 write every summary in plain English, give exact clicks for any dashboard step,
 and do the work yourself instead of handing him scripts to run.
@@ -28,7 +28,7 @@ and do the work yourself instead of handing him scripts to run.
 - Never ask for or accept secret keys in chat. Keys go straight into Cloudflare
   (worker → Settings → Variables and Secrets, type "Secret"); hosting moved there (C8).
 - Never touch MX, SPF, DKIM, DMARC, the Google verification record, or the
-  mail/ftp DNS entries.
+  mail/ftp DNS entries (on ddrakelaw.com, the old domain).
 
 ## Always
 - Cyan buttons at least 52px tall, one per section (the header button and the
@@ -72,5 +72,7 @@ listed with its source in docs/DECISIONS.md under "Conflicts to resolve". In sho
 - C8 (hosting): Cloudflare, free plan, instead of Vercel (Quinn, 26 Sep 2026).
 - C9: the form offers Call / Text / Email; Darren allowed text replies (3 Oct 2026), although the
   guidelines and plan said phone or email only.
+- C10: the new site's address is darrendrakelaw.com (Quinn buys and owns it on Cloudflare; 3 Oct
+  2026). ddrakelaw.com forwards to it at launch. Inquiries go to Darren's and Kelly's Gmail.
 - C6: work happens on the session branch claude/sleepy-clarke-wjlh48 with one draft PR, not
   one branch per phase; this session may only push to that branch.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 import { LIGHT_THEME } from "@/lib/site-basics";
 import { THEME_COLOR, THEME_STORAGE_KEY } from "@/lib/theme";
@@ -9,8 +9,12 @@ import { THEME_COLOR, THEME_STORAGE_KEY } from "@/lib/theme";
 // version (plans/light-theme-plan.md). The head script in app/layout.tsx applies a saved
 // choice before paint; this only changes it. Both icons are rendered and CSS shows the
 // right one, so the icon is correct even before this script loads.
+const noop = () => () => {};
+
 function Toggle() {
   const [light, setLight] = useState(false);
+  // True once this script has taken over the button (tests wait for it before pressing).
+  const ready = useSyncExternalStore(noop, () => true, () => false);
 
   // The header has one button for phones and one for desktop; both follow <html>.
   useEffect(() => {
@@ -26,9 +30,11 @@ function Toggle() {
     return () => watch.disconnect();
   }, []);
 
+  // Reads the page itself rather than `light`, so a press made just after the page loads (before
+  // the state above has caught up) still switches to the other theme.
   const flip = () => {
-    const next = !light;
     const root = document.documentElement;
+    const next = root.dataset.theme !== "light";
     if (next) root.setAttribute("data-theme", "light");
     else root.removeAttribute("data-theme");
     try {
@@ -46,6 +52,7 @@ function Toggle() {
       aria-pressed={light}
       title={light ? "Switch to dark mode" : "Switch to light mode"}
       onClick={flip}
+      data-ready={ready || undefined}
     >
       <Sun aria-hidden="true" className="theme-icon-sun" size={20} strokeWidth={1.75} />
       <Moon aria-hidden="true" className="theme-icon-moon" size={20} strokeWidth={1.75} />

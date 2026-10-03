@@ -1325,6 +1325,8 @@ await check("Theme 6: keyboard — Tab reaches the button, Enter and Space toggl
     assert(ring.w >= 2 && ring.style !== "none", `focus ring ${JSON.stringify(ring)}`);
     const focus = await p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--color-focus").trim());
     assert(focus === (start ? "#0e7490" : "#67e8f9"), `focus colour ${focus}`);
+    // Wait until the page's script has taken over the button (a press before that does nothing).
+    await p.waitForFunction(() => document.activeElement?.hasAttribute("data-ready"));
     const before = await bodyBg(p);
     await p.keyboard.press("Enter");
     const mid = await bodyBg(p);

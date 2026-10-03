@@ -502,3 +502,4 @@ Full report: `docs/phase-2-report.md`.
   - Workers Logs: only the site's own error lines, with no per-request logs and query strings redacted (`wrangler.jsonc` `observability`).
   - Launch-day guide: www → bare-domain redirect rule, check old WordPress-era Cloudflare rules, an AI-crawler choice, an optional UptimeRobot alert, and Search Console.
   - New open items in DECISIONS: C9 (the form's "Text" option) and the shared address/phone with Quinn Rodriguez Law PLLC (local map listings).
+- **Theme button timing fix (CI "Theme 6" failure on 6223086):** the button now reads the page's current theme when pressed, instead of its own state, which could lag just after load. On GitHub's runner a first press made in that instant did nothing (light → light → dark). The test now waits for the button's `data-ready` mark before pressing.

@@ -263,6 +263,7 @@ await check("Consent 9: a sent form reports nothing to any tag (the form page ha
   await page.waitForFunction(() => window.__gtagLoaded && window.__fbLoaded);
   const before = hits.length;
   await page.goto(BASE + "/contact/");
+  await page.locator("form[data-ready]").waitFor(); // the form's script has taken over
   await page.route("**/api/contact/", (r) => r.fulfill({ status: 200, contentType: "application/json", body: '{"status":"accepted"}' }));
   await page.locator("#cf-yourName").fill("Zed Testperson");
   await page.locator("form").getByText("Arrested in Rutherford County").click();

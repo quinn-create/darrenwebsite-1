@@ -33,8 +33,13 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
+// The form is usable once its script has taken over (form[data-ready]); a Send pressed before that
+// makes a plain post, which the server answers with "not sent, please call".
+const formReady = (p) => p.locator("form[data-ready]").first().waitFor();
+
 // The site's one form (components/ui/form-1.tsx), on the Contact page (/intake/ redirects there).
 async function fillValid(page, { reach = "Call" } = {}) {
+  await formReady(page);
   await page.locator("#cf-yourName").fill(`Test Person ${RUN}-${++seq}`);
   await page.locator("form").getByText("Arrested in Rutherford County").click();
   await page.locator("form").getByText(reach, { exact: true }).first().click();
@@ -51,11 +56,16 @@ const page = await desktop.newPage();
 
 await check("Required-field errors: summary gets focus and lists each problem", async () => {
   await page.goto(DEMO + "/contact/");
+  await formReady(page);
   await page.getByRole("button", { name: "Send message" }).click();
   const summary = page.locator(SUMMARY);
   await summary.waitFor();
-  const focused = await page.evaluate(() => document.activeElement?.getAttribute("role"));
-  assert(focused === "alert", "error summary not focused");
+  // The form moves focus to the summary on the next animation frame (components/ui/form-1.tsx),
+  // so wait briefly for it rather than reading the focus in the same instant.
+  const focused = await page
+    .waitForFunction(() => document.activeElement?.getAttribute("role") === "alert", null, { timeout: 3000 })
+    .then(() => "alert", () => page.evaluate(() => document.activeElement?.getAttribute("role")));
+  assert(focused === "alert", `error summary not focused (focus on ${focused})`);
   const items = await summary.locator("li").count();
   assert(items === 4, `expected 4 errors (name, about, reach, callback), got ${items}`);
   const invalid = await page.locator("#cf-yourName").getAttribute("aria-invalid");
@@ -93,6 +103,7 @@ await check("Call/text needs a phone, email needs an email; bad values rejected;
 
 await check("Demo mode: 'not connected' note shown, nothing claimed as sent, values kept", async () => {
   await page.goto(DEMO + "/contact/");
+  await formReady(page);
   assert(await page.locator("#contact-demo-note").isVisible(), "demo note missing");
   await fillValid(page);
   await page.getByRole("button", { name: "Send message" }).click();
@@ -103,6 +114,7 @@ await check("Demo mode: 'not connected' note shown, nothing claimed as sent, val
 
 await check("Configured (test destination): 'Sending…' state, success only after server acceptance", async () => {
   await page.goto(LIVE + "/contact/");
+  await formReady(page);
   assert((await page.locator("#contact-demo-note").count()) === 0, "demo note should be hidden when configured");
   await page.locator("#cf-yourName").fill(`Test Person ${RUN}-${++seq}`);
   await page.locator("#cf-clientName").fill("Test Client");
@@ -122,8 +134,11 @@ await check("Configured (test destination): 'Sending…' state, success only aft
   await sending.waitFor();
   assert(await sending.isDisabled(), "button should be disabled while sending");
   await page.getByText("Your inquiry was received. Submitting it does not establish representation.").waitFor();
-  const focusedRole = await page.evaluate(() => document.activeElement?.getAttribute("role"));
-  assert(focusedRole === "status", "success message should receive focus");
+  // Focus moves to the message just after it renders (an effect), so wait briefly for it.
+  const focusedRole = await page
+    .waitForFunction(() => document.activeElement?.getAttribute("role") === "status", null, { timeout: 3000 })
+    .then(() => "status", () => page.evaluate(() => document.activeElement?.getAttribute("role")));
+  assert(focusedRole === "status", `success message should receive focus (focus on ${focusedRole})`);
   await page.unroute("**/api/contact/");
   const lines = (await readFile(".data/intake-test.jsonl", "utf8")).trim().split("\n");
   assert(lines.length === 1, `expected 1 stored test inquiry, got ${lines.length}`);
@@ -136,6 +151,7 @@ await check("Configured (test destination): 'Sending…' state, success only aft
 
 await check("Double-click submit sends only once", async () => {
   await page.goto(LIVE + "/contact/");
+  await formReady(page);
   await fillValid(page, { reach: "Email" });
   await page.locator("#cf-message").fill("Double click test.");
   let posts = 0;
@@ -154,6 +170,7 @@ await check("Double-click submit sends only once", async () => {
 
 await check("Network failure: values kept, retry offered, retry succeeds", async () => {
   await page.goto(LIVE + "/contact/");
+  await formReady(page);
   await fillValid(page);
   await page.locator("#cf-message").fill("Network failure test.");
   await page.route("**/api/contact/", (route) => route.abort("failed"));
@@ -168,6 +185,7 @@ await check("Network failure: values kept, retry offered, retry succeeds", async
 
 await check("Keyboard-only completion of the form", async () => {
   await page.goto(LIVE + "/contact/");
+  await formReady(page);
   await page.locator("#cf-yourName").focus();
   await page.keyboard.type("Keyboard Tester");
   await page.keyboard.press("Tab"); // client's name
@@ -594,6 +612,7 @@ await check("Axe accessibility scan (WCAG 2.0/2.1/2.2 A & AA) on every page", as
 
 await check("Axe scan of the Contact page form with errors shown (laptop)", async () => {
   await page.goto(DEMO + "/contact/");
+  await formReady(page);
   await page.getByRole("button", { name: "Send message" }).click();
   await page.locator(SUMMARY).waitFor();
   await page.addScriptTag({ content: axeSource });
@@ -645,6 +664,7 @@ await check("Phone bar on a practice page: \"Ask about\" that area, opens the fo
   assert(await bar.getByRole("link", { name: "Call (615) 546-5551" }).isVisible(), "call button missing");
   await ask.click();
   await p.waitForURL("**/contact/?topic=dui-dwi");
+  await formReady(p);
   assert(await p.getByText("Asking about:").isVisible(), "topic label missing on the form");
   await p.locator("#cf-yourName").fill(`Topic Tester ${RUN}`);
   await p.locator("form").getByText("Other", { exact: true }).click();
@@ -657,6 +677,7 @@ await check("Phone bar on a practice page: \"Ask about\" that area, opens the fo
   const saved = JSON.parse(lines.at(-1));
   assert(saved.topic === "DUI/DWI", `saved topic: ${saved.topic}`);
   await p.goto(DEMO + "/contact/?topic=not-a-practice");
+  await formReady(p);
   assert((await p.getByText("Asking about:").count()) === 0, "unknown topics must be ignored");
   await ctx.close();
 });
@@ -1026,12 +1047,14 @@ await motionCtx.close();
 
 await check("Contact page uses the same form", async () => {
   await page.goto(DEMO + "/contact/");
+  await formReady(page);
   assert(await page.locator("#cf-yourName").isVisible(), "form missing on /contact/");
   assert((await page.getByText("full intake form").count()) === 0, "old intake-form link should be gone");
 });
 
 await check("Axe scan of the contact page with errors shown", async () => {
   await page.goto(DEMO + "/contact/");
+  await formReady(page);
   await page.getByRole("button", { name: "Send message" }).click();
   await page.locator(SUMMARY).waitFor();
   await page.addScriptTag({ content: axeSource });
@@ -1082,6 +1105,7 @@ await check("SEO 2: business data parses and has the confirmed firm details", as
 
 await check("SEO 3: structured address, phone and hours match the Contact page", async () => {
   await page.goto(DEMO + "/contact/");
+  await formReady(page);
   const f = node(firmGraph(await page.content()), "firm");
   const shown = await page.locator("dt:has-text('Office') + dd").innerText();
   const a = f.address;
@@ -1258,11 +1282,13 @@ await check("Theme 4: axe finds 0 violations in both themes (12 pages at 1440, 3
       for (const v of await axeRun(p)) problems.push(`${theme} ${path} ${v}`);
     }
     await p.goto(DEMO + "/contact/");
+    await formReady(p);
     await p.getByRole("button", { name: "Send message" }).click();
     await p.locator(SUMMARY).waitFor();
     for (const v of await axeRun(p)) problems.push(`${theme} errors ${v}`);
     // Success state, with the server's acceptance mocked so no inquiry is stored.
     await p.goto(LIVE + "/contact/");
+    await formReady(p);
     await p.route("**/api/contact/", (route) => route.fulfill({ status: 200, contentType: "application/json", body: '{"status":"accepted"}' }));
     await fillValid(p);
     await p.getByRole("button", { name: "Send message" }).click();
@@ -1520,6 +1546,7 @@ await check("Speed 3: every character shown is in the font's Latin range (or a l
     add(await page.evaluate(() => document.body.innerText + [...document.querySelectorAll("[placeholder]")].map((e) => e.placeholder).join("")), path);
   }
   await page.goto(DEMO + "/contact/");
+  await formReady(page);
   await page.getByRole("button", { name: "Send message" }).click();
   await page.locator(SUMMARY).waitFor();
   add(await page.evaluate(() => document.body.innerText), "/contact/ errors");
@@ -1604,6 +1631,7 @@ await check("Speed 7: phone bar still names each practice area and is hidden on 
     assert((await link.getAttribute("href")) === `/contact/?topic=${slug}`, `${slug}: ${await link.getAttribute("href")}`);
   }
   await p.goto(DEMO + "/contact/");
+  await formReady(p);
   await p.waitForTimeout(400);
   assert((await p.getByRole("link", { name: /^Ask about/ }).count()) === 0, "bar shown on /contact/");
   await ctx.close();
@@ -1660,6 +1688,7 @@ await check("Review 4: the not-found page offers contact, a call button and ever
 
 await check("Review 5: Contact page has a 'Get directions' link to the office on Google Maps", async () => {
   await page.goto(DEMO + "/contact/");
+  await formReady(page);
   const a = page.getByRole("link", { name: /Get directions/ });
   const href = await a.getAttribute("href");
   assert(href.startsWith("https://www.google.com/maps/search/?api=1&query=") && decodeURIComponent(href).includes("138 S. Cannon Ave, Murfreesboro, TN 37129"), href);

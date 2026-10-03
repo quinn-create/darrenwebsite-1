@@ -4,7 +4,7 @@
 // icons inside rounded fields, full-width button), restyled with the Signal tokens and
 // connected to /api/contact. Success is shown only after the server accepts the inquiry.
 import Link from "next/link";
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent, type ReactNode } from "react";
 import { Check, Phone } from "lucide-react";
 import { track } from "@/lib/analytics";
 import {
@@ -23,6 +23,8 @@ import {
 import { INTAKE_SUCCESS, PHONE_DISPLAY, PHONE_HREF } from "@/lib/site-basics";
 import { cn } from "@/lib/utils";
 import { TURNSTILE_ON, useTurnstile } from "@/components/ui/use-turnstile";
+
+const noop = () => () => {};
 
 type Status =
   | { kind: "idle" }
@@ -74,6 +76,9 @@ export function ContactForm({
   const [honeypot, setHoneypot] = useState("");
   const [topic, setTopic] = useState(initialTopic);
   const [turnstileBox, turnstileToken, resetTurnstile] = useTurnstile();
+  // True once this script runs the form (before that, Send makes a plain post; see below).
+  // Tests wait for the form's data-ready mark before typing or pressing Send.
+  const ready = useSyncExternalStore(noop, () => true, () => false);
   const started = useRef(false);
   const inFlight = useRef(false);
   const summaryRef = useRef<HTMLDivElement>(null);
@@ -197,6 +202,7 @@ export function ContactForm({
       method="post"
       action="/api/contact/"
       onSubmit={submit}
+      data-ready={ready || undefined}
       aria-labelledby={showIntro ? "contact-form-title" : undefined}
       aria-label={showIntro ? undefined : "Contact form"}
       aria-describedby={configured ? undefined : "contact-demo-note"}

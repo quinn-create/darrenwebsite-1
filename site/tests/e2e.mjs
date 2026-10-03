@@ -370,6 +370,40 @@ await check("Phase 2: footer is the site's own code; its links are underlined", 
   assert(plain.length === 0, `not underlined: ${plain.join(", ")}`);
 });
 
+await check("Contact form without JavaScript: nothing typed reaches the address bar or the inbox; the visitor is told to call", async () => {
+  const ctx = await browser.newContext({ javaScriptEnabled: false });
+  const p = await ctx.newPage();
+  const file = ".data/intake-test.jsonl";
+  const before = await readFile(file, "utf8").then((t) => t.split("\n").filter(Boolean).length).catch(() => 0);
+  await p.goto(LIVE + "/contact/?topic=dui-dwi");
+  await p.fill("#cf-yourName", "Zed Private");
+  await p.fill("#cf-phone", "615-555-0199");
+  await p.fill("#cf-message", "secret matter details");
+  await p.locator('form button[type="submit"]').click();
+  await p.waitForLoadState("load");
+  const url = p.url();
+  const alert = await p.getByRole("alert").innerText();
+  const after = await readFile(file, "utf8").then((t) => t.split("\n").filter(Boolean).length).catch(() => 0);
+  await ctx.close();
+  assert(!/Zed|Private|555|0199|secret|matter/i.test(url), `typed details in the address: ${url}`);
+  assert(url.endsWith("/contact/?form=not-sent"), `landed on ${url}`);
+  assert(/wasn.t sent/i.test(alert) && alert.includes("(615) 546-5551"), `notice: ${alert}`);
+  assert(after === before, "a no-JavaScript post was delivered");
+});
+
+await check("Static files are cached for a year (fingerprinted code, styles and share images)", async () => {
+  const html = await (await fetch(DEMO + "/")).text();
+  const js = html.match(/\/_next\/static\/[^"]+\.js/)?.[0];
+  assert(js, "no /_next/static script found");
+  const cards = JSON.parse(readFileSync("lib/share-cards.json", "utf8")).cards;
+  const bad = [];
+  for (const path of [js, cards.home]) {
+    const cc = (await fetch(DEMO + path)).headers.get("cache-control") ?? "";
+    if (!/max-age=31536000/.test(cc) || !/immutable/.test(cc)) bad.push(`${path}: ${cc || "(none)"}`);
+  }
+  assert(!bad.length, bad.join("; "));
+});
+
 // Phase 1 acceptance (docs/PROMPT-PLAN.md, plan Phase 1).
 await check("Phase 1: at 1440x900 the whole hero and \"How Darren can help\" are on the first screen", async () => {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });

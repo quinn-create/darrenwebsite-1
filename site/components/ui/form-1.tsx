@@ -190,6 +190,12 @@ export function ContactForm({
   return (
     <form
       noValidate
+      // If Send is pressed before this page's code has loaded (or with JavaScript off), the browser
+      // posts the form instead of putting what was typed into the address bar. The server sends that
+      // visitor back with a "not sent, please call" note (app/api/contact/route.ts). Normally
+      // submit() handles it and the browser never posts.
+      method="post"
+      action="/api/contact/"
       onSubmit={submit}
       aria-labelledby={showIntro ? "contact-form-title" : undefined}
       aria-label={showIntro ? undefined : "Contact form"}

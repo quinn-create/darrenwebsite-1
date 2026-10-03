@@ -29,6 +29,13 @@ const guard = createGuard();
 export async function POST(request: Request) {
   const now = Date.now();
 
+  // A plain form post: Send was pressed before the page's code loaded, or with JavaScript off.
+  // Nothing is read, delivered or logged; the visitor goes back to the Contact page with a note to
+  // call. (Turnstile and the form checks need the page's code, so this path never delivers.)
+  if (!(request.headers.get("content-type") ?? "").includes("application/json")) {
+    return Response.redirect(new URL("/contact/?form=not-sent", request.url), 303);
+  }
+
   const ip = clientIp(request);
   if (guard.rateLimited(ip, now)) {
     return json({ status: "rate_limited" }, 429);

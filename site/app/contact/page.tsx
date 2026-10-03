@@ -14,8 +14,9 @@ export const metadata: Metadata = {
 };
 
 // ?topic=<practice slug> comes from the "Ask about …" phone bar on practice pages.
-export default async function Contact({ searchParams }: { searchParams: Promise<{ topic?: string | string[] }> }) {
-  const { topic } = await searchParams;
+// ?form=not-sent: the form was posted without the page's code (see components/ui/form-1.tsx).
+export default async function Contact({ searchParams }: { searchParams: Promise<{ topic?: string | string[]; form?: string | string[] }> }) {
+  const { topic, form } = await searchParams;
   const practice = practiceBySlug(typeof topic === "string" ? topic : undefined);
   return (
     <>
@@ -29,6 +30,18 @@ export default async function Contact({ searchParams }: { searchParams: Promise<
           <div className="panel px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
             <h2 className="h3">Send a message</h2>
             <p className="mb-8 mt-2 text-muted">Choose how and when you&apos;d like to hear back.</p>
+            {form === "not-sent" && (
+              <div role="alert" className="mb-8 rounded-card border-2 border-error bg-bg p-5">
+                <p className="font-bold text-text">Your message wasn&apos;t sent.</p>
+                <p className="mt-2 text-muted">
+                  The form couldn&apos;t load completely on your device. Please call the office at{" "}
+                  <a href={PHONE_HREF} className="link-action font-semibold">
+                    {PHONE_DISPLAY}
+                  </a>
+                  , or reload this page and try again.
+                </p>
+              </div>
+            )}
             <ContactForm
               configured={isConfigured()}
               showIntro={false}

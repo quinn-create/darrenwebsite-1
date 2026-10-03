@@ -489,3 +489,9 @@ Full report: `docs/phase-2-report.md`.
 - **wrangler.jsonc** has `keep_vars: true`, so dashboard settings (SITE_ENV, addresses) survive redeploys; no vars in the file.
 - **Clarity declined**; statistics are Cloudflare Web Analytics only (D9).
 - **Setup checklist** for Quinn and Darren: `plans/for-darren/launch-steps.md` (Parts 1–9, reporting back to the session after each).
+
+## Update, 3 October 2026: fixes found by comparing Quinn's other site projects
+- **Contact form without JavaScript:** the form now has `method="post" action="/api/contact/"`. Before, pressing Send before the page's code loaded made the browser put the name, phone and message into the address bar (and request logs). The API answers any non-JSON post with a 303 to `/contact/?form=not-sent`, which shows "Your message wasn't sent… please call". Nothing is read, delivered or logged. New e2e check.
+- **Cloudflare static caching:** `public/_headers` gives `/_next/static/*` and `/images/share/*` a one-year immutable cache, plus `nosniff`. Cloudflare serves these files directly, so `next.config.ts` headers never reached them; Cloudflare's default was `max-age=0`. `next.config.ts` has the same rule for share images. New e2e check (it passes on both `next start` and the Cloudflare runtime).
+- **Node 22 pinned:** `site/.nvmrc` and `engines` in `package.json` (the plan asked for both).
+- e2e 98/98 on `next start` and on the Cloudflare runtime; worker 2.86 MB.

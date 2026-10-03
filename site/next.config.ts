@@ -78,6 +78,9 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
+      // Link-preview images carry a fingerprint in their names, so they can be cached for a year
+      // (the same rule is in public/_headers for Cloudflare, which serves them directly).
+      { source: "/images/share/:file*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
       // The Contact page is rendered per request (it reads ?topic=). Next marks such pages
       // no-store, which stops the browser's instant back/forward cache. Nothing on it is
       // personal, so "no-cache" (always re-check with the server) is enough.

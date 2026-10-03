@@ -34,7 +34,7 @@ const manrope = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "Darren Drake, Attorney at Law | Murfreesboro, TN",
+    default: "Darren Drake | Criminal Defense Attorney, Murfreesboro TN",
     template: "%s | Darren Drake, Attorney at Law",
   },
   description: SITE_DESCRIPTION,

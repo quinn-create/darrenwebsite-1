@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const practice = PRACTICES.find((p) => p.slug === slug);
   if (!practice) return {};
   return {
-    title: practice.title,
+    title: { absolute: practice.searchTitle },
     description: `${practice.summary} Contact Darren Drake or call ${PHONE_DISPLAY}.`,
     alternates: { canonical: `/practice-areas/${practice.slug}/` },
     // A page-level openGraph replaces the layout's, so repeat the shared fields here.

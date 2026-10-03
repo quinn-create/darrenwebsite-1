@@ -6,7 +6,7 @@ import { Breadcrumbs, IntakeBand } from "@/components/Sections";
 import { DARREN } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "About Darren",
+  title: { absolute: "About Darren Drake | Attorney in Murfreesboro, TN" },
   description: "About Darren Drake, attorney at law serving Murfreesboro, Rutherford County and Smyrna.",
   alternates: { canonical: "/about/" },
 };

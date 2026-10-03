@@ -70,7 +70,7 @@ listed with its source in docs/DECISIONS.md under "Conflicts to resolve". In sho
 - C7: the link-preview image says "Murfreesboro, Rutherford County & Smyrna", not "Middle
   Tennessee" (approved 26 Sep 2026).
 - C8 (hosting): Cloudflare, free plan, instead of Vercel (Quinn, 26 Sep 2026).
-- C9 (open): the form offers "Text" as a reply option, though the guidelines and plan say phone or
-  email only (no texting at launch). Darren decides; don't change it without his answer.
+- C9: the form offers Call / Text / Email; Darren allowed text replies (3 Oct 2026), although the
+  guidelines and plan said phone or email only.
 - C6: work happens on the session branch claude/sleepy-clarke-wjlh48 with one draft PR, not
   one branch per phase; this session may only push to that branch.

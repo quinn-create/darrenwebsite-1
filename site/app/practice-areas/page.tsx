@@ -3,7 +3,7 @@ import { Container } from "@/components/Container";
 import { IntakeBand, PageIntro, PracticeCards } from "@/components/Sections";
 
 export const metadata: Metadata = {
-  title: "Practice Areas",
+  title: { absolute: "Practice Areas | Darren Drake, Attorney in Murfreesboro" },
   description: "First-time offenses, DUI/DWI, domestic assault, criminal defense and expungement help from Darren Drake in Murfreesboro, Rutherford County and Smyrna.",
   alternates: { canonical: "/practice-areas/" },
 };

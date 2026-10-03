@@ -110,6 +110,8 @@ export const FAQ_JUMP_MIN = 4;
 export const PRACTICES: {
   slug: PracticeSlug;
   title: string;
+  // The Google result / browser-tab title (60 characters or fewer). "Attorney" per Darren, 3 Oct 2026.
+  searchTitle: string;
   icon: "briefcase" | "car" | "file" | "flag" | "shield";
   summary: string;
   overview: string[];
@@ -118,6 +120,7 @@ export const PRACTICES: {
 }[] = [
   {
     slug: "first-time-offenders",
+    searchTitle: "First-Time Offense Attorney, Murfreesboro TN | Darren Drake",
     title: "First-Time Offenders",
     icon: "flag",
     featured: true,
@@ -141,6 +144,7 @@ export const PRACTICES: {
   },
   {
     slug: "criminal-defense",
+    searchTitle: "Criminal Defense Attorney in Murfreesboro, TN | Darren Drake",
     title: "Criminal Defense",
     icon: "briefcase",
     summary: "Help for people facing criminal charges in Rutherford County.",
@@ -163,6 +167,7 @@ export const PRACTICES: {
   },
   {
     slug: "dui-dwi",
+    searchTitle: "DUI/DWI Attorney in Murfreesboro, TN | Darren Drake",
     title: "DUI/DWI",
     icon: "car",
     featured: true,
@@ -186,6 +191,7 @@ export const PRACTICES: {
   },
   {
     slug: "domestic-assault",
+    searchTitle: "Domestic Assault Attorney in Murfreesboro, TN | Darren Drake",
     title: "Domestic Assault",
     icon: "shield",
     featured: true,
@@ -209,6 +215,7 @@ export const PRACTICES: {
   },
   {
     slug: "expungement",
+    searchTitle: "Expungement Attorney in Murfreesboro, TN | Darren Drake",
     title: "Expungement",
     icon: "file",
     summary: "Help finding out whether a record in Rutherford County may be eligible for expungement.",

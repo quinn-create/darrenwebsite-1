@@ -1158,10 +1158,24 @@ await check("SEO 7: titles ≤ 60 characters; home description ≤ 160", async (
     const title = decode(h.match(/<title>([^<]*)<\/title>/)[1]);
     assert(title.length <= 60, `${path}: title ${title.length} chars`);
     if (path === "/") {
-      assert(title === "Darren Drake, Attorney at Law | Murfreesboro, TN", `home title "${title}"`);
+      assert(title === "Darren Drake | Criminal Defense Attorney, Murfreesboro TN", `home title "${title}"`);
       const desc = decode(h.match(/<meta name="description" content="([^"]*)"/)[1]);
       assert(desc.length <= 160, `home description ${desc.length} chars`);
     }
+  }
+});
+
+await check("SEO 7b: every page title is different; practice titles say 'Attorney' and 'Murfreesboro' (Darren, 3 Oct 2026)", async () => {
+  const titles = new Map();
+  for (const path of ALL_PAGES) {
+    const t = (await html(path)).match(/<title>([^<]*)<\/title>/)[1];
+    titles.set(t, [...(titles.get(t) ?? []), path]);
+  }
+  const dupes = [...titles].filter(([, paths]) => paths.length > 1);
+  assert(!dupes.length, `same title on: ${dupes.map(([t, p]) => `${p.join(", ")} ("${t}")`).join("; ")}`);
+  for (const slug of PRACTICE_SLUGS) {
+    const t = (await html(`/practice-areas/${slug}/`)).match(/<title>([^<]*)<\/title>/)[1];
+    assert(/Attorney/.test(t) && /Murfreesboro/.test(t) && !/Lawyer/.test(t), `${slug}: "${t}"`);
   }
 });
 

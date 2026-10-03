@@ -8,7 +8,7 @@ import { FIRM, PHONE_DISPLAY, PHONE_HREF, practiceBySlug } from "@/lib/site";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: { absolute: "Contact Darren Drake | Attorney in Murfreesboro, TN" },
   description: `Contact Darren Drake, attorney at law. Send a message online or call ${PHONE_DISPLAY}.`,
   alternates: { canonical: "/contact/" },
 };

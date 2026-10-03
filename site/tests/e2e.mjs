@@ -1709,6 +1709,78 @@ await check("Review 5: Contact page has a 'Get directions' link to the office on
   assert((await a.getAttribute("target")) === "_blank" && /noopener/.test(await a.getAttribute("rel")), "must open safely in a new tab");
 });
 
+// ---- Practice icons (plans/practice-icons-plan.md) ----
+const ICON_FOR = { "first-time-offenders": "sunrise", "criminal-defense": "scales", "dui-dwi": "car", "domestic-assault": "home", expungement: "record" };
+
+await check("Practice icons are the custom set, decorative, in a tile of 40 px or more", async () => {
+  const read = (sel) =>
+    page.locator(sel).evaluateAll((items) =>
+      items.map((li) => {
+        const tiles = li.querySelectorAll(".practice-icon");
+        const svg = tiles[0]?.querySelector("svg");
+        return {
+          href: li.querySelector("a[href^='/practice-areas/']")?.getAttribute("href") ?? li.getAttribute("href"),
+          tiles: tiles.length,
+          icon: svg?.getAttribute("data-icon"),
+          hidden: svg?.getAttribute("aria-hidden"),
+          size: tiles[0]?.getBoundingClientRect().width ?? 0,
+          lucide: li.querySelectorAll("svg[class*='lucide-flag'], svg[class*='lucide-shield'], svg[class*='lucide-briefcase'], svg[class*='lucide-file-text']").length,
+        };
+      }),
+    );
+  const pages = [
+    ["/", "main li.card"],
+    ["/practice-areas/", "main li.card"],
+    ["/practice-areas/dui-dwi/", "main a.card[href^='/practice-areas/']"],
+  ];
+  let seen = 0;
+  for (const [path, sel] of pages) {
+    await page.goto(DEMO + path);
+    for (const c of (await read(sel)).filter((c) => c.tiles || c.href?.startsWith("/practice-areas/"))) {
+      const slug = c.href?.split("/")[2];
+      if (!ICON_FOR[slug]) continue;
+      seen++;
+      assert(c.tiles === 1, `${path} ${slug}: ${c.tiles} icon tiles`);
+      assert(c.icon === ICON_FOR[slug], `${path} ${slug}: icon ${c.icon}, expected ${ICON_FOR[slug]}`);
+      assert(c.hidden === "true", `${path} ${slug}: icon not hidden from screen readers`);
+      assert(c.size >= 40, `${path} ${slug}: tile ${c.size} px`);
+      assert(c.lucide === 0, `${path} ${slug}: an old stock icon is still there`);
+    }
+  }
+  assert(seen >= 12, `only ${seen} practice cards/links checked`);
+  return `${seen} practice icons checked`;
+});
+
+await check("Practice icons keep their cyan detail in both themes", async () => {
+  for (const theme of ["dark", "light"]) {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    await ctx.addInitScript((t) => localStorage.setItem("theme", t), theme);
+    const p = await ctx.newPage();
+    await p.goto(DEMO + "/practice-areas/");
+    const { accent, action, lines, text } = await p.evaluate(() => {
+      const root = getComputedStyle(document.documentElement);
+      const probe = (v) => {
+        const d = document.createElement("div");
+        d.style.color = v;
+        document.body.append(d);
+        const c = getComputedStyle(d).color;
+        d.remove();
+        return c;
+      };
+      const svg = document.querySelector(".practice-icon svg");
+      return {
+        accent: getComputedStyle(svg.querySelector(".accent")).stroke,
+        action: probe(root.getPropertyValue("--color-action")),
+        lines: getComputedStyle(svg).stroke,
+        text: probe(root.getPropertyValue("--color-text")),
+      };
+    });
+    await ctx.close();
+    assert(accent === action, `${theme}: accent ${accent}, expected ${action}`);
+    assert(lines === text, `${theme}: icon lines ${lines}, expected ${text}`);
+  }
+});
+
 await browser.close();
 await rm(".data/intake-test.jsonl", { force: true });
 

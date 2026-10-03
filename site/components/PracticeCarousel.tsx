@@ -37,7 +37,7 @@ export function PracticeCarousel() {
             aria-label={`${i + 1} of ${PRACTICES.length}: ${p.title}`}
             className="card flex w-[82%] shrink-0 snap-start flex-col gap-3 p-6 sm:w-[46%] lg:w-[calc((100%-3rem)/3)]"
           >
-            <PracticeIcon name={p.icon} size={32} />
+            <PracticeIcon name={p.icon} size="md" />
             <h4 className="text-[20px] font-bold leading-tight">{p.title}</h4>
             <p className="text-[16px] text-muted">{p.summary}</p>
             <Link

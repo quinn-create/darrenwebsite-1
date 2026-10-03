@@ -5,6 +5,7 @@
 // so this file's page wording is never sent twice (plans/speed-check-plan.md).
 import { PHONE_DISPLAY } from "./site-basics";
 import shareCards from "./share-cards.json";
+import type { PracticeIconName } from "@/components/PracticeIcon";
 export * from "./site-basics";
 
 // Every firm fact lives here, so each is changed in one place once Darren confirms it.
@@ -112,7 +113,7 @@ export const PRACTICES: {
   title: string;
   // The Google result / browser-tab title (60 characters or fewer). "Attorney" per Darren, 3 Oct 2026.
   searchTitle: string;
-  icon: "briefcase" | "car" | "file" | "flag" | "shield";
+  icon: PracticeIconName; // drawn in components/PracticeIcon.tsx
   summary: string;
   overview: string[];
   featured?: boolean;
@@ -122,7 +123,7 @@ export const PRACTICES: {
     slug: "first-time-offenders",
     searchTitle: "First-Time Offense Attorney, Murfreesboro TN | Darren Drake",
     title: "First-Time Offenders",
-    icon: "flag",
+    icon: "sunrise",
     featured: true,
     summary: "Help for people in Rutherford County facing a criminal charge for the first time.",
     overview: [
@@ -146,7 +147,7 @@ export const PRACTICES: {
     slug: "criminal-defense",
     searchTitle: "Criminal Defense Attorney in Murfreesboro, TN | Darren Drake",
     title: "Criminal Defense",
-    icon: "briefcase",
+    icon: "scales",
     summary: "Help for people facing criminal charges in Rutherford County.",
     overview: [
       "A criminal charge raises urgent questions about your freedom, your record and your future. Darren helps people facing criminal charges understand the charge against them, the court process and their options.",
@@ -193,7 +194,7 @@ export const PRACTICES: {
     slug: "domestic-assault",
     searchTitle: "Domestic Assault Attorney in Murfreesboro, TN | Darren Drake",
     title: "Domestic Assault",
-    icon: "shield",
+    icon: "home",
     featured: true,
     summary: "Help for people charged with domestic assault in Rutherford County.",
     overview: [
@@ -217,7 +218,7 @@ export const PRACTICES: {
     slug: "expungement",
     searchTitle: "Expungement Attorney in Murfreesboro, TN | Darren Drake",
     title: "Expungement",
-    icon: "file",
+    icon: "record",
     summary: "Help finding out whether a record in Rutherford County may be eligible for expungement.",
     overview: [
       "A criminal record can follow you when you apply for jobs, housing or school. Darren helps people find out whether a charge or conviction on their record may be eligible to be removed, and handles the process if it is.",

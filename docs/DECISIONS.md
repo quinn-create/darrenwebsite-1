@@ -41,6 +41,7 @@ The record of Darren's answers. Claude acts only on decisions recorded here as *
 | Photo paperwork | Quinn: approved, no further action (no signed note or names filed) | 26 Sep 2026 | `answers-2026-09-26.md` |
 | Phase 1 design | Approved: the look of the five page types, the headline and supporting line, and the link-preview image (`printouts/Phase-1-Design-Lock.pdf`) | 26 Sep 2026 | `answers-2026-09-26.md` |
 | About-page facts | Navy, education, admissions, community and memberships as listed | 24 Sep 2026 | same |
+| Practice icons | Custom set: sunrise, scales, car, house, record with a reset arrow (`plans/practice-icons-plan.md`). Quinn's request; **waiting on Darren's look** at `printouts/Practice-Icons-Screenshots.pdf`. Page pictures from Higgsfield (Part B): declined by Quinn after one test. | 3 Oct 2026 | Session (Quinn) |
 
 ## Still open (not a numbered decision)
 - **MyCase:** whether the firm's plan can receive website leads directly.

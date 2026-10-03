@@ -343,6 +343,29 @@ body {
   transform: translateY(-2px);
   border-color: var(--card-hover-border);
 }
+/* Practice-area icon tile (components/PracticeIcon.tsx; plans/practice-icons-plan.md). Thin border,
+   faint tint, no glow; one cyan detail per icon. */
+.practice-icon {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 14px;
+  border: 1px solid var(--card-hover-border);
+  background: var(--tint-action);
+  color: var(--color-text);
+}
+.practice-icon .accent {
+  stroke: var(--color-action);
+}
+@media (forced-colors: active) {
+  .practice-icon {
+    border-color: CanvasText;
+  }
+  .practice-icon svg,
+  .practice-icon .accent {
+    stroke: CanvasText;
+  }
+}
 .card-link::after {
   content: "";
   position: absolute;

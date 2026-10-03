@@ -103,7 +103,7 @@ function OtherPractices({ current }: { current: string }) {
                 href={`/practice-areas/${p.slug}/`}
                 className="card flex h-full min-h-16 items-center gap-3 px-5 py-4 font-semibold text-text"
               >
-                <PracticeIcon name={p.icon} size={24} />
+                <PracticeIcon name={p.icon} size="sm" />
                 <span className="flex-1">{p.title}</span>
                 <ArrowRight aria-hidden="true" size={18} strokeWidth={1.5} className="text-muted" />
               </Link>

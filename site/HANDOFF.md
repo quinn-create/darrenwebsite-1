@@ -80,7 +80,7 @@ End-to-end checks:
 
 ## Intentional differences from the concept and prompt
 
-1. **Criminal Defense icon:** the shield became a briefcase (Lucide `Briefcase`), because Signal forbids shield- and badge-like marks.
+1. **Criminal Defense icon:** the shield became a briefcase (Lucide `Briefcase`), because Signal forbids shield- and badge-like marks. *(Superseded 3 Oct 2026: see "Practice-area icons" below.)*
 2. **Card copy:** cards use neutral one-line descriptions marked `[CONFIRM WITH FIRM]` instead of marketing taglines.
 3. **FAQ component:** built with native `<details>`/`<summary>` instead of the shadcn Accordion. It's keyboard- and screen-reader-accessible, works without JavaScript and adds no dependencies. Form fields are also hand-built rather than shadcn, with the same label, hint and error behavior. shadcn/ui is set up (`components.json`, `lib/utils.ts`, `components/ui/`) and currently used for the footer only.
 4. **Font:** Manrope is self-hosted with `@fontsource-variable/manrope` (one 25 KB variable woff2 covering weights 400–800) instead of `next/font`. The effect is the same, it needs no build-time Google fetch, and only one font file loads.
@@ -506,3 +506,18 @@ Full report: `docs/phase-2-report.md`.
 - **Form test timing (CI failure on 1ae3b48):** "Required-field errors" read the focus in the same instant the error summary appeared, but the form focuses it on the next animation frame. The test (and the success-message focus check) now waits up to 3 s for focus. The form also gets a `data-ready` mark once its script runs, and every form test waits for it. Since the form now posts without its script (the safe "not sent, please call" path), a Send pressed before then can't do what the tests expect.
 - **Search titles (3 Oct 2026, Darren: use "Attorney"):** practice pages use `searchTitle` in `lib/site.ts` (e.g. "DUI/DWI Attorney in Murfreesboro, TN | Darren Drake"). Home, Practice Areas, About and Contact have their own titles too, all 60 characters or fewer. New e2e check "SEO 7b": every title is different, and practice titles say Attorney and Murfreesboro.
 - **Recorded:** the address and phone stay as they are (shared with Quinn Rodriguez Law PLLC; the risk was explained). C9 is resolved: Darren allows text replies.
+
+## Practice-area icons (3 October 2026)
+Quinn asked for the practice icons to look more premium. The plan is `plans/practice-icons-plan.md`; Part B (Higgsfield page images) was declined after one test picture.
+- **The set:** `components/PracticeIcon.tsx` draws five custom icons, on the same 24 grid, 1.5 stroke and round ends as lucide (one icon family):
+  - sunrise (First-Time Offenders);
+  - scales (Criminal Defense), drawn unlike lucide's `Scale`, which "At a glance" uses for the DUI Court board seat;
+  - car (DUI/DWI);
+  - home (Domestic Assault, replacing the badge-like shield);
+  - record with a reset arrow (Expungement).
+- **Design:** each icon has one cyan detail (`class="accent"`). It sits in a `.practice-icon` tile in `app/globals.css`: thin border, faint tint, theme tokens only. In high contrast, everything is drawn in `CanvasText`.
+- **Sizes:** `size="lg"` (56/32) for the cards, `"md"` (48/28) for the home carousel, `"sm"` (40/22) for the "Other practice areas" links. The key lives in `PRACTICES[].icon` (`lib/site.ts`).
+- **Adding a practice area:** add its drawing to `PATHS` in `PracticeIcon.tsx` (one accent detail, no police, court, gavel, badge, heart or people imagery) and its key to the new practice. Also add it to `ICON_FOR` in `tests/e2e.mjs`.
+- **Tests:** 2 new e2e checks (the right icon, decorative, tile 40 px or more, no stock icons left; the accent and line colours in both themes). e2e 101/101; claims, buttons, links, placeholders, consent and Lighthouse pass; the Cloudflare worker is 2859 KiB.
+- **Screenshots:** `printouts/Practice-Icons-Screenshots.pdf` (320/390/768/1440 px, both themes, high contrast).
+- **Waiting on:** Darren's look at the screenshots (it changes the Phase 1 design he approved).

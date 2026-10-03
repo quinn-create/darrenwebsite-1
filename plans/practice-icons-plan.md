@@ -115,6 +115,10 @@ Only if Quinn asks. It costs Higgsfield credits.
 - **Checks:** everything in section 7, plus Lighthouse on two practice pages: LCP 2.5 s or less and CLS 0.1 or less on a throttled phone. The first page load must stay around 1 MB or less.
 - **Needs Darren's OK** before launch: the images are part of the firm's advertising.
 
+## Status (3 October 2026)
+- **Part A: done.** The final set was chosen from three independent designs and two reviews.
+- **Part B: declined by Quinn** after one test picture (DUI/DWI road at dusk, Higgsfield job 9ebf25af-2be9-4601-9798-9a43d24137c8, 2.75 credits). No page pictures were added.
+
 ## 10. Waiting on
 
 - **Part A:** nothing; Quinn asked for it. Darren sees the screenshots afterwards.

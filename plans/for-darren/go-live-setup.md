@@ -1,6 +1,6 @@
 # Getting a working private website (for Darren)
 
-> **Update, 26 September 2026:** hosting moved to **Cloudflare (free plan)** (decision C8). Follow `cloudflare-setup.md` instead of sections 1 and 2 below; the email and Telegram sections still apply, but the email service may change (options sent to Quinn).
+> **Replaced (26 September 2026).** Hosting moved to Cloudflare (C8) and email to Resend. Follow `launch-steps.md` (step by step) and `cloudflare-setup.md` instead. This guide's Vercel and Postmark steps are kept only for the record; the Telegram steps are the same as `launch-steps.md` Part 8.
 
 This takes about an hour. When it's done, Darren has a **private link** to the full working website, which only people he invites can open. Inquiries sent from it reach Kelly (email and Telegram) and Darren (email). Nothing changes on ddrakelaw.com, and the firm's email keeps working as it does now.
 

@@ -16,5 +16,14 @@
   "images": { "binding": "IMAGES" },
   // Settings (SITE_ENV, email addresses) are managed in the Cloudflare dashboard; keep them when
   // the code is redeployed. Without SITE_ENV the site behaves as a hidden preview.
-  "keep_vars": true
+  "keep_vars": true,
+  // Workers Logs (on by default for new Workers): keep only the site's own error lines, which never
+  // contain form details (lib/intake-delivery.ts), so a failing inquiry email can be diagnosed.
+  // No per-request logs (they'd hold visitors' IP addresses and page addresses) and no query
+  // strings anywhere: CLAUDE.md, no personal or matter details in logs.
+  "observability": {
+    "enabled": true,
+    "redact_query_string": true,
+    "logs": { "enabled": true, "invocation_logs": false }
+  }
 }

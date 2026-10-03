@@ -40,10 +40,10 @@ Worker → **Settings** → **Variables and Secrets** → **Add**.
   - `SITE_ENV` = `preview`
   - `SITE_URL` = `https://ddrakelaw.com`
   - `INTAKE_DESTINATION` = `email`
-  - `INTAKE_EMAIL_FROM` = the sending address, e.g. `website@ddrakelaw.com`
+  - `INTAKE_EMAIL_FROM` = the sending address, e.g. `Darren Drake Website <website@ddrakelaw.com>`
   - `INTAKE_EMAIL_TO` = the recipients from D8, comma-separated
 - **Secret** (choose type **Secret**, so the value can't be read back):
-  - the email service's key (e.g. `POSTMARK_SERVER_TOKEN`);
+  - `RESEND_API_KEY`, the email service's key (Resend, chosen 26 Sep 2026);
   - `TELEGRAM_BOT_TOKEN`;
   - `TELEGRAM_CHAT_ID`.
 
@@ -66,8 +66,21 @@ Paste keys only into Cloudflare, never into chat or email. Then **Deployments** 
 1. Cloudflare dashboard → **Analytics & Logs** → **Web Analytics** → **Add a site** → choose `ddrakelaw.com` → **Automatic setup**. No code or cookie banner is needed.
 2. On that site's **Manage site** page, under **Rules**, add a rule to **exclude** the paths `/contact*` and `/intake*`. That keeps statistics off the form page, like every other tag.
 
+## About logs (nothing to do)
+The site's settings file switches Cloudflare's Workers Logs to keep only the site's own error notes, such as "the inquiry email was rejected". These never include anything from the form. Per-visit request logs, which would hold visitors' IP addresses and page addresses, are switched off. If an inquiry ever fails, the notes are under worker → **Observability** for 3 days.
+
 ## Later: launch day (needs Darren's written sign-off)
-1. Change `SITE_ENV` to `production`, both in **Build variables** and in **Variables and Secrets**, then redeploy. The build refuses to go live if any unconfirmed "Waiting on the firm" item comes back.
-2. Worker → **Settings** → **Domains & Routes** → **Add** → **Custom domain** → `ddrakelaw.com` (and `www.ddrakelaw.com`).
-3. **Never** change the MX, SPF, DKIM or DMARC records, the Google verification record, or the mail/ftp entries. Adding the custom domain doesn't touch them.
-4. Keep the old WordPress server untouched for 90 days (D15).
+1. **Before switching:** in Cloudflare → `ddrakelaw.com` → **Rules**, and in **Speed** and **Scrape Shield**, write down (screenshot) any old rules left from the WordPress site, such as page rules, cache rules, Rocket Loader or Email Address Obfuscation. Ask the session before removing any, because they would sit in front of the new site.
+2. Change `SITE_ENV` to `production`, both in **Build variables** and in **Variables and Secrets**, then redeploy. The build refuses to go live if any unconfirmed "Waiting on the firm" item comes back.
+3. Worker → **Settings** → **Domains & Routes** → **Add** → **Custom domain** → `ddrakelaw.com`. Add only the bare domain, not `www`.
+4. **One address for Google: www → ddrakelaw.com.** Cloudflare → `ddrakelaw.com` → **Rules** → **Redirect Rules** → **Create rule** → template **"Redirect from WWW to root"**. Choose **301**, keep the path and the query string, then **Deploy**.
+   - The old site already does this today, so it keeps the same behaviour and avoids Google seeing two copies of the site.
+   - The rule only works if `www` goes through Cloudflare: in **DNS** → **Records**, the `www` record's cloud must be orange (**Proxied**). If it's grey, click **Edit** and switch it to Proxied (change nothing else).
+   - If `www` has no DNS record, add one first: **DNS** → **Records** → **Add record** → type **A**, name `www`, IPv4 `192.0.2.1`, **Proxied** (orange cloud on). That placeholder address is the standard one for a proxy-only record. Don't change any other record.
+5. **AI search and crawlers (Darren's choice; recommended: allow search, block training).** Cloudflare → `ddrakelaw.com` → **Security** → **Settings** (or **AI Crawl Control**):
+   - check whether **"Block AI bots"**, **"Manage your robots.txt"** or **"Bot Fight Mode"** is on. Cloudflare turns some of these on by default, and they can stop ChatGPT, Perplexity and similar tools from reading the site to answer questions about local lawyers;
+   - recommended: allow AI search crawlers (they cite and link the site) and block only AI training crawlers. Tell the session what was chosen, so it's recorded.
+6. **Never** change the MX, SPF, DKIM or DMARC records, the Google verification record, or the mail/ftp entries. Adding the custom domain and the redirect rule doesn't touch them.
+7. **Free uptime alert (optional, 5 minutes):** at uptimerobot.com, using the firm's email, add two "Keyword" monitors: `https://ddrakelaw.com/` (keyword `Darren Drake`) and `https://ddrakelaw.com/contact/` (keyword `Send message`), alerting Kelly and Darren. This catches the site or the form page going down.
+8. **Search Console:** the new site keeps the old Google verification tag, so the firm's existing Search Console property stays verified. Find out who owns it (an open item since Phase 0), then submit `https://ddrakelaw.com/sitemap.xml` there.
+9. Keep the old WordPress server untouched for 90 days (D15).

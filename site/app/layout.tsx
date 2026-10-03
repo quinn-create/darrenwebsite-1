@@ -43,6 +43,9 @@ export const metadata: Metadata = {
   // scripts/make-share-cards.mjs; practice pages set their own.
   openGraph: OPEN_GRAPH_BASE,
   twitter: { card: "summary_large_image", title: SHARE_TITLE, images: [shareImage("home")] },
+  // Google Search Console: the old site's public verification tag, kept so the firm's existing
+  // property stays verified through the move (plan Appendix A; archive/ddrakelaw.com-2026-09-24).
+  verification: { google: "97ppyG4Y--JjHZQuFPompEAafNA2SLihVTQGmAtI1jA" },
   // Only the live site (SITE_ENV=production) may be indexed; previews stay out of search engines.
   robots: IS_PRODUCTION ? { index: true, follow: true } : { index: false, follow: false },
 };

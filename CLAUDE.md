@@ -25,8 +25,8 @@ and do the work yourself instead of handing him scripts to run.
   lawyers' names. ("Expert witness" as a legal term is fine.)
 - Never send personal or matter details to statistics, logs or error reports.
   No session replay. No advertising pixels on /intake/, ever.
-- Never ask for or accept secret keys in chat. Keys go straight into Vercel's
-  Environment Variables (Sensitive type).
+- Never ask for or accept secret keys in chat. Keys go straight into Cloudflare
+  (worker → Settings → Variables and Secrets, type "Secret"); hosting moved there (C8).
 - Never touch MX, SPF, DKIM, DMARC, the Google verification record, or the
   mail/ftp DNS entries.
 
@@ -70,5 +70,7 @@ listed with its source in docs/DECISIONS.md under "Conflicts to resolve". In sho
 - C7: the link-preview image says "Murfreesboro, Rutherford County & Smyrna", not "Middle
   Tennessee" (approved 26 Sep 2026).
 - C8 (hosting): Cloudflare, free plan, instead of Vercel (Quinn, 26 Sep 2026).
+- C9 (open): the form offers "Text" as a reply option, though the guidelines and plan say phone or
+  email only (no texting at launch). Darren decides; don't change it without his answer.
 - C6: work happens on the session branch claude/sleepy-clarke-wjlh48 with one draft PR, not
   one branch per phase; this session may only push to that branch.

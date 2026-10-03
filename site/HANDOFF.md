@@ -495,3 +495,10 @@ Full report: `docs/phase-2-report.md`.
 - **Cloudflare static caching:** `public/_headers` gives `/_next/static/*` and `/images/share/*` a one-year immutable cache, plus `nosniff`. Cloudflare serves these files directly, so `next.config.ts` headers never reached them; Cloudflare's default was `max-age=0`. `next.config.ts` has the same rule for share images. New e2e check (it passes on both `next start` and the Cloudflare runtime).
 - **Node 22 pinned:** `site/.nvmrc` and `engines` in `package.json` (the plan asked for both).
 - e2e 98/98 on `next start` and on the Cloudflare runtime; worker 2.86 MB.
+- **From Will's revamp kit and Quinn's own firm site (3 Oct 2026):**
+  - `check-claims.mjs` gained 6 rules (superlatives, "top 10", results claims, round-the-clock, ratings badges, and retired old-site names/numbers/wording including "Middle Tennessee", "juvenile", the old phone and other lawyers' names) and now also reads the not-found page. Self-test: 26 risky / 8 safe.
+  - The old site's public Google Search Console verification tag is carried over (`app/layout.tsx`), as plan Appendix A says.
+  - `Permissions-Policy` uses `browsing-topics=()` (the obsolete `interest-cohort` is gone).
+  - Workers Logs: only the site's own error lines, with no per-request logs and query strings redacted (`wrangler.jsonc` `observability`).
+  - Launch-day guide: www → bare-domain redirect rule, check old WordPress-era Cloudflare rules, an AI-crawler choice, an optional UptimeRobot alert, and Search Console.
+  - New open items in DECISIONS: C9 (the form's "Text" option) and the shared address/phone with Quinn Rodriguez Law PLLC (local map listings).

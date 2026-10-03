@@ -113,4 +113,4 @@ Time: about 1 to 1½ hours, including waiting for things to build. Nothing here 
 ## Later (not today)
 - **Visitor statistics:** Cloudflare Web Analytics, set up at launch, when the site is on `ddrakelaw.com` (steps in `cloudflare-setup.md`, step 7).
 - **Firm GitHub organization (D13):** move the code out of Quinn's GitHub, then reconnect Cloudflare to it.
-- **Launch day:** needs Darren's written sign-off. The steps are in `cloudflare-setup.md`, "Later: launch day".
+- **Launch day:** needs Darren's written sign-off. The steps are in `cloudflare-setup.md`, "Later: launch day". They include a www → ddrakelaw.com redirect rule, Darren's choice on AI-search crawlers, a free uptime alert, and Search Console.

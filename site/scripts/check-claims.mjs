@@ -22,11 +22,33 @@ const RULES = [
   ["results or win claims", /\b(?:we|he|darren)\s+(?:won|win|wins|will win)\b|\bproven (?:results|track record)\b|\brecord of success\b|\bsuccess rate\b/i],
   ["response-time promise", /\bwithin (?:an?|one|\d+|twenty[- ]four)\s+(?:minute|minutes|hour|hours|day|days|business day|business days)\b|\bsame[- ]day (?:response|call)\b/i],
   ["comparison with other lawyers", /\b(?:better|more experienced) than (?:other|most|any)\b/i],
+  // Added 3 Oct 2026 after comparing Quinn's other site projects: more superlatives, results claims
+  // that don't use "won", round-the-clock availability and paid-badge wording.
+  ["superlative ('leading', 'premier', 'most experienced' …)", /\b(?:a|the|one of the)\s+(?:leading|premier|preeminent|foremost|most (?:experienced|respected|trusted|aggressive|successful))\b/i],
+  ["top + number or ranking", /\btop\s+(?:\d+|ten|criminal|dui|defense|choice|pick)\b/i],
+  ["results claim", /\b(?:case|trial) results\b|\bsuccessful(?:ly)? (?:defended|resolved|represented|fought)\b|\b(?:got|gets|secured|obtained|won|achieved)\b[^.!?]{0,40}\b(?:dismiss\w*|acquitt\w*|not guilty|dropped|reduced|thrown out|verdicts?)\b|\bhundreds of (?:cases|clients)\b|\b(?:acquittals|verdicts)\b/i],
+  ["round-the-clock availability", /\baround the clock\b|\bday or night\b|\bany ?time,? day\b/i],
+  ["ratings badges", /\bsuper lawyers?\b|\bav[- ]preeminent\b|\b10\.0 (?:avvo|rating)\b|\bavvo rating\b/i],
+  // Retired by Darren's answers (24 Sep 2026; plan Section 9 "Not carried over"; C1, C7, D5) and other
+  // lawyers' names: none may come back onto the site.
+  ["retired old-site name, number or wording", /\bDrake,? Drake\b|\bTom Frost\b|\bFrost\b|\bJohn Drake\b|\bDavid Clarke\b|\bRyan Freeze\b|\bDarren Lee Drake\b|attorneymurfreesboro|410[-. ]?3919|\b120 E(?:ast|\.)? Main\b|\bMiddle Tennessee\b|\bStart your intake\b|\bjuvenile\b|\bQuinn Rodriguez\b|\bMurfreesboro Legal Group\b|\bWill Fraley\b/i],
 ];
 
 if (process.argv.includes("--self-test")) {
-  const bad = ["He specializes in DUI defense.", "A certified criminal law specialist.", "An expert in Tennessee law.", "The best lawyer in town.", "Top-rated attorney.", "Call for a free consultation.", "Available 24/7.", "We guarantee results.", "Our attorneys will help.", "We won 200 cases.", "We call back within 1 hour.", "Better than other firms."];
-  const good = ["He may call an expert witness.", "Scroll to the top of the page.", "Tell us how to reach you.", "Contact the office as soon as you can."];
+  const bad = [
+    "He specializes in DUI defense.", "A certified criminal law specialist.", "An expert in Tennessee law.", "The best lawyer in town.",
+    "Top-rated attorney.", "Call for a free consultation.", "Available 24/7.", "We guarantee results.", "Our attorneys will help.",
+    "We won 200 cases.", "We call back within 1 hour.", "Better than other firms.",
+    "A leading DUI lawyer in Murfreesboro.", "One of the most experienced defense lawyers.", "Named a Top 100 lawyer.",
+    "Darren got the charges dismissed.", "He secured a not guilty verdict.", "See our case results.", "Hundreds of cases handled.",
+    "Help is available around the clock.", "A Super Lawyer since 2015.", "Formerly Drake Drake & Frost.", "Call 615-410-3919.",
+    "Serving Murfreesboro & Middle Tennessee.", "Start your intake today.", "We handle juvenile cases.",
+  ];
+  const good = [
+    "He may call an expert witness.", "Scroll to the top of the page.", "Tell us how to reach you.", "Contact the office as soon as you can.",
+    "Admitted in the U.S. District Court for the Middle District of Tennessee.", "Rutherford & Cannon County Bar Association",
+    "If your charges were dismissed, you may be able to have the record removed.", "Leading up to your court date, keep your paperwork together.",
+  ];
   const missed = bad.filter((t) => !RULES.some(([, rx]) => rx.test(t)));
   const wrong = good.filter((t) => RULES.some(([, rx]) => rx.test(t)));
   if (missed.length || wrong.length) {
@@ -42,7 +64,8 @@ const allow = JSON.parse(readFileSync(new URL("./claims-allowlist.json", import.
 const browser = await chromium.launch({ executablePath: chromiumPath() });
 const page = await browser.newPage();
 const hits = [];
-for (const path of await sitePages()) {
+// Every page in the sitemap, plus the not-found page (old addresses land there).
+for (const path of [...(await sitePages()), "/no-such-page-claims-check/"]) {
   await page.goto(BASE + path, { waitUntil: "networkidle" });
   const parts = await page.evaluate(() => {
     const meta = [...document.querySelectorAll('meta[name="description"], meta[property^="og:"], meta[name^="twitter:"]')].map((m) => m.getAttribute("content") ?? "");

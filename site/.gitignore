@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.next-consent/
+.data/
+next-env.d.ts
+*.tsbuildinfo
+.env*
+!.env.example
+.lighthouseci/
+.open-next/
+.wrangler/
+.dev.vars

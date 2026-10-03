@@ -1,0 +1,10 @@
+{
+  "_about": "Sentences that match the risky-claims list but were approved by Darren. Each needs who approved it, when, and where that is recorded. scripts/check-claims.mjs skips exactly these sentences.",
+  "allowed": [],
+  "_retired": [
+    {
+      "text": "We generally return calls within a day.",
+      "retired": "26 September 2026: softened to \"The office will contact you about next steps.\" (conflict C3, docs/DECISIONS.md)"
+    }
+  ]
+}

@@ -1,0 +1,259 @@
+{
+  "at": "2026-09-25T04:27:43.389Z",
+  "runs": 5,
+  "results": {
+    "phone": {
+      "/": {
+        "fcp": 748,
+        "lcp": 748,
+        "cls": 0,
+        "clsMax": 0,
+        "tbt": 128,
+        "jsKB": 159.087890625,
+        "totalKB": 281.9541015625,
+        "fonts": 1,
+        "fontKB": 24.7744140625,
+        "taps": {
+          "faq": 48,
+          "carousel": 32,
+          "theme": 128
+        },
+        "topTasks": [
+          {
+            "at": 1479,
+            "ms": 178,
+            "src": "unknown"
+          },
+          {
+            "at": 570,
+            "ms": 69,
+            "src": "unknown"
+          },
+          {
+            "at": 651,
+            "ms": 69,
+            "src": "unknown"
+          }
+        ]
+      },
+      "/practice-areas/": {
+        "fcp": 604,
+        "lcp": 604,
+        "cls": 0,
+        "clsMax": 0,
+        "tbt": 131,
+        "jsKB": 159.087890625,
+        "totalKB": 244.5732421875,
+        "fonts": 1,
+        "fontKB": 24.7744140625,
+        "taps": {
+          "theme": 88
+        },
+        "topTasks": [
+          {
+            "at": 1372,
+            "ms": 181,
+            "src": "unknown"
+          }
+        ]
+      },
+      "/practice-areas/dui-dwi/": {
+        "fcp": 620,
+        "lcp": 620,
+        "cls": 0,
+        "clsMax": 0,
+        "tbt": 139,
+        "jsKB": 159.087890625,
+        "totalKB": 237.8583984375,
+        "fonts": 1,
+        "fontKB": 24.7744140625,
+        "taps": {
+          "faq": 48,
+          "theme": 88
+        },
+        "topTasks": [
+          {
+            "at": 1372,
+            "ms": 189,
+            "src": "unknown"
+          }
+        ]
+      },
+      "/about/": {
+        "fcp": 596,
+        "lcp": 596,
+        "cls": 0,
+        "clsMax": 0,
+        "tbt": 132,
+        "jsKB": 159.087890625,
+        "totalKB": 256.3740234375,
+        "fonts": 1,
+        "fontKB": 24.7744140625,
+        "taps": {
+          "theme": 80
+        },
+        "topTasks": [
+          {
+            "at": 1499,
+            "ms": 182,
+            "src": "unknown"
+          },
+          {
+            "at": 550,
+            "ms": 58,
+            "src": "unknown"
+          }
+        ]
+      },
+      "/contact/": {
+        "fcp": 712,
+        "lcp": 712,
+        "cls": 0,
+        "clsMax": 0,
+        "tbt": 132,
+        "jsKB": 173.236328125,
+        "totalKB": 248.73046875,
+        "fonts": 1,
+        "fontKB": 24.7744140625,
+        "taps": {
+          "theme": 96
+        },
+        "topTasks": [
+          {
+            "at": 1453,
+            "ms": 182,
+            "src": "unknown"
+          },
+          {
+            "at": 514,
+            "ms": 137,
+            "src": "unknown"
+          },
+          {
+            "at": 663,
+            "ms": 56,
+            "src": "unknown"
+          }
+        ]
+      }
+    },
+    "desktop": {
+      "/": {
+        "fcp": 136,
+        "lcp": 136,
+        "cls": 0,
+        "clsMax": 0,
+        "tbt": 0,
+        "jsKB": 159.087890625,
+        "totalKB": 280.0732421875,
+        "fonts": 1,
+        "fontKB": 24.7744140625,
+        "taps": {
+          "faq": 32,
+          "carousel": 32,
+          "theme": 64
+        },
+        "topTasks": []
+      },
+      "/practice-areas/": {
+        "fcp": 104,
+        "lcp": 104,
+        "cls": 0,
+        "clsMax": 0,
+        "tbt": 0,
+        "jsKB": 159.087890625,
+        "totalKB": 260.7626953125,
+        "fonts": 1,
+        "fontKB": 24.7744140625,
+        "taps": {
+          "theme": 56
+        },
+        "topTasks": []
+      },
+      "/practice-areas/dui-dwi/": {
+        "fcp": 96,
+        "lcp": 96,
+        "cls": 0,
+        "clsMax": 0,
+        "tbt": 0,
+        "jsKB": 159.087890625,
+        "totalKB": 259.9326171875,
+        "fonts": 1,
+        "fontKB": 24.7744140625,
+        "taps": {
+          "faq": 24,
+          "theme": 40
+        },
+        "topTasks": []
+      },
+      "/about/": {
+        "fcp": 136,
+        "lcp": 200,
+        "cls": 0,
+        "clsMax": 0,
+        "tbt": 0,
+        "jsKB": 159.087890625,
+        "totalKB": 250.5947265625,
+        "fonts": 1,
+        "fontKB": 24.7744140625,
+        "taps": {
+          "theme": 40
+        },
+        "topTasks": []
+      },
+      "/contact/": {
+        "fcp": 116,
+        "lcp": 116,
+        "cls": 0,
+        "clsMax": 0,
+        "tbt": 0,
+        "jsKB": 173.236328125,
+        "totalKB": 248.73046875,
+        "fonts": 1,
+        "fontKB": 24.7744140625,
+        "taps": {
+          "theme": 48
+        },
+        "topTasks": []
+      }
+    }
+  },
+  "caching": [
+    {
+      "name": "/_next/static/* is public, max-age=31536000, immutable",
+      "ok": true,
+      "got": "public, max-age=31536000, immutable"
+    },
+    {
+      "name": "/ is not no-store (back/forward cache)",
+      "ok": true,
+      "got": "s-maxage=31536000"
+    },
+    {
+      "name": "/practice-areas/ is not no-store (back/forward cache)",
+      "ok": true,
+      "got": "s-maxage=31536000"
+    },
+    {
+      "name": "/practice-areas/dui-dwi/ is not no-store (back/forward cache)",
+      "ok": true,
+      "got": "s-maxage=31536000"
+    },
+    {
+      "name": "/about/ is not no-store (back/forward cache)",
+      "ok": true,
+      "got": "s-maxage=31536000"
+    },
+    {
+      "name": "/contact/ is not no-store (back/forward cache)",
+      "ok": true,
+      "got": "private, no-cache, max-age=0, must-revalidate"
+    },
+    {
+      "name": "/_next/image max-age ≥ 1 day",
+      "ok": true,
+      "got": "public, max-age=315360000, immutable"
+    }
+  ],
+  "failures": []
+}

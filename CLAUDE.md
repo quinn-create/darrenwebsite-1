@@ -45,6 +45,9 @@ and do the work yourself instead of handing him scripts to run.
   page) for the firm's 2-year advertising record (Tennessee RPC 7.1(c)).
 
 ## Where things are (pointers, not copies)
+- Finish and go-live runbook (8 Nov 2026): plans/finish-and-launch-runbook.md. When Quinn says
+  "run Darren's launch plan" or names a step, follow its "For Claude" section: one pop-up per step,
+  update its Tracker after each step.
 - Build and launch plan: plans/signal-website-plan.md (printable: plans/Darren-Drake-Website-Plan.pdf).
 - Brand rules: Darren_Drake_AI_Brand_Guidelines.md.
 - Darren's recorded answers: plans/for-darren/answers-2026-09-24.md, summarised in docs/DECISIONS.md.

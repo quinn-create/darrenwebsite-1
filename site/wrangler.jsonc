@@ -1,0 +1,29 @@
+// Cloudflare Workers settings for the site (hosting decision C8, 26 Sep 2026: Cloudflare, free plan).
+// Built with @opennextjs/cloudflare. Nothing is deployed from here until D17 previews are set up on
+// the firm's own Cloudflare account; secrets go in the Cloudflare dashboard, never in this file.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "darrendrakelaw",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "darrendrakelaw" }],
+  // Resizes the portrait to AVIF/WebP per screen (Cloudflare Images; free allowance applies).
+  "images": { "binding": "IMAGES" },
+  // Settings (SITE_ENV, email addresses) are managed in the Cloudflare dashboard; keep them when
+  // the code is redeployed. Without SITE_ENV the site behaves as a hidden preview.
+  "keep_vars": true,
+  // Workers Logs (on by default for new Workers): keep only the site's own error lines, which never
+  // contain form details (lib/intake-delivery.ts), so a failing inquiry email can be diagnosed.
+  // No per-request logs (they'd hold visitors' IP addresses and page addresses) and no query
+  // strings anywhere: CLAUDE.md, no personal or matter details in logs.
+  "observability": {
+    "enabled": true,
+    "redact_query_string": true,
+    "logs": { "enabled": true, "invocation_logs": false }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "ci": {
+    "collect": {
+      "url": [
+        "http://localhost:3000/",
+        "http://localhost:3000/practice-areas/",
+        "http://localhost:3000/practice-areas/dui-dwi/",
+        "http://localhost:3000/about/",
+        "http://localhost:3000/contact/"
+      ],
+      "numberOfRuns": 3,
+      "settings": {
+        "chromeFlags": "--no-sandbox --headless=new",
+        "throttlingMethod": "devtools",
+        "throttling": {
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.56,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "largest-contentful-paint": [
+          "error",
+          {
+            "maxNumericValue": 2500,
+            "aggregationMethod": "median-run"
+          }
+        ],
+        "cumulative-layout-shift": [
+          "error",
+          {
+            "maxNumericValue": 0.1,
+            "aggregationMethod": "median-run"
+          }
+        ],
+        "resource-summary:script:size": [
+          "error",
+          {
+            "maxNumericValue": 204800,
+            "aggregationMethod": "median-run"
+          }
+        ],
+        "total-byte-weight": [
+          "error",
+          {
+            "maxNumericValue": 1048576,
+            "aggregationMethod": "median-run"
+          }
+        ]
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
+  }
+}
